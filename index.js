@@ -32,6 +32,8 @@ module.exports = function (fastify, opts, next) {
           continue
         }
 
+        // TODO handle empty directories
+        // TODO handle directories with a package.json
         if (stat.isFile() || stat.isDirectory()) {
           try {
             fastify.register(require(file))
