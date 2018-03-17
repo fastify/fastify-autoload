@@ -28,6 +28,21 @@ fastify.register(AutoLoad, {
 fastify.listen(3000)
 ```
 
+Plugins in the loaded folder could add an `autoPrefix` property, so that
+a prefix is applied automatically when loaded with `fastify-autoload`:
+
+```
+module.exports = function (fastify, opts, next) {
+  // when loaded with autoload, this will be exposed as /something
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+}
+
+// optional
+module.exports.autoPrefix = '/something'
+```
+
 ## License
 
 MIT

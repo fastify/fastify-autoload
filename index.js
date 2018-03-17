@@ -36,7 +36,12 @@ module.exports = function (fastify, opts, next) {
         // TODO handle directories with a package.json
         if (stat.isFile() || stat.isDirectory()) {
           try {
-            fastify.register(require(file))
+            const plugin = require(file)
+            const opts = {}
+            if (plugin.autoPrefix) {
+              opts.prefix = plugin.autoPrefix
+            }
+            fastify.register(plugin, opts)
           } catch (err) {
             next(err)
             return
