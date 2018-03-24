@@ -28,10 +28,11 @@ fastify.register(AutoLoad, {
 fastify.listen(3000)
 ```
 
+## Custom configuration
 Plugins in the loaded folder could add an `autoPrefix` property, so that
 a prefix is applied automatically when loaded with `fastify-autoload`:
 
-```
+```js
 module.exports = function (fastify, opts, next) {
   // when loaded with autoload, this will be exposed as /something
   fastify.get('/', (request, reply) => {
@@ -43,6 +44,15 @@ module.exports = function (fastify, opts, next) {
 module.exports.autoPrefix = '/something'
 ```
 
+If you need to disable the auto loading for a specific plugin, add `autoload = false` property.
+```js
+module.exports = function (fastify, opts, next) {
+  // your plugin
+}
+
+// optional
+module.exports.autoload = false
+```
 ## License
 
 MIT

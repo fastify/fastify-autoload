@@ -41,7 +41,9 @@ module.exports = function (fastify, opts, next) {
             if (plugin.autoPrefix) {
               opts.prefix = plugin.autoPrefix
             }
-            fastify.register(plugin, opts)
+            if (plugin.autoload !== false) {
+              fastify.register(plugin, opts)
+            }
           } catch (err) {
             next(err)
             return
