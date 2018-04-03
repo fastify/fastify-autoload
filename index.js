@@ -5,6 +5,7 @@ const path = require('path')
 const steed = require('steed')
 
 module.exports = function (fastify, opts, next) {
+  const pluginOptions = opts.options || {}
   fs.readdir(opts.dir, function (err, list) {
     if (err) {
       next(err)
@@ -41,6 +42,7 @@ module.exports = function (fastify, opts, next) {
             if (plugin.autoPrefix) {
               opts.prefix = plugin.autoPrefix
             }
+            Object.assign(opts, pluginOptions)
             if (plugin.autoload !== false) {
               fastify.register(plugin, opts)
             }
