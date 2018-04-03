@@ -53,6 +53,16 @@ module.exports = function (fastify, opts, next) {
 // optional
 module.exports.autoload = false
 ```
+
+If you want to pass some custom options to the registered plugins via `fastify-autoload`, use the `options` key:
+```js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  options: { foo: 'bar' }
+})
+```
+*Note that options will be passed to all loaded plugins.*
+
 ## License
 
 MIT
