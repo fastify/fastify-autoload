@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(15)
+t.plan(29)
 
 const app = Fastify()
 
@@ -54,5 +54,44 @@ app.ready(function (err) {
     t.deepEqual(JSON.parse(res.payload), {
       foo: 'bar'
     })
+  })
+
+  app.inject({
+    url: '/defaultPrefix'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { index: true })
+  })
+
+  app.inject({
+    url: '/defaultPrefix/prefixed'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { prefixed: true })
+  })
+
+  app.inject({
+    url: '/defaultPrefix/overriddenPrefix'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 404)
+  })
+
+  app.inject({
+    url: '/overriddenPrefix'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { overide: 'prefix' })
+  })
+
+  app.inject({
+    url: '/noPrefix'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { no: 'prefix' })
   })
 })

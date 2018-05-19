@@ -41,10 +41,10 @@ module.exports = function (fastify, opts, next) {
             const pluginOptions = {}
             Object.assign(pluginOptions, defaultPluginOptions)
             if (plugin.autoPrefix) {
-              const prefix = pluginOptions.prefix ? pluginOptions.prefix : ''
+              const prefix = pluginOptions.prefix || ''
               pluginOptions.prefix = prefix + plugin.autoPrefix
             }
-            if (plugin.prefixOverride) {
+            if (plugin.prefixOverride !== void 0) {
               pluginOptions.prefix = plugin.prefixOverride
             }
             if (plugin.autoload !== false) {
