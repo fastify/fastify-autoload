@@ -5,7 +5,7 @@ const path = require('path')
 const steed = require('steed')
 
 module.exports = function (fastify, opts, next) {
-  const pluginOptions = opts.options || {}
+  const defaultPluginOptions = opts.options || {}
   fs.readdir(opts.dir, function (err, list) {
     if (err) {
       next(err)
@@ -38,13 +38,17 @@ module.exports = function (fastify, opts, next) {
         if (stat.isFile() || stat.isDirectory()) {
           try {
             const plugin = require(file)
-            const opts = {}
+            const pluginOptions = {}
+            Object.assign(pluginOptions, defaultPluginOptions)
             if (plugin.autoPrefix) {
-              opts.prefix = plugin.autoPrefix
+              const prefix = pluginOptions.prefix ? pluginOptions.prefix : ''
+              pluginOptions.prefix = prefix + plugin.autoPrefix
             }
-            Object.assign(opts, pluginOptions)
+            if (plugin.prefixOverride) {
+              pluginOptions.prefix = plugin.prefixOverride
+            }
             if (plugin.autoload !== false) {
-              fastify.register(plugin, opts)
+              fastify.register(plugin, pluginOptions)
             }
           } catch (err) {
             next(err)
