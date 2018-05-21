@@ -28,10 +28,10 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
-    "fastify": "^1.1.1",
+    "fastify": "^1.4.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^7.1.1",
-    "standard": "^11.0.0",
+    "standard": "^11.0.1",
     "tap": "^12.0.0"
   },
   "dependencies": {
