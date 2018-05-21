@@ -8,5 +8,11 @@ module.exports = function (fastify, opts, next) {
     dir: path.join(__dirname, 'foo'),
     options: { foo: 'bar' }
   })
+
+  fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'defaultPrefix'),
+    options: { prefix: '/defaultPrefix' }
+  })
+
   next()
 }

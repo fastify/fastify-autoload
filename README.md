@@ -63,6 +63,68 @@ fastify.register(AutoLoad, {
 ```
 *Note that options will be passed to all loaded plugins.*
 
+You can set the prefix option in the options passed to all plugins to set them all default prefix.
+When plugins get passed `prefix` as a default option, the `autoPrefix` property gets appended to them.
+This means you can load all plugins in a folder with a default prefix.
+
+```js
+// index.js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  options: { prefix: '/defaultPrefix' }
+})
+
+// /foo/something.js
+module.exports = function (fastify, opts, next) {
+  // your plugin
+}
+
+// optional
+module.exports.autoPrefix = '/something'
+
+// routes can now be added to /defaultPrefix/something
+```
+
+If you have a plugin in the folder you don't want the default prefix applied to, you can add the `prefixOverride` key:
+
+```js
+// index.js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  options: { prefix: '/defaultPrefix' }
+})
+
+// /foo/something.js
+module.exports = function (fastify, opts, next) {
+  // your plugin
+}
+
+// optional
+module.exports.prefixOverride = '/overriddenPrefix'
+
+// routes can now be added to /overriddenPrefix
+```
+
+If you have a plugin in the folder you don't want the any prefix applied to, you can set `prefixOverride = ''`:
+
+```js
+// index.js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  options: { prefix: '/defaultPrefix' }
+})
+
+// /foo/something.js
+module.exports = function (fastify, opts, next) {
+  // your plugin
+}
+
+// optional
+module.exports.prefixOverride = ''
+
+// routes can now be added without a prefix
+```
+
 ## License
 
 MIT
