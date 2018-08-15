@@ -125,6 +125,18 @@ module.exports.prefixOverride = ''
 // routes can now be added without a prefix
 ```
 
+If you have some files in the folder that you'd like autoload to skip you can set `ignorePattern` option to a regex. If
+that matches a file it will not load it.
+
+```js
+// index.js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  options: { prefix: '/defaultPrefix' }
+  ignorePattern: /.*(test|spec).js/
+})
+```
+
 ## License
 
 MIT
