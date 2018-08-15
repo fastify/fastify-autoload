@@ -29,7 +29,8 @@ module.exports = function (fastify, opts, next) {
       }
       for (let i = 0; i < stats.length; i++) {
         const { stat, file } = stats[i]
-        if (stat.isFile() && !file.match(/.js$/)) {
+
+        if (stat.isFile() && (!file.match(/.js$/) || (opts.ignorePattern && file.match(opts.ignorePattern)))) {
           continue
         }
 

@@ -6,7 +6,8 @@ const AutoLoad = require('..')
 module.exports = function (fastify, opts, next) {
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'foo'),
-    options: { foo: 'bar' }
+    options: { foo: 'bar' },
+    ignorePattern: /.*(test|spec).js/
   })
 
   fastify.register(AutoLoad, {
