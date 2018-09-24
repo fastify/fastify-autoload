@@ -7,7 +7,7 @@ t.plan(29)
 
 const app = Fastify()
 
-app.register(require('./fixtures/app'))
+app.register(require('./basic/app'))
 
 app.ready(function (err) {
   t.error(err)
