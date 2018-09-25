@@ -52,6 +52,12 @@ module.exports = function (fastify, opts, next) {
               fastify.register(plugin, pluginOptions)
             }
           } catch (err) {
+            // Hack SyntaxError message so that we provide
+            // the line number to the user, otherwise they
+            // will be left in the cold.
+            if (err instanceof SyntaxError) {
+              err.message += ' at ' + err.stack.split('\n')[0]
+            }
             next(err)
             return
           }
