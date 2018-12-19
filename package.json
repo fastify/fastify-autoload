@@ -4,6 +4,8 @@
   "description": "Require all plugins in a directory",
   "main": "index.js",
   "scripts": {
+    "prettier": "prettier --write './**/*.js'",
+    "format": "npm run prettier; standard --fix",
     "test": "standard | snazzy && tap test/*.js"
   },
   "repository": {
@@ -30,6 +32,7 @@
   "devDependencies": {
     "fastify": "^1.4.0",
     "pre-commit": "^1.2.2",
+    "prettier": "^1.15.3",
     "snazzy": "^8.0.0",
     "standard": "^12.0.1",
     "tap": "^12.0.0"
@@ -39,7 +42,7 @@
   },
   "standard": {
     "ignore": [
-      "test/error/lib/a.js"
+      "test/error/**/*.js"
     ]
   }
 }
