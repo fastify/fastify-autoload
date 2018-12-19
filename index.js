@@ -16,6 +16,11 @@ module.exports = function (fastify, opts, next) {
     steed.map(
       list,
       (file, cb) => {
+        if (opts.ignorePattern && file.match(opts.ignorePattern)) {
+          cb(null, { skip: true }) // skip files matching `ignorePattern`
+          return
+        }
+
         const toLoad = path.join(opts.dir, file)
 
         fs.stat(toLoad, (err, stat) => {
@@ -24,9 +29,7 @@ module.exports = function (fastify, opts, next) {
             return
           }
 
-          if (opts.ignorePattern && toLoad.match(opts.ignorePattern)) {
-            cb(null, { skip: true })
-          } else if (stat.isDirectory()) {
+          if (stat.isDirectory()) {
             fs.readdir(toLoad, (err, files) => {
               if (err) {
                 cb(err)
