@@ -34,9 +34,8 @@ module.exports = function (fastify, opts, next) {
           const { stat, file } = stats[i]
 
           if (
-            stat.isFile() &&
-            (!file.match(/.js$/) ||
-              (opts.ignorePattern && file.match(opts.ignorePattern)))
+            (stat.isFile() && !file.match(/.js$/)) ||
+            (opts.ignorePattern && file.match(opts.ignorePattern))
           ) {
             continue
           }
