@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(29)
+t.plan(32)
 
 const app = Fastify()
 
@@ -19,6 +19,15 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { something: 'else' })
+  })
+
+  app.inject({
+    url: '/package'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
   })
 
   app.inject({
