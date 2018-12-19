@@ -65,7 +65,7 @@ module.exports = function (fastify, opts, next) {
 
           try {
             const plugin = require(file)
-            const pluginOptions = { ...defaultPluginOptions }
+            const pluginOptions = Object.assign({}, defaultPluginOptions)
 
             if (plugin.autoPrefix) {
               const prefix = pluginOptions.prefix || ''
