@@ -5,7 +5,7 @@ const path = require('path')
 const steed = require('steed')
 
 module.exports = function (fastify, opts, next) {
-  const defaultPluginOptions = opts.options || {}
+  const defaultPluginOptions = opts.options
 
   fs.readdir(opts.dir, function (err, list) {
     if (err) {
