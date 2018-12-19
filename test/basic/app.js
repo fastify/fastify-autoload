@@ -1,5 +1,6 @@
 'use strict'
 
+const fs = require('fs')
 const path = require('path')
 const AutoLoad = require('../..')
 
@@ -15,5 +16,12 @@ module.exports = function (fastify, opts, next) {
     options: { prefix: '/defaultPrefix' }
   })
 
-  next()
+  const skipDir = path.join(__dirname, 'skip')
+  fs.mkdir(path.join(skipDir, 'empty'), () => {
+    fastify.register(AutoLoad, {
+      dir: skipDir
+    })
+
+    next()
+  })
 }
