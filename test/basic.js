@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(32)
+t.plan(35)
 
 const app = Fastify()
 
@@ -37,6 +37,15 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { foo: 'bar' })
+  })
+
+  app.inject({
+    url: '/typescript'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { type: 'script' })
   })
 
   app.inject({
