@@ -34,15 +34,15 @@ module.exports = function (fastify, opts, next) {
             }
 
             cb(null, {
-              // skip directories withoud .js files inside
-              skip: files.every(name => !name.match(/.js$/)),
+              // skip directories without .js or .ts files inside
+              skip: files.every(name => !name.match(/.(ts|js)$/)),
               file: toLoad
             })
           })
         } else {
           cb(null, {
-            // only accept .js files
-            skip: !(stat.isFile() && file.match(/.js$/)),
+            // only accept .js and .ts files
+            skip: !(stat.isFile() && file.match(/.(ts|js)$/)),
             file: toLoad
           })
         }
