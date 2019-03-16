@@ -73,7 +73,7 @@ module.exports = function (fastify, opts, next) {
           }
 
           if (plugin.autoload !== false) {
-            fastify.register(plugin, pluginOptions)
+            fastify.register(plugin.default || plugin, pluginOptions)
           }
         } catch (err) {
           // Hack SyntaxError message so that we provide
