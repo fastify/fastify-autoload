@@ -61,7 +61,7 @@ module.exports = function (fastify, opts, next) {
         }
 
         try {
-          const plugin = require(file)
+          let plugin = require(file)
           const pluginOptions = Object.assign({}, defaultPluginOptions)
 
           if (plugin.autoPrefix) {
@@ -73,7 +73,14 @@ module.exports = function (fastify, opts, next) {
           }
 
           if (plugin.autoload !== false) {
-            fastify.register(plugin, pluginOptions)
+            if (plugin.default && typeof plugin.default === 'function') {
+              plugin = plugin.default
+            }
+            if (typeof plugin === 'function') {
+              fastify.register(plugin, pluginOptions)
+            } else {
+              throw new TypeError('The plugin should be an function')
+            }
           }
         } catch (err) {
           // Hack SyntaxError message so that we provide
