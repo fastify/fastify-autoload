@@ -1,9 +1,10 @@
 import { Plugin, RegisterOptions } from 'fastify'
 import { Server, IncomingMessage, ServerResponse} from 'http'
 declare namespace fastifyAutoload {
-    interface PluginOptions extends RegisterOptions<Server, IncomingMessage, ServerResponse> {
+    interface PluginOptions {
         dir?: string
         ignorePattern?: string
+        options?: RegisterOptions<Server, IncomingMessage, ServerResponse>
     }
 }
 
