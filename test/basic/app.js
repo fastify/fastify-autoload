@@ -16,6 +16,10 @@ module.exports = function (fastify, opts, next) {
     options: { prefix: '/defaultPrefix' }
   })
 
+  fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'dependency')
+  })
+
   const skipDir = path.join(__dirname, 'skip')
   fs.mkdir(path.join(skipDir, 'empty'), () => {
     fastify.register(AutoLoad, {
