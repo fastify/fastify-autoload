@@ -8,5 +8,8 @@
   },
   "files": [
     "./types.test.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
