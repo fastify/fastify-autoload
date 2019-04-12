@@ -93,7 +93,7 @@ module.exports = function (fastify, opts, next) {
           }
 
           if (allPlugins[pluginName]) {
-            throw new Error('Duplicate plugin name')
+            throw new Error(`Duplicate plugin: ${pluginName}`)
           }
 
           allPlugins[pluginName] = {
@@ -135,8 +135,7 @@ module.exports = function (fastify, opts, next) {
         cyclicDependencyCheck = {}
 
         try {
-          const p = allPlugins[pluginKeys[i]]
-          loadPlugin(p)
+          loadPlugin(allPlugins[pluginKeys[i]])
         } catch (err) {
           next(enrichError(err))
           return
