@@ -3,8 +3,10 @@
   "version": "0.6.0",
   "description": "Require all plugins in a directory",
   "main": "index.js",
+  "typings": "fastify-autoload.d.ts",
   "scripts": {
-    "test": "standard | snazzy && tap test/*.js"
+    "test": "standard | snazzy && tap test/*.js && npm run typescript",
+    "typescript": "tsc --project ./tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -28,11 +30,13 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
-    "fastify": "^2.0.0",
+    "@types/node": "^11.13.4",
+    "fastify": "^2.2.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
     "standard": "^12.0.1",
-    "tap": "^12.5.3"
+    "tap": "^12.5.3",
+    "typescript": "^3.4.3"
   },
   "dependencies": {
     "steed": "^1.1.3"
