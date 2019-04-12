@@ -130,12 +130,13 @@ module.exports = function (fastify, opts, next) {
         registerPlugin(name, plugin, options)
       }
 
-      const pluginArr = Object.values(allPlugins)
-      for (let i = 0; i < pluginArr.length; i++) {
+      const pluginKeys = Object.keys(allPlugins)
+      for (let i = 0; i < pluginKeys.length; i++) {
         cyclicDependencyCheck = {}
 
         try {
-          loadPlugin(pluginArr[i])
+          const p = allPlugins[pluginKeys[i]]
+          loadPlugin(p)
         } catch (err) {
           next(enrichError(err))
           return
