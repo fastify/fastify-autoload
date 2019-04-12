@@ -92,6 +92,10 @@ module.exports = function (fastify, opts, next) {
             pluginOptions.prefix = plugin.prefixOverride
           }
 
+          if (allPlugins[pluginName]) {
+            throw new Error('Duplicate plugin name')
+          }
+
           allPlugins[pluginName] = {
             plugin,
             name: pluginName,
