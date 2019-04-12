@@ -7,6 +7,17 @@ const steed = require('steed')
 module.exports = function (fastify, opts, next) {
   const defaultPluginOptions = opts.options
 
+  function enrichError (err) {
+    // Hack SyntaxError message so that we provide
+    // the line number to the user, otherwise they
+    // will be left in the cold.
+    if (err instanceof SyntaxError) {
+      err.message += ' at ' + err.stack.split('\n')[0]
+    }
+
+    return err
+  }
+
   fs.readdir(opts.dir, function (err, list) {
     if (err) {
       next(err)
@@ -53,6 +64,8 @@ module.exports = function (fastify, opts, next) {
         return
       }
 
+      const allPlugins = {}
+
       for (let i = 0; i < stats.length; i++) {
         const { skip, file } = stats[i]
 
@@ -63,27 +76,68 @@ module.exports = function (fastify, opts, next) {
         try {
           const plugin = require(file)
           const pluginOptions = Object.assign({}, defaultPluginOptions)
+          const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
+          const pluginName = pluginMeta.name || file
+
+          if (plugin.autoload === false) {
+            continue
+          }
 
           if (plugin.autoPrefix) {
             const prefix = pluginOptions.prefix || ''
             pluginOptions.prefix = prefix + plugin.autoPrefix
           }
+
           if (plugin.prefixOverride !== void 0) {
             pluginOptions.prefix = plugin.prefixOverride
           }
 
-          if (plugin.autoload !== false) {
-            fastify.register(plugin.default || plugin, pluginOptions)
-          }
-        } catch (err) {
-          // Hack SyntaxError message so that we provide
-          // the line number to the user, otherwise they
-          // will be left in the cold.
-          if (err instanceof SyntaxError) {
-            err.message += ' at ' + err.stack.split('\n')[0]
+          if (allPlugins[pluginName]) {
+            throw new Error(`Duplicate plugin: ${pluginName}`)
           }
 
-          next(err)
+          allPlugins[pluginName] = {
+            plugin,
+            name: pluginName,
+            dependencies: pluginMeta.dependencies,
+            options: pluginOptions
+          }
+        } catch (err) {
+          next(enrichError(err))
+          return
+        }
+      }
+
+      const loadedPlugins = {}
+
+      function registerPlugin (name, plugin, options) {
+        if (loadedPlugins[name]) return
+
+        fastify.register(plugin.default || plugin, options)
+        loadedPlugins[name] = true
+      }
+
+      let cyclicDependencyCheck = {}
+
+      function loadPlugin ({ plugin, name, dependencies = [], options }) {
+        if (cyclicDependencyCheck[name]) throw new Error('Cyclic dependency')
+
+        if (dependencies.length) {
+          cyclicDependencyCheck[name] = true
+          dependencies.forEach((name) => loadPlugin(allPlugins[name]))
+        }
+
+        registerPlugin(name, plugin, options)
+      }
+
+      const pluginKeys = Object.keys(allPlugins)
+      for (let i = 0; i < pluginKeys.length; i++) {
+        cyclicDependencyCheck = {}
+
+        try {
+          loadPlugin(allPlugins[pluginKeys[i]])
+        } catch (err) {
+          next(enrichError(err))
           return
         }
       }

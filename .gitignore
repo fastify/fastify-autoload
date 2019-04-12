@@ -61,5 +61,6 @@ typings/
 package-lock.json
 yarn.lock
 
-# ide
+# editor files
+.vscode
 .idea
