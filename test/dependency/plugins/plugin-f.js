@@ -7,6 +7,8 @@ function plugin (f, opts, next) {
     reply.send({ data: 'plugin-f' })
   })
 
+  f.decorate('pluginF', true)
+
   next()
 }
 

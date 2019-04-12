@@ -5,7 +5,7 @@ const AutoLoad = require('../..')
 
 module.exports = function (fastify, opts, next) {
   fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'dependency')
+    dir: path.join(__dirname, 'plugins')
   })
 
   next()
