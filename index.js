@@ -124,7 +124,7 @@ module.exports = function (fastify, opts, next) {
 
         if (dependencies.length) {
           cyclicDependencyCheck[name] = true
-          dependencies.forEach((name) => loadPlugin(allPlugins[name]))
+          dependencies.forEach((name) => allPlugins[name] && loadPlugin(allPlugins[name]))
         }
 
         registerPlugin(name, plugin, options)
