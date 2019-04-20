@@ -44,11 +44,28 @@ module.exports = function (fastify, opts, next) {
               return
             }
 
-            cb(null, {
-              // skip directories withoud .js files inside
-              skip: files.every(name => !name.match(/.js$/)),
-              file: toLoad
-            })
+            // if the directory contains files but no index.js, load them as independend plugins
+            if (
+              files.indexOf('index.js') === -1 &&
+              files.toString().indexOf('.js') > -1
+            ) {
+              let plugins = []
+              for (let index = 0; index < files.length; index++) {
+                const file = files[index]
+
+                plugins.push({
+                  skip: !file.match(/.js$/),
+                  file: path.join(toLoad, file)
+                })
+              }
+              cb(null, plugins)
+            } else {
+              cb(null, {
+                // skip directories without .js files inside
+                skip: files.every(name => !name.match(/.js$/)),
+                file: toLoad
+              })
+            }
           })
         } else {
           cb(null, {
@@ -58,11 +75,13 @@ module.exports = function (fastify, opts, next) {
           })
         }
       })
-    }, (err, stats) => {
+    }, (err, files) => {
       if (err) {
         next(err)
         return
       }
+
+      const stats = [].concat(...files)
 
       const allPlugins = {}
 
