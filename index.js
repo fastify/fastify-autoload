@@ -55,6 +55,9 @@ module.exports = function (fastify, opts, next) {
 
                 plugins.push({
                   skip: !file.match(/.js$/),
+                  opts: {
+                    prefix: toLoad.split('/').pop()
+                  },
                   file: path.join(toLoad, file)
                 })
               }
@@ -86,7 +89,7 @@ module.exports = function (fastify, opts, next) {
       const allPlugins = {}
 
       for (let i = 0; i < stats.length; i++) {
-        const { skip, file } = stats[i]
+        const { skip, file, opts } = stats[i]
 
         if (skip) {
           continue
@@ -97,6 +100,10 @@ module.exports = function (fastify, opts, next) {
           const pluginOptions = Object.assign({}, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
+
+          if (opts && !plugin.autoPrefix) {
+            plugin.autoPrefix = opts.prefix
+          }
 
           if (plugin.autoload === false) {
             continue
