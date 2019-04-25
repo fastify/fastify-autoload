@@ -56,13 +56,13 @@ module.exports = function (fastify, opts, next) {
                 // windows debugging
                 console.log(file)
                 console.log(toLoad)
-                console.log(toLoad.split('/').pop())
+                console.log(toLoad.split(path.sep).pop())
                 // end windows debugging
 
                 plugins.push({
                   skip: !file.match(/.js$/),
                   opts: {
-                    prefix: toLoad.split('/').pop()
+                    prefix: toLoad.split(path.sep).pop()
                   },
                   file: path.join(toLoad, file)
                 })
