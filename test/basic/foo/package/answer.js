@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = function (f, opts, next) {
-  f.get('/', (request, reply) => {
+  f.get('/package', (request, reply) => {
     reply.send({ answer: 42 })
   })
 

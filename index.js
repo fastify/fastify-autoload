@@ -47,6 +47,7 @@ module.exports = function (fastify, opts, next) {
             // if the directory contains files but no index.js, load them as independend plugins
             if (
               files.indexOf('index.js') === -1 &&
+              files.indexOf('package.json') === -1 &&
               files.toString().indexOf('.js') > -1
             ) {
               let plugins = []
