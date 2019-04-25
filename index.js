@@ -44,11 +44,32 @@ module.exports = function (fastify, opts, next) {
               return
             }
 
-            cb(null, {
-              // skip directories withoud .js files inside
-              skip: files.every(name => !name.match(/.js$/)),
-              file: toLoad
-            })
+            // if the directory contains files but no index.js, load them as independend plugins
+            if (
+              files.indexOf('index.js') === -1 &&
+              files.indexOf('package.json') === -1 &&
+              files.toString().indexOf('.js') > -1
+            ) {
+              let plugins = []
+              for (let index = 0; index < files.length; index++) {
+                const file = files[index]
+
+                plugins.push({
+                  skip: !file.match(/.js$/),
+                  opts: {
+                    prefix: toLoad.split(path.sep).pop()
+                  },
+                  file: path.join(toLoad, file)
+                })
+              }
+              cb(null, plugins)
+            } else {
+              cb(null, {
+                // skip directories without .js files inside
+                skip: files.every(name => !name.match(/.js$/)),
+                file: toLoad
+              })
+            }
           })
         } else {
           cb(null, {
@@ -58,16 +79,18 @@ module.exports = function (fastify, opts, next) {
           })
         }
       })
-    }, (err, stats) => {
+    }, (err, files) => {
       if (err) {
         next(err)
         return
       }
 
+      const stats = [].concat(...files)
+
       const allPlugins = {}
 
       for (let i = 0; i < stats.length; i++) {
-        const { skip, file } = stats[i]
+        const { skip, file, opts } = stats[i]
 
         if (skip) {
           continue
@@ -78,6 +101,10 @@ module.exports = function (fastify, opts, next) {
           const pluginOptions = Object.assign({}, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
+
+          if (opts && !plugin.autoPrefix) {
+            plugin.autoPrefix = opts.prefix
+          }
 
           if (plugin.autoload === false) {
             continue

@@ -137,6 +137,40 @@ fastify.register(AutoLoad, {
 })
 ```
 
+fastify-autoload loads folders with route definitions automatically, without explicitly registering them. The folder name is used as default prefix for all files in that folder, unless otherwise specified in an `index.js`. See "module.exports.autoPrefix" on how to overwrite this behaviour.
+
+```js
+// index.js
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'services'),
+  options: {}
+})
+
+// /services/items/get.js
+module.exports = function (f, opts, next) {
+  f.get('/:id', (request, reply) => {
+    reply.send({ answer: 42 })
+  })
+
+  next()
+}
+
+// /services/items/list.js
+module.exports = function (f, opts, next) {
+  f.get('/', (request, reply) => {
+    reply.send([0, 1, 2])
+  })
+
+  next()
+}
+
+/**
+ * Routes generated:
+ * GET /items
+ * GET /items/:id
+ */
+```
+
 ## License
 
 MIT
