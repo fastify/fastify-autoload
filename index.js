@@ -53,12 +53,6 @@ module.exports = function (fastify, opts, next) {
               for (let index = 0; index < files.length; index++) {
                 const file = files[index]
 
-                // windows debugging
-                console.log(file)
-                console.log(toLoad)
-                console.log(toLoad.split(path.sep).pop())
-                // end windows debugging
-
                 plugins.push({
                   skip: !file.match(/.js$/),
                   opts: {
