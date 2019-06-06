@@ -38,6 +38,8 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
+  
+  next()
 }
 
 // optional
