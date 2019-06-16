@@ -1,9 +1,11 @@
 import { Plugin, RegisterOptions } from 'fastify'
-import { Server, IncomingMessage, ServerResponse} from 'http'
+import { Server, IncomingMessage, ServerResponse } from 'http'
+
 declare namespace fastifyAutoload {
     interface PluginOptions {
         dir: string
         ignorePattern?: RegExp | string
+        includeTypeScript?: boolean
         options?: RegisterOptions<Server, IncomingMessage, ServerResponse>
     } 
 }
