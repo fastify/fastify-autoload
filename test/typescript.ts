@@ -29,7 +29,7 @@ app.ready(function (err) {
     })
 
     app.inject({
-        url: '/answer'
+        url: '/package'
     }, function (err, res) {
         t.error(err)
         t.equal(res.statusCode, 200)
