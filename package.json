@@ -6,7 +6,7 @@
   "typings": "fastify-autoload.d.ts",
   "scripts": {
     "test": "standard | snazzy && tap test/*.js && npm run typescript",
-    "typescript": "tsc --project ./tsconfig.json"
+    "typescript": "tsc --project ./tsconfig.json && tap test/*.ts"
   },
   "repository": {
     "type": "git",

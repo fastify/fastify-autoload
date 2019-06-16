@@ -11,6 +11,10 @@ const opt2: autoload.PluginOptions = {
 }
 const opt3: autoload.PluginOptions = {
     dir: 'test',
+    includeTypeScript: true
+}
+const opt4: autoload.PluginOptions = {
+    dir: 'test',
     options: {
         prefix: 'test'
     }
@@ -18,3 +22,4 @@ const opt3: autoload.PluginOptions = {
 app.register(autoload, opt1)
 app.register(autoload, opt2)
 app.register(autoload, opt3)
+app.register(autoload, opt4)
