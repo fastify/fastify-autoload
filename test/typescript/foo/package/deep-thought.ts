@@ -1,5 +1,5 @@
-export class DeepThought {
-    static getAnswer(): number {
-        return 42
-    }
+export const DeepThought = {
+  getAnswer (): number {
+    return 42
+  }
 }
