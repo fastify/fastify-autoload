@@ -5,8 +5,9 @@
   "main": "index.js",
   "typings": "fastify-autoload.d.ts",
   "scripts": {
+    "lint:typescript": "eslint --ext .ts .",
     "test": "standard | snazzy && tap test/*.js && npm run typescript",
-    "typescript": "tsc --project ./tsconfig.json"
+    "typescript": "npm run lint:typescript && tsc --project ./tsconfig.json && tap test/*.ts"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,10 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
     "@types/node": "^12.0.10",
+    "eslint-config-standard-with-typescript": "^7.1.0",
     "fastify": "^2.2.0",
     "fastify-plugin": "^1.5.0",
     "fastify-url-data": "^2.3.0",

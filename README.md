@@ -63,7 +63,7 @@ fastify.register(AutoLoad, {
   options: { foo: 'bar' }
 })
 ```
-*Note that options will be passed to all loaded plugins.*
+> *Note: `options` will be passed to all loaded plugins.*
 
 You can set the prefix option in the options passed to all plugins to set them all default prefix.
 When plugins get passed `prefix` as a default option, the `autoPrefix` property gets appended to them.
@@ -134,10 +134,21 @@ that matches a file it will not load it.
 // index.js
 fastify.register(AutoLoad, {
   dir: path.join(__dirname, 'foo'),
-  options: { prefix: '/defaultPrefix' }
+  options: { prefix: '/defaultPrefix' },
   ignorePattern: /.*(test|spec).js/
 })
 ```
+
+If you are using TypeScript and something like [ts-node](https://github.com/TypeStrong/ts-node) to load the `.ts` files directly you can set `includeTypeScript` option to `true`. This will load plugins from `.ts` files as well as `.js` files.
+
+```ts
+// index.ts
+fastify.register(AutoLoad, {
+  dir: path.join(__dirname, 'foo'),
+  includeTypeScript: true
+})
+```
+> *Note: This is not required when running compiled TypeScript.*
 
 fastify-autoload loads folders with route definitions automatically, without explicitly registering them. The folder name is used as default prefix for all files in that folder, unless otherwise specified in an `index.js`. See "module.exports.autoPrefix" on how to overwrite this behaviour.
 

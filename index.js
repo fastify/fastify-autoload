@@ -7,6 +7,14 @@ const steed = require('steed')
 module.exports = function (fastify, opts, next) {
   const defaultPluginOptions = opts.options
 
+  const packagePattern = /^package\.json$/im
+  const indexPattern = opts.includeTypeScript
+    ? /^index\.(ts|js)$/im
+    : /^index\.js$/im
+  const scriptPattern = opts.includeTypeScript
+    ? /\.(ts|js)$/im
+    : /\.js$/im
+
   function enrichError (err) {
     // Hack SyntaxError message so that we provide
     // the line number to the user, otherwise they
@@ -44,18 +52,20 @@ module.exports = function (fastify, opts, next) {
               return
             }
 
-            // if the directory contains files but no index.js, load them as independend plugins
+            const fileList = files.join('\n')
+            // if the directory does not contain a package.json or an index,
+            // load each script file as an independend plugin
             if (
-              files.indexOf('index.js') === -1 &&
-              files.indexOf('package.json') === -1 &&
-              files.toString().indexOf('.js') > -1
+              !packagePattern.test(fileList) &&
+              !indexPattern.test(fileList) &&
+              scriptPattern.test(fileList)
             ) {
               let plugins = []
               for (let index = 0; index < files.length; index++) {
                 const file = files[index]
 
                 plugins.push({
-                  skip: !file.match(/.js$/),
+                  skip: !scriptPattern.test(file),
                   opts: {
                     prefix: toLoad.split(path.sep).pop()
                   },
@@ -65,16 +75,16 @@ module.exports = function (fastify, opts, next) {
               cb(null, plugins)
             } else {
               cb(null, {
-                // skip directories without .js files inside
-                skip: files.every(name => !name.match(/.js$/)),
+                // skip directories without script files inside
+                skip: files.every(name => !scriptPattern.test(name)),
                 file: toLoad
               })
             }
           })
         } else {
           cb(null, {
-            // only accept .js files
-            skip: !(stat.isFile() && file.match(/.js$/)),
+            // only accept script files
+            skip: !(stat.isFile() && scriptPattern.test(file)),
             file: toLoad
           })
         }
