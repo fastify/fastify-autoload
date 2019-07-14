@@ -60,7 +60,7 @@ module.exports = function (fastify, opts, next) {
               !indexPattern.test(fileList) &&
               scriptPattern.test(fileList)
             ) {
-              let plugins = []
+              const plugins = []
               for (let index = 0; index < files.length; index++) {
                 const file = files[index]
 
