@@ -5,9 +5,11 @@
   "main": "index.js",
   "typings": "fastify-autoload.d.ts",
   "scripts": {
-    "lint:typescript": "eslint --ext .ts .",
+    "lint": "standard | snazzy && npm run lint:typescript",
+    "lint:fix": "standard --fix",
+    "lint:typescript": "standard --parser @typescript-eslint/parser --plugin @typescript-eslint/eslint-plugin ./*.ts",
     "test": "standard | snazzy && tap test/*.js && npm run typescript",
-    "typescript": "npm run lint:typescript && tsc --project ./tsconfig.json && tap test/*.ts"
+    "typescript": "tsc --project ./test/types/tsconfig.json && tap test/*.ts"
   },
   "repository": {
     "type": "git",
@@ -31,18 +33,17 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.10.2",
-    "@typescript-eslint/parser": "^1.10.2",
+    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/parser": "^1.12.0",
     "@types/node": "^12.0.10",
-    "eslint-config-standard-with-typescript": "^7.1.0",
     "fastify": "^2.2.0",
     "fastify-plugin": "^1.5.0",
     "fastify-url-data": "^2.3.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
-    "standard": "^12.0.1",
+    "standard": "^13.0.2",
     "tap": "^12.6.5",
-    "typescript": "^3.4.3"
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "steed": "^1.1.3"

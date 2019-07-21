@@ -1,4 +1,5 @@
 /* eslint no-redeclare: off */
+/* eslint no-unused-vars: off */
 
 import { Plugin, RegisterOptions } from 'fastify'
 import { Server, IncomingMessage, ServerResponse } from 'http'

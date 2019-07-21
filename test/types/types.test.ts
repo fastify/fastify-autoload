@@ -1,4 +1,4 @@
-import * as autoload from '../fastify-autoload'
+import * as autoload from '../../fastify-autoload'
 import * as fastify from 'fastify'
 
 const app = fastify()
