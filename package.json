@@ -41,7 +41,7 @@
     "fastify-url-data": "^2.3.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
-    "standard": "^13.0.2",
+    "standard": "^14.0.0",
     "tap": "^12.6.5",
     "typescript": "^3.5.3"
   },

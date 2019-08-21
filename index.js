@@ -125,7 +125,7 @@ module.exports = function (fastify, opts, next) {
             pluginOptions.prefix = prefix + plugin.autoPrefix
           }
 
-          if (plugin.prefixOverride !== void 0) {
+          if (plugin.prefixOverride !== undefined) {
             pluginOptions.prefix = plugin.prefixOverride
           }
 
