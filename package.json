@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "@types/node": "^12.0.10",
     "fastify": "^2.2.0",
@@ -41,7 +41,7 @@
     "fastify-url-data": "^2.3.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
-    "standard": "^13.0.2",
+    "standard": "^14.0.0",
     "tap": "^12.6.5",
     "typescript": "^3.5.3"
   },
