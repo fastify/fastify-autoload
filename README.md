@@ -190,7 +190,7 @@ For routes (not plugins), you can skip the "boilerplate" of exporting the fastif
 // /services/items/list.js
 module.exports = {
   method: 'GET',
-  url: '/:id',
+  url: '/',
   handler: (request, reply) => {
     reply.send({ answer: 42 })
   }
