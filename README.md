@@ -184,6 +184,24 @@ module.exports = function (f, opts, next) {
  */
 ```
 
+For routes (not plugins), you can skip the "boilerplate" of exporting the fastify function and use a route schema ([full route declaration](https://www.fastify.io/docs/master/Routes/#full-declaration)) instead. The method, url and handler are required, everything else optional. If you need additional options such as a `prefix` or `ignorePattern`, this does _not_ work.
+
+```js
+// /services/items/list.js
+module.exports = {
+  method: 'GET',
+  url: '/:id',
+  handler: (request, reply) => {
+    reply.send({ answer: 42 })
+  }
+}
+
+/**
+ * Routes generated:
+ * GET /items
+ */
+```
+
 ## License
 
 MIT
