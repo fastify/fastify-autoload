@@ -1,10 +1,12 @@
 language: node_js
 
 node_js:
-  - "9"
-  - "8"
   - "6"
+  - "8"
+  - "9"
   - "10"
+  - "12"
+  - "13"
 
 notifications:
   email:
