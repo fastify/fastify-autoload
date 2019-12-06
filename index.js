@@ -107,7 +107,18 @@ module.exports = function (fastify, opts, next) {
         }
 
         try {
-          const plugin = require(file)
+          const content = require(file)
+          let plugin
+
+          if (content && typeof content === 'object' && content.method) {
+            plugin = function (fastify, opts, next) {
+              fastify.route(content)
+              next()
+            }
+          } else {
+            plugin = content
+          }
+
           const pluginOptions = Object.assign({}, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
