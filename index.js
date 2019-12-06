@@ -109,7 +109,7 @@ module.exports = function (fastify, opts, next) {
         try {
           const content = require(file)
           let plugin
-          if (content && typeof content === 'object' &&
+          if (content &&
           Object.prototype.toString.apply(content) === '[object Object]' &&
           Object.prototype.hasOwnProperty.call(content, 'method')) {
             plugin = function (fastify, opts, next) {
