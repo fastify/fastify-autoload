@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(47)
+t.plan(53)
 
 const app = Fastify()
 
@@ -41,6 +41,24 @@ app.ready(function (err) {
 
   app.inject({
     url: '/autoroute/items'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
+  })
+
+  app.inject({
+    url: '/autowrap/1'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+  })
+
+  app.inject({
+    url: '/autowrap'
   }, function (err, res) {
     t.error(err)
 
