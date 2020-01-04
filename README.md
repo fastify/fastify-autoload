@@ -56,7 +56,20 @@ module.exports = function (fastify, opts, next) {
 module.exports.autoload = false
 ```
 
-If you want to pass some custom options to the registered plugins via `fastify-autoload`, use the `options` key:
+Each plugin can also define it's own default options on a `options` property:
+
+```js
+module.exports = function (fastify, opts, next) {
+  console.log(opts.foo) // 'bar'
+  next()
+}
+
+// default options
+module.exports.options = { foo: 'bar' }
+```
+
+If you want to pass some custom options to all registered plugins via `fastify-autoload`, use the `options` key:
+
 ```js
 fastify.register(AutoLoad, {
   dir: path.join(__dirname, 'foo'),
@@ -64,6 +77,7 @@ fastify.register(AutoLoad, {
 })
 ```
 > *Note: `options` will be passed to all loaded plugins.*
+> *Note: global default options will override the `plugin.options` property*
 
 You can set the prefix option in the options passed to all plugins to set them all default prefix.
 When plugins get passed `prefix` as a default option, the `autoPrefix` property gets appended to them.

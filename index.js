@@ -120,7 +120,7 @@ module.exports = function (fastify, opts, next) {
             plugin = content
           }
 
-          const pluginOptions = Object.assign({}, defaultPluginOptions)
+          const pluginOptions = Object.assign({}, plugin.options || {}, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
 
