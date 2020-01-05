@@ -56,7 +56,20 @@ module.exports = function (fastify, opts, next) {
 module.exports.autoload = false
 ```
 
-Each plugin can also define it's own default options on a `options` property:
+Each plugin can also define it's own default base options on an `options` property:
+
+```js
+const fp = require('fastify-plugin')
+module.exports = fp(function (fastify, opts, next) {
+  console.log(opts.foo) // 'bar'
+  next()
+})
+
+// default base options
+module.exports.options = { foo: 'bar' }
+```
+
+To achieve the same without `fastify-plugin`:
 
 ```js
 module.exports = function (fastify, opts, next) {
@@ -64,9 +77,19 @@ module.exports = function (fastify, opts, next) {
   next()
 }
 
-// default options
-module.exports.options = { foo: 'bar' }
+// default base options
+module.exports[Symbol.for('base-options')] = { foo: 'bar' }
 ```
+
+The `plugin.options` property can also be used to configure required plugins: 
+
+```js
+const helmet = require('fastify-helmet')
+helmet.options = { referrerPolicy: true }
+module.exports = helmet
+```
+
+Note that each time a `plugin.options` property is consumed by fastify-autoload it will be reset back to the original base options (or else `undefined`).
 
 If you want to pass some custom options to all registered plugins via `fastify-autoload`, use the `options` key:
 
@@ -215,6 +238,7 @@ module.exports = {
  * GET /items
  */
 ```
+
 
 ## License
 
