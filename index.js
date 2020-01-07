@@ -119,10 +119,14 @@ module.exports = function (fastify, opts, next) {
           } else {
             plugin = content
           }
-
-          const pluginOptions = Object.assign({}, defaultPluginOptions)
+          const pluginConfig = plugin.autoConfig || {}
+          const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
+
+          if (typeof plugin.autoConfig === 'object') {
+            plugin.autoConfig = undefined
+          }
 
           if (opts && !plugin.autoPrefix) {
             plugin.autoPrefix = opts.prefix
