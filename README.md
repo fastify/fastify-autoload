@@ -29,6 +29,30 @@ fastify.listen(3000)
 ```
 
 ## Custom configuration
+
+Each autloaded plugin can define a configuration object using the `autoConfig` property, which will passed in as the `opts` parameter:
+
+```js
+module.exports = function (fastify, opts, next) {
+  console.log(opts.foo) // 'bar'
+  next()
+}
+
+module.exports.autoConfig = { foo: 'bar' }
+```
+
+This is useful as a shorthand for configuring required plugins:
+
+```js
+const helmet = require('fastify-helmet')
+helmet.autoConfig = { referrerPolicy: true }
+module.exports = helmet
+```
+
+
+Each time an `autoConfig` property is consumed by `fastify-autoload` it will be reset back to `undefined`, this means the auto configuration only applies where it's declared, even if the same plugin is auto loaded in two separate folders.
+
+
 Plugins in the loaded folder could add an `autoPrefix` property, so that
 a prefix is applied automatically when loaded with `fastify-autoload`:
 
@@ -56,41 +80,6 @@ module.exports = function (fastify, opts, next) {
 module.exports.autoload = false
 ```
 
-Each plugin can also define it's own default base options on an `options` property:
-
-```js
-const fp = require('fastify-plugin')
-module.exports = fp(function (fastify, opts, next) {
-  console.log(opts.foo) // 'bar'
-  next()
-})
-
-// default base options
-module.exports.options = { foo: 'bar' }
-```
-
-To achieve the same without `fastify-plugin`:
-
-```js
-module.exports = function (fastify, opts, next) {
-  console.log(opts.foo) // 'bar'
-  next()
-}
-
-// default base options
-module.exports[Symbol.for('base-options')] = { foo: 'bar' }
-```
-
-The `plugin.options` property can also be used to configure required plugins: 
-
-```js
-const helmet = require('fastify-helmet')
-helmet.options = { referrerPolicy: true }
-module.exports = helmet
-```
-
-Note that each time a `plugin.options` property is consumed by fastify-autoload it will be reset back to the original base options (or else `undefined`).
-
 If you want to pass some custom options to all registered plugins via `fastify-autoload`, use the `options` key:
 
 ```js
@@ -100,7 +89,7 @@ fastify.register(AutoLoad, {
 })
 ```
 > *Note: `options` will be passed to all loaded plugins.*
-> *Note: global default options will override the `plugin.options` property*
+> *Note: global default options will override the `plugin.autoConfig` property*
 
 You can set the prefix option in the options passed to all plugins to set them all default prefix.
 When plugins get passed `prefix` as a default option, the `autoPrefix` property gets appended to them.
@@ -186,6 +175,7 @@ fastify.register(AutoLoad, {
 })
 ```
 > *Note: This is not required when running compiled TypeScript.*
+
 
 fastify-autoload loads folders with route definitions automatically, without explicitly registering them. The folder name is used as default prefix for all files in that folder, unless otherwise specified in an `index.js`. See "module.exports.autoPrefix" on how to overwrite this behaviour.
 

@@ -2,6 +2,6 @@
 
 const plugin = require('../lib-plugin')
 
-plugin.options = { name: 'c' }
+plugin.autoConfig = { name: 'c' }
 
 module.exports = plugin

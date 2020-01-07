@@ -10,6 +10,6 @@ function plugin (f, opts, next) {
   next()
 }
 
-plugin.options = { a: 'test-1' }
+plugin.autoConfig = { a: 'test-1' }
 
 module.exports = fp(plugin, { name: 'plugin-a' })

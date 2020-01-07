@@ -3,7 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const steed = require('steed')
-const kBaseOptions = Symbol.for('base-options')
+
 module.exports = function (fastify, opts, next) {
   const defaultPluginOptions = opts.options
 
@@ -119,13 +119,13 @@ module.exports = function (fastify, opts, next) {
           } else {
             plugin = content
           }
-          const pluginConfig = plugin.options || plugin[kBaseOptions] || {}
+          const pluginConfig = plugin.autoConfig || {}
           const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
 
-          if (typeof plugin.options === 'object') {
-            plugin.options = plugin[kBaseOptions]
+          if (typeof plugin.autoConfig === 'object') {
+            plugin.autoConfig = undefined
           }
 
           if (opts && !plugin.autoPrefix) {
