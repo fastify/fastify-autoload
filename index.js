@@ -110,8 +110,8 @@ module.exports = function (fastify, opts, next) {
           const content = require(file)
           let plugin
           if (content &&
-          Object.prototype.toString.apply(content) === '[object Object]' &&
-          Object.prototype.hasOwnProperty.call(content, 'method')) {
+            Object.prototype.toString.apply(content) === '[object Object]' &&
+            Object.prototype.hasOwnProperty.call(content, 'method')) {
             plugin = function (fastify, opts, next) {
               fastify.route(content)
               next()
@@ -119,10 +119,14 @@ module.exports = function (fastify, opts, next) {
           } else {
             plugin = content
           }
-          const pluginConfig = plugin.autoConfig || {}
+          const pluginConfig = (plugin.default && plugin.default.autoConfig) || plugin.autoConfig || {}
           const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
           const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
           const pluginName = pluginMeta.name || file
+
+          if (plugin.default && plugin.default.autoConfig && typeof plugin.default.autoConfig === 'object') {
+            plugin.default.autoConfig = undefined
+          }
 
           if (typeof plugin.autoConfig === 'object') {
             plugin.autoConfig = undefined
