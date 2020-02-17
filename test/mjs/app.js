@@ -1,0 +1,14 @@
+'use strict'
+
+const path = require('path')
+const AutoLoad = require('../..')
+
+module.exports = function (fastify, opts, next) {
+  fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'plugins')
+  })
+  fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'packagejson')
+  })
+  next()
+}
