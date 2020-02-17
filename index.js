@@ -69,17 +69,7 @@ module.exports[Symbol.for('skip-override')] = true
 
 function importPluginAndMetaData (file, opts, isModule, allPlugins, defaultPluginOptions) {
   return importPlugin(file, isModule).then((content) => {
-    let plugin
-    if (content &&
-      Object.prototype.toString.apply(content) === '[object Object]' &&
-      Object.prototype.hasOwnProperty.call(content, 'method')) {
-      plugin = function (fastify, opts, next) {
-        fastify.route(content)
-        next()
-      }
-    } else {
-      plugin = content
-    }
+    const plugin = wrapRoutes(content)
     const pluginConfig = (plugin.default && plugin.default.autoConfig) || plugin.autoConfig || {}
     const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
     const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
@@ -123,6 +113,19 @@ function importPluginAndMetaData (file, opts, isModule, allPlugins, defaultPlugi
   }).catch((err) => {
     throw enrichError(err)
   })
+}
+
+function wrapRoutes (content) {
+  if (content &&
+    Object.prototype.toString.apply(content) === '[object Object]' &&
+    Object.prototype.hasOwnProperty.call(content, 'method')) {
+    return function (fastify, opts, next) {
+      fastify.route(content)
+      next()
+    }
+  } else {
+    return content
+  }
 }
 
 function importPlugin (file, isModule) {
