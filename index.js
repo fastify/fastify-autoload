@@ -12,7 +12,7 @@ module.exports = function (fastify, opts, next) {
     ? /^index\.(ts|js)$/im
     : /^index\.js$/im
   const scriptPattern = opts.includeTypeScript
-    ? /\.(ts|js)$/im
+    ? /((?<!\.d)\.ts|\.js)$/im // For .ts files, ignore .d.ts, see #65
     : /\.js$/im
 
   function enrichError (err) {
