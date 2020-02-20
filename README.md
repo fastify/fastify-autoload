@@ -62,7 +62,7 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
-  
+
   next()
 }
 
@@ -174,7 +174,7 @@ fastify.register(AutoLoad, {
   includeTypeScript: true
 })
 ```
-> *Note: This is not required when running compiled TypeScript.*
+> *Note: This is not required when running compiled TypeScript. Type definition files (`.d.ts`) will always be ignored (see [#65](https://github.com/fastify/fastify-autoload/issues/65)).*
 
 
 fastify-autoload loads folders with route definitions automatically, without explicitly registering them. The folder name is used as default prefix for all files in that folder, unless otherwise specified in an `index.js`. See "module.exports.autoPrefix" on how to overwrite this behaviour.
