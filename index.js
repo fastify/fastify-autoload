@@ -14,12 +14,12 @@ module.exports = function (fastify, opts) {
 
     const allPlugins = {}
     const promises = []
-    for (const { skip, file, opts, isModule } of stats) {
+    for (const { skip, file, opts } of stats) {
       if (skip) {
         continue
       }
 
-      promises.push(importPluginAndMetaData(file, opts, isModule, allPlugins, defaultPluginOptions))
+      promises.push(importPluginAndMetaData(file, opts, allPlugins, defaultPluginOptions))
     }
     return Promise.all(promises)
       .then(() => allPlugins)
@@ -67,8 +67,8 @@ module.exports = function (fastify, opts) {
 // same as fastify-plugin
 module.exports[Symbol.for('skip-override')] = true
 
-function importPluginAndMetaData (file, opts, isModule, allPlugins, defaultPluginOptions) {
-  return importPlugin(file, isModule).then((content) => {
+function importPluginAndMetaData (file, opts, allPlugins, defaultPluginOptions) {
+  return importPlugin(file).then((content) => {
     const plugin = wrapRoutes(content)
     const pluginConfig = (plugin.default && plugin.default.autoConfig) || plugin.autoConfig || {}
     const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
@@ -128,26 +128,30 @@ function wrapRoutes (content) {
   }
 }
 
-function importPlugin (file, isModule) {
-  if (isModule) {
-    return import(file)
-  } else {
+function importPlugin (file) {
+  if (file.endsWith('.js') || file.endsWith('.cjs')) {
     try {
-      return Promise.resolve(require(file))
-    } catch (err) {
-      return Promise.reject(err)
+      const module = require(file)
+      return Promise.resolve(module)
+    } catch (error) {
+      if (error.code === 'ERR_REQUIRE_ESM') {
+        return import(file)
+      }
+      return Promise.reject(error)
     }
+  } else {
+    return import(file)
   }
 }
 
 function loadPluginFiles (opts) {
   const packagePattern = /^package\.json$/im
   const indexPattern = opts.includeTypeScript
-    ? /^index\.(ts|js|mjs)$/im
-    : /^index\.(js|mjs)$/im
+    ? /^index\.(ts|js|mjs|cjs)$/im
+    : /^index\.(js|mjs|cjs)$/im
   const scriptPattern = opts.includeTypeScript
-    ? /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.mjs)$/im // For .ts files, ignore .d.ts
-    : /\.(js|mjs)$/im
+    ? /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.mjs|\.cjs)$/im // For .ts files, ignore .d.ts
+    : /\.(js|mjs|cjs)$/im
 
   return readDir(opts.dir).then((list) => {
     const promises = []
@@ -171,8 +175,7 @@ function loadPluginFile (opts, file, packagePattern, indexPattern, scriptPattern
       return [{
         // only accept script files
         skip: !(stat.isFile() && scriptPattern.test(file)),
-        file: toLoad,
-        isModule: file.endsWith('.mjs')
+        file: toLoad
       }]
     }
   })
@@ -181,7 +184,6 @@ function loadPluginFile (opts, file, packagePattern, indexPattern, scriptPattern
 function findPluginsInDirectory (toLoad, packagePattern, indexPattern, scriptPattern) {
   return readDir(toLoad).then((files) => {
     const fileList = files.join('\n')
-    const moduleDefinedByPackageJson = hasModuleDefinedInPackageJson(toLoad)
     // if the directory does not contain a package.json or an index,
     // load each script file as an independend plugin
     if (
@@ -198,12 +200,11 @@ function findPluginsInDirectory (toLoad, packagePattern, indexPattern, scriptPat
           opts: {
             prefix: toLoad.split(path.sep).pop()
           },
-          file: path.join(toLoad, file),
-          isModule: file.endsWith('.mjs') || moduleDefinedByPackageJson
+          file: path.join(toLoad, file)
         })
       }
       return plugins
-    } else if (moduleDefinedByPackageJson) {
+    } else if (moduleDefinedByPackageJson(path.join(toLoad, '/package.json'))) {
       const plugins = []
       for (let index = 0; index < files.length; index++) {
         const file = files[index]
@@ -216,8 +217,7 @@ function findPluginsInDirectory (toLoad, packagePattern, indexPattern, scriptPat
           opts: {
             prefix: toLoad.split(path.sep).pop()
           },
-          file: path.join(toLoad, file),
-          isModule: moduleDefinedByPackageJson
+          file: path.join(toLoad, file)
         })
       }
       return plugins
@@ -225,26 +225,17 @@ function findPluginsInDirectory (toLoad, packagePattern, indexPattern, scriptPat
       return [{
         // skip directories without script files inside
         skip: files.every(name => !scriptPattern.test(name)),
-        file: toLoad,
-        isModule: toLoad.endsWith('.mjs')
+        file: toLoad
       }]
     }
   })
 }
 
-function hasModuleDefinedInPackageJson (directory) {
+function moduleDefinedByPackageJson (packageJsonPath) {
   try {
-    const { type } = require(path.join(directory, '/package.json'))
-    return type === 'module'
+    return require(packageJsonPath).type === 'module'
   } catch (ignore) {
-    const index = directory.lastIndexOf('/')
-    const parentDirectory = directory.substring(0, index)
-    try {
-      const { type } = require(path.join(parentDirectory, '/package.json'))
-      return type === 'module'
-    } catch (ignore) {
-      return false
-    }
+    return false
   }
 }
 
