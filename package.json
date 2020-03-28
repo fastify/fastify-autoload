@@ -52,11 +52,5 @@
     "ignore": [
       "test/error/lib/a.js"
     ]
-  },
-  "greenkeeper": {
-    "ignore": [
-      "tap",
-      "@typescript-eslint/parser"
-    ]
   }
 }
