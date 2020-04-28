@@ -1,8 +1,5 @@
 # fastify-autoload
 
-[![Build Status](https://travis-ci.org/fastify/fastify-autoload.svg?branch=master)](https://travis-ci.org/fastify/fastify-autoload)&nbsp;
-[![Greenkeeper badge](https://badges.greenkeeper.io/fastify/fastify-autoload.svg)](https://greenkeeper.io/)
-
 Require all plugins in a directory.
 
 ## Install
