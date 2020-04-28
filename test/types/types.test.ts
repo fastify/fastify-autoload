@@ -1,19 +1,19 @@
-import * as autoload from '../../fastify-autoload'
-import * as fastify from 'fastify'
+import autoload, { AutoloadPluginOptions } from '../../fastify-autoload'
+import fastify from 'fastify'
 
 const app = fastify()
-let opt1: autoload.PluginOptions = {
+let opt1: AutoloadPluginOptions = {
   dir: 'test'
 }
-const opt2: autoload.PluginOptions = {
+const opt2: AutoloadPluginOptions = {
   dir: 'test',
   ignorePattern: /skip/
 }
-const opt3: autoload.PluginOptions = {
+const opt3: AutoloadPluginOptions = {
   dir: 'test',
   includeTypeScript: true
 }
-const opt4: autoload.PluginOptions = {
+const opt4: AutoloadPluginOptions = {
   dir: 'test',
   options: {
     prefix: 'test'

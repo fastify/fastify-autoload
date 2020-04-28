@@ -1,18 +1,15 @@
 /* eslint no-redeclare: off */
 /* eslint no-unused-vars: off */
 
-import { Plugin, RegisterOptions } from 'fastify'
-import { Server, IncomingMessage, ServerResponse } from 'http'
+import { FastifyPlugin, FastifyPluginOptions } from 'fastify'
 
-declare namespace fastifyAutoload {
-  interface PluginOptions {
-    dir: string
-    ignorePattern?: RegExp | string
-    includeTypeScript?: boolean
-    options?: RegisterOptions<Server, IncomingMessage, ServerResponse>
-  }
+export interface AutoloadPluginOptions {
+  dir: string
+  ignorePattern?: RegExp | string
+  includeTypeScript?: boolean
+  options?: FastifyPluginOptions
 }
 
-declare const fastifyAutoload: Plugin<Server, IncomingMessage, ServerResponse, fastifyAutoload.PluginOptions>
+declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
 
-export = fastifyAutoload
+export default fastifyAutoload
