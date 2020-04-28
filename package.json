@@ -38,7 +38,7 @@
     "@typescript-eslint/parser": "^2.25.0",
     "fastify": "^3.0.0-rc.1",
     "fastify-plugin": "^2.0.0",
-    "fastify-url-data": "github:frikille/fastify-url-data#v3-upgrade",
+    "fastify-url-data": "3.0.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
     "standard": "^14.0.0",
