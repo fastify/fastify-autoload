@@ -1,5 +1,5 @@
 import * as t from 'tap'
-import * as Fastify from 'fastify'
+import Fastify from 'fastify'
 
 import { App } from './typescript/app'
 
