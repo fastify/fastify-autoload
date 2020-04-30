@@ -26,6 +26,68 @@ module.exports = function (fastify, opts, next) {
     return err
   }
 
+  function loadDirs (dirs, cb, plugins, prefix) {
+    if (dirs.length === 0) {
+      cb(null, plugins)
+      return
+    }
+
+    const toLoad = dirs.pop()
+    fs.stat(toLoad, (err, stat) => {
+      if (err) {
+        cb(err)
+        return
+      }
+
+      if (stat.isDirectory()) {
+        fs.readdir(toLoad, (err, files) => {
+          if (err) {
+            cb(err)
+            return
+          }
+
+          prefix = path.join(prefix, toLoad.split(path.sep).pop())
+          const fileList = files.join('\n')
+          // if the directory does not contain a package.json or an index,
+          // load each script file as an independend plugin
+          if (
+            !packagePattern.test(fileList) &&
+            !indexPattern.test(fileList) &&
+            scriptPattern.test(fileList)
+          ) {
+            for (let index = 0; index < files.length; index++) {
+              const file = files[index]
+
+              if (scriptPattern.test(file)) {
+                plugins.push({
+                  skip: false,
+                  opts: { prefix },
+                  file: path.join(toLoad, file)
+                })
+              } else {
+                dirs.push(path.join(toLoad, file))
+              }
+            }
+          } else {
+            plugins.push({
+              // skip directories without script files inside
+              skip: files.every(name => !scriptPattern.test(name)),
+              file: toLoad
+            })
+          }
+          loadDirs(dirs, cb, plugins, prefix)
+        })
+      } else {
+        cb(null, {
+          // only accept script files
+          skip: !(stat.isFile() && scriptPattern.test(toLoad.split(path.sep).pop())),
+          file: toLoad,
+          opts: { prefix }
+        })
+      }
+    })
+  }
+
   fs.readdir(opts.dir, function (err, list) {
     if (err) {
       next(err)
@@ -39,56 +101,7 @@ module.exports = function (fastify, opts, next) {
       }
 
       const toLoad = path.join(opts.dir, file)
-      fs.stat(toLoad, (err, stat) => {
-        if (err) {
-          cb(err)
-          return
-        }
-
-        if (stat.isDirectory()) {
-          fs.readdir(toLoad, (err, files) => {
-            if (err) {
-              cb(err)
-              return
-            }
-
-            const fileList = files.join('\n')
-            // if the directory does not contain a package.json or an index,
-            // load each script file as an independend plugin
-            if (
-              !packagePattern.test(fileList) &&
-              !indexPattern.test(fileList) &&
-              scriptPattern.test(fileList)
-            ) {
-              const plugins = []
-              for (let index = 0; index < files.length; index++) {
-                const file = files[index]
-
-                plugins.push({
-                  skip: !scriptPattern.test(file),
-                  opts: {
-                    prefix: toLoad.split(path.sep).pop()
-                  },
-                  file: path.join(toLoad, file)
-                })
-              }
-              cb(null, plugins)
-            } else {
-              cb(null, {
-                // skip directories without script files inside
-                skip: files.every(name => !scriptPattern.test(name)),
-                file: toLoad
-              })
-            }
-          })
-        } else {
-          cb(null, {
-            // only accept script files
-            skip: !(stat.isFile() && scriptPattern.test(file)),
-            file: toLoad
-          })
-        }
-      })
+      loadDirs([toLoad], cb, [], '')
     }, (err, files) => {
       if (err) {
         next(err)
