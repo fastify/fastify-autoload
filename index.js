@@ -14,6 +14,7 @@ module.exports = function (fastify, opts, next) {
   const scriptPattern = opts.includeTypeScript
     ? /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js)$/im // For .ts files, ignore .d.ts
     : /\.js$/im
+  const isEsmModules = opts.esmModules
 
   function enrichError (err) {
     // Hack SyntaxError message so that we provide
@@ -107,7 +108,7 @@ module.exports = function (fastify, opts, next) {
         }
 
         try {
-          const content = require(file)
+          const content = isEsmModules ? import(file) : require(file)
           let plugin
           if (content &&
             Object.prototype.toString.apply(content) === '[object Object]' &&
