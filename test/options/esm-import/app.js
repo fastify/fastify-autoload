@@ -9,7 +9,7 @@ export default function (fastify, opts, next) {
 
   fastify.register(AutoLoad, {
     dir: currentDir,
-    esmModules: true,
+    esmModules: true
   })
 
   next()
