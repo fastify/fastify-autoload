@@ -7,7 +7,7 @@ export interface AutoloadPluginOptions {
   dir: string
   ignorePattern?: RegExp | string
   includeTypeScript?: boolean
-  esmModules?: boolean
+  loadESM?: boolean
   options?: FastifyPluginOptions
 }
 
