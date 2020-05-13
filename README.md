@@ -13,16 +13,16 @@ npm i fastify fastify-autoload
 ```js
 'use strict'
 
-const Fastify = require('fastify')
-const AutoLoad = require('fastify-autoload')
+const fastify = require('fastify')
+const fastifyAutoload = require('fastify-autoload')
 
-const fastify = Fastify()
+const app = fastify()
 
-fastify.register(AutoLoad, {
+app.register(fastifyAutoload, {
   dir: path.join(__dirname, 'foo')
 })
 
-fastify.listen(3000)
+app.listen(3000)
 ```
 
 ## Custom configuration
@@ -80,7 +80,7 @@ module.exports.autoload = false
 If you want to pass some custom options to all registered plugins via `fastify-autoload`, use the `options` key:
 
 ```js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
   options: { foo: 'bar' }
 })
@@ -94,7 +94,7 @@ This means you can load all plugins in a folder with a default prefix.
 
 ```js
 // index.js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
   options: { prefix: '/defaultPrefix' }
 })
@@ -114,7 +114,7 @@ If you have a plugin in the folder you don't want the default prefix applied to,
 
 ```js
 // index.js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
   options: { prefix: '/defaultPrefix' }
 })
@@ -134,7 +134,7 @@ If you have a plugin in the folder you don't want the any prefix applied to, you
 
 ```js
 // index.js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
   options: { prefix: '/defaultPrefix' }
 })
@@ -155,20 +155,19 @@ that matches a file it will not load it.
 
 ```js
 // index.js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
   options: { prefix: '/defaultPrefix' },
   ignorePattern: /.*(test|spec).js/
 })
 ```
 
-If you are using TypeScript and something like [ts-node](https://github.com/TypeStrong/ts-node) to load the `.ts` files directly you can set `includeTypeScript` option to `true`. This will load plugins from `.ts` files as well as `.js` files.
+If you are using TypeScript with [ts-node](https://github.com/TypeStrong/ts-node) you can load in `.ts` directly without first compiling to `.js`.
 
 ```ts
 // index.ts
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'foo'),
-  includeTypeScript: true
 })
 ```
 > *Note: This is not required when running compiled TypeScript. Type definition files (`.d.ts`) will always be ignored (see [#65](https://github.com/fastify/fastify-autoload/issues/65)).*
@@ -178,7 +177,7 @@ fastify-autoload loads folders with route definitions automatically, without exp
 
 ```js
 // index.js
-fastify.register(AutoLoad, {
+fastify.register(autoLoad, {
   dir: path.join(__dirname, 'services'),
   options: {}
 })

@@ -4,6 +4,9 @@ const promisify = require('util').promisify
 const fs = require('fs')
 const path = require('path')
 const readDirectory = promisify(fs.readdir)
+const pkgUp = require('pkg-up')
+
+const typescriptSupport = Symbol.for('ts-node.register.instance') in process
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
@@ -11,13 +14,13 @@ const defaults = {
 }
 
 module.exports = async function fastifyAutoload (fastify, options) {
-  const opts = { ...defaults, ...options }
+  const packageType = await getPackageType(options.dir)
+  const opts = { ...defaults, packageType, ...options }
   const plugins = await findPlugins(opts.dir, opts)
-
   const pluginsMeta = {}
-  for (const { file, prefix } of plugins) {
+  for (const { file, type, prefix } of plugins) {
     try {
-      const plugin = await loadPlugin(file, prefix, opts.options)
+      const plugin = await loadPlugin(file, type, prefix, opts)
       if (plugin) {
         pluginsMeta[plugin.name] = plugin
       }
@@ -32,26 +35,37 @@ module.exports = async function fastifyAutoload (fastify, options) {
   }
 }
 
-async function findPlugins (dir, options, accumulator = [], prefix) {
-  const { ignorePattern, scriptPattern, indexPattern } = options
-  const list = await readDirectory(dir, { withFileTypes: true })
-
-  // Contains package.json?
-  const packageDirent = list.find((dirent) => dirent.name === 'package.json')
-  if (packageDirent) {
-    // Skip packages if no js file inside (why?)
-    if (list.some(dirent => scriptPattern.test(dirent.name))) {
-      accumulator.push({ file: dir })
-    }
-    return accumulator
+async function getPackageType (cwd) {
+  const nearestPackage = await pkgUp({ cwd })
+  if (nearestPackage) {
+    return require(nearestPackage).type
   }
+}
+
+const typescriptPattern = /\.ts$/i
+const modulePattern = /\.mjs$/i
+const commonjsPattern = /\.cjs$/i
+function getScriptType (fname, packageType) {
+  return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
+}
+
+async function findPlugins (dir, options, accumulator = [], prefix) {
+  const { indexPattern, ignorePattern, scriptPattern } = options
+  const list = await readDirectory(dir, { withFileTypes: true })
 
   // Contains index file?
   const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
   if (indexDirent) {
-    const fpath = path.join(dir, indexDirent.name)
-    accumulator.push({ file: fpath })
+    const file = path.join(dir, indexDirent.name)
+    const type = getScriptType(file, options.packageType)
+    accumulator.push({ file, type })
     return accumulator
+  }
+
+  // Contains package.json but no index.js file?
+  const packageDirent = list.find((dirent) => dirent.name === 'package.json')
+  if (packageDirent) {
+    throw new Error(`fastify-autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
   }
 
   // Otherwise treat each script file as a plugin
@@ -61,14 +75,18 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
       continue
     }
 
-    const fpath = path.join(dir, dirent.name)
+    const file = path.join(dir, dirent.name)
     if (dirent.isDirectory()) {
-      directoryPromises.push(findPlugins(fpath, options, accumulator, dirent.name))
+      directoryPromises.push(findPlugins(file, options, accumulator, dirent.name))
       continue
     }
 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
-      accumulator.push({ file: fpath, prefix })
+      const type = getScriptType(file, options.packageType)
+      if (type === 'typescript' && !typescriptSupport) {
+        throw new Error(`fastify-autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+      }
+      accumulator.push({ file, type, prefix })
     }
   }
   await Promise.all(directoryPromises)
@@ -76,44 +94,42 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
   return accumulator
 }
 
-async function loadPlugin (file, prefix, defaultPluginOptions) {
-  const { default: content } = await import(file)
-  const plugin = wrapRoutes(content)
-  const pluginConfig = (plugin.default && plugin.default.autoConfig) || plugin.autoConfig || {}
+async function loadPlugin (file, type, directoryPrefix, options) {
+  const { options: defaultPluginOptions } = options
+  let content
+  if (type === 'module') {
+    content = await import(file)
+  } else {
+    content = require(file)
+  }
+  const plugin = wrapRoutes(content.default || content)
+  const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
   const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
-  const pluginName = pluginMeta.name || file
 
-  if (plugin.autoload === false) {
+  if (plugin.autoload === false || content.autoload === false) {
     return
   }
 
-  if (plugin.default && plugin.default.autoConfig && typeof plugin.default.autoConfig === 'object') {
-    plugin.default.autoConfig = undefined
-  }
-
-  if (typeof plugin.autoConfig === 'object') {
+  // Reset to support overriding autoConfig for library plugins
+  if (plugin.autoConfig !== undefined) {
     plugin.autoConfig = undefined
   }
 
-  if (!plugin.autoPrefix) {
-    plugin.autoPrefix = prefix
-  }
-
-  if (plugin.autoPrefix) {
-    const prefix = pluginOptions.prefix || ''
-    pluginOptions.prefix = prefix + plugin.autoPrefix
-  }
-
-  if (plugin.prefixOverride !== undefined) {
-    pluginOptions.prefix = plugin.prefixOverride
+  const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
+  const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
+  if (prefixOverride !== undefined) {
+    pluginOptions.prefix = prefixOverride
+  } else if (prefix) {
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix
   }
 
   return {
     plugin,
-    name: pluginName,
+    name: pluginMeta.name || file,
     dependencies: pluginMeta.dependencies,
-    options: pluginOptions
+    options: pluginOptions,
+    registered: false
   }
 }
 
@@ -135,7 +151,7 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
     }
   }
 
-  fastify.register(plugin.default || plugin, options)
+  fastify.register(plugin, options)
   meta.registered = true
 }
 
