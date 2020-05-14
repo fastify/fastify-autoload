@@ -1,10 +1,8 @@
-'use strict'
-
 import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(50)
+t.plan(53)
 
 const app = fastify()
 
@@ -113,6 +111,16 @@ app.ready(function (err) {
 
   app.inject({
     url: '/commonjs'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), {
+      foo: 'bar'
+    })
+  })
+
+  app.inject({
+    url: '/module'
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)

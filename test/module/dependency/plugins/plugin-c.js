@@ -1,5 +1,3 @@
-'use strict'
-
 import fp from 'fastify-plugin'
 
 function plugin (f, opts, next) {

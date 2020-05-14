@@ -1,5 +1,3 @@
-'use strict'
-
 import path from 'path'
 import fastifyUrlData from 'fastify-url-data'
 import autoLoad from '../../../index.js'

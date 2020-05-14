@@ -1,5 +1,3 @@
-'use strict'
-
 import t from 'tap'
 import fastify from 'fastify'
 import dependencyApp from './dependency/app.js'

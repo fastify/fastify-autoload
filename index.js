@@ -5,8 +5,10 @@ const fs = require('fs')
 const path = require('path')
 const readDirectory = promisify(fs.readdir)
 const pkgUp = require('pkg-up')
+const semver = require('semver')
 
 const typescriptSupport = Symbol.for('ts-node.register.instance') in process
+const moduleSupport = semver.satisfies(process.version, '>=14')
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
@@ -85,6 +87,9 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
       const type = getScriptType(file, options.packageType)
       if (type === 'typescript' && !typescriptSupport) {
         throw new Error(`fastify-autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+      }
+      if (type === 'module' && !moduleSupport) {
+        throw new Error(`fastify-autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
       }
       accumulator.push({ file, type, prefix })
     }

@@ -6,7 +6,10 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
-    "unit": "tap test/*/*.js test/*/*.ts",
+    "with": "",
+    "unit": "if semver `node --version` --range '>=14'; then npm run unit:with-modules; else npm run unit:without-modules; fi",
+    "unit:with-modules": "tap test/*/*.js test/*/*.ts",
+    "unit:without-modules": "tap test/commonjs/*.js test/*/*.ts",
     "test": "npm run lint && npm run unit && npm run typescript",
     "typescript": "tsd"
   },
@@ -43,7 +46,8 @@
     "tsd": "^0.11.0"
   },
   "dependencies": {
-    "pkg-up": "^3.1.0"
+    "pkg-up": "^3.1.0",
+    "semver": "^7.3.2"
   },
   "standard": {
     "ignore": [

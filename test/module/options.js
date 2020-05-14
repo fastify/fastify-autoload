@@ -1,5 +1,3 @@
-'use strict'
-
 import t from 'tap'
 import fastify from 'fastify'
 import optionsApp from './options/app.js'
