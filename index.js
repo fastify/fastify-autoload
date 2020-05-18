@@ -100,7 +100,7 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
 }
 
 async function loadPlugin (file, type, directoryPrefix, options) {
-  const { options: defaultPluginOptions } = options
+  const { options: overrideConfig } = options
   let content
   if (type === 'module') {
     content = await import(file)
@@ -109,7 +109,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   }
   const plugin = wrapRoutes(content.default || content)
   const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
-  const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
+  const pluginOptions = Object.assign({}, pluginConfig, overrideConfig)
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
 
   if (plugin.autoload === false || content.autoload === false) {
