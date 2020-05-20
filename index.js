@@ -26,27 +26,27 @@ module.exports = function (fastify, opts, next) {
     return err
   }
 
-  function loadDirs (dirs, cb, plugins, prefix) {
+  function loadDirs (dirs, plugins, recursive, cb) {
     if (dirs.length === 0) {
       cb(null, plugins)
       return
     }
 
     const toLoad = dirs.pop()
-    fs.stat(toLoad, (err, stat) => {
+    fs.stat(toLoad.file, (err, stat) => {
       if (err) {
         cb(err)
         return
       }
 
       if (stat.isDirectory()) {
-        fs.readdir(toLoad, (err, files) => {
+        fs.readdir(toLoad.file, (err, files) => {
           if (err) {
             cb(err)
             return
           }
 
-          prefix = path.join(prefix, toLoad.split(path.sep).pop())
+          const prefix = path.join(toLoad.prefix, toLoad.file.split(path.sep).pop())
           const fileList = files.join('\n')
           // if the directory does not contain a package.json or an index,
           // load each script file as an independend plugin
@@ -58,31 +58,31 @@ module.exports = function (fastify, opts, next) {
             for (let index = 0; index < files.length; index++) {
               const file = files[index]
 
-              if (scriptPattern.test(file)) {
+              if (!recursive || scriptPattern.test(file)) {
                 plugins.push({
                   skip: false,
                   opts: { prefix },
-                  file: path.join(toLoad, file)
+                  file: path.join(toLoad.file, file)
                 })
               } else {
-                dirs.push(path.join(toLoad, file))
+                dirs.push({ file: path.join(toLoad.file, file), prefix })
               }
             }
           } else {
             plugins.push({
               // skip directories without script files inside
               skip: files.every(name => !scriptPattern.test(name)),
-              file: toLoad
+              file: toLoad.file
             })
           }
-          loadDirs(dirs, cb, plugins, prefix)
+          loadDirs(dirs, plugins, recursive, cb)
         })
       } else {
         cb(null, {
           // only accept script files
-          skip: !(stat.isFile() && scriptPattern.test(toLoad.split(path.sep).pop())),
-          file: toLoad,
-          opts: { prefix }
+          skip: !(stat.isFile() && scriptPattern.test(toLoad.file.split(path.sep).pop())),
+          file: toLoad.file,
+          opts: { prefix: toLoad.prefix }
         })
       }
     })
@@ -101,7 +101,7 @@ module.exports = function (fastify, opts, next) {
       }
 
       const toLoad = path.join(opts.dir, file)
-      loadDirs([toLoad], cb, [], '')
+      loadDirs([{ file: toLoad, prefix: '' }], [], opts.recursive, cb)
     }, (err, files) => {
       if (err) {
         next(err)

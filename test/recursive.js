@@ -4,7 +4,7 @@ const t = require('tap')
 const Fastify = require('fastify')
 const path = require('path')
 
-t.plan(10)
+t.plan(22)
 
 const app = Fastify()
 
@@ -40,5 +40,41 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { deepest: 'the deepest' })
+  })
+
+  app.inject({
+    url: '/deep/autoroute/items/1'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+  })
+
+  app.inject({
+    url: '/deep/autoroute/items'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
+  })
+
+  app.inject({
+    url: '/deep/deeper/moreComplicatedDeep/items/1'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+  })
+
+  app.inject({
+    url: '/deep/deeper/moreComplicatedDeep/items'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
   })
 })
