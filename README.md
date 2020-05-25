@@ -14,7 +14,7 @@ Fastify server that automatically loads in all plugins from the `plugins` direct
 
 ```js
 const fastify = require('fastify')
-const fastifyAutoload = require('fastify-autoload')
+const autoload = require('fastify-autoload')
 
 const app = fastify()
 
