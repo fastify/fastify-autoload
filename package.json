@@ -6,7 +6,6 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
-    "with": "",
     "unit": "if semver `node --version` --range '>=14'; then npm run unit:with-modules; else npm run unit:without-modules; fi",
     "unit:with-modules": "tap test/*/*.js test/*/*.ts",
     "unit:without-modules": "tap test/commonjs/*.js test/*/*.ts",

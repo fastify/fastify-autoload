@@ -164,9 +164,8 @@ function wrapRoutes (content) {
   if (content &&
     Object.prototype.toString.call(content) === '[object Object]' &&
     Object.prototype.hasOwnProperty.call(content, 'method')) {
-    return function (fastify, opts, next) {
+    return async function (fastify, opts) {
       fastify.route(content)
-      next()
     }
   }
   return content
