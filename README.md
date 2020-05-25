@@ -5,7 +5,7 @@ Convenience plugin for Fastify that loads all plugins found in a directory and a
 ## Installation
 
 ```
-npm i --save fastify fastify-autoload
+npm i fastify-autoload
 ```
 
 ## Example
@@ -18,8 +18,29 @@ const autoload = require('fastify-autoload')
 
 const app = fastify()
 
-app.register(fastifyAutoload, {
+app.register(autoload, {
   dir: path.join(__dirname, 'plugins')
+})
+
+app.listen(3000)
+```
+
+or with ESM syntax:
+
+```js
+import path from 'path'
+import autoLoad from 'fastify-autoload'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import fastify from 'fastify'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const app = fastify()
+
+app.register(autoLoad, {
+  dir: join(__dirname, 'plugins')
 })
 
 app.listen(3000)
@@ -85,6 +106,17 @@ Autoload can be customised using the following options:
 
   module.exports.autoPrefix = '/something'
 
+  // /plugins/something.mjs
+  export default function (f, opts, next) {
+    f.get('/', (request, reply) => {
+      reply.send({ something: 'else' })
+    })
+
+    next()
+  }
+
+  export const autoPrefix = '/prefixed'
+
   // routes can now be added to /defaultPrefix/something
   ```
 
@@ -103,6 +135,19 @@ Each plugin can be individually configured using the following module properties
   module.exports.autoConfig = { foo: 'bar' }
   ```
 
+  Or with ESM syntax:
+
+  ```js
+  import plugin from '../lib-plugin.js'
+
+  export default async function myPlugin (app, options) {
+    app.get('/', async (request, reply) => {
+      retrun { hello: options.name }
+    })
+  }
+  export const autoConfig = { name: 'y' }
+  ```
+
 - `plugin.autoPrefix` - Set routing prefix for plugin
 
   ```js
@@ -118,6 +163,19 @@ Each plugin can be individually configured using the following module properties
 
   // when loaded with autoload, this will be exposed as /something
   ```
+
+  Or with ESM syntax:
+
+  ```js
+  export default async function (app, opts) {
+    app.get('/', (request, reply) => {
+      return { something: 'else' }
+    })
+  }
+
+  export const autoPrefix = '/prefixed'
+  ```
+
   
 - `plugin.prefixOverride` - Override all other prefix option
 
@@ -136,6 +194,16 @@ Each plugin can be individually configured using the following module properties
   module.exports.prefixOverride = '/overriddenPrefix'
 
   // this will be exposed as /overriddenPrefix
+  ```
+
+  Or with ESM syntax:
+
+  ```js
+  export default async function (app, opts) {
+    // your plugin
+  }
+
+  export const prefixOverride = '/overriddenPrefix'
   ```
 
   If you have a plugin in the folder you don't want the any prefix applied to, you can set `prefixOverride = ''`:

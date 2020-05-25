@@ -5,7 +5,7 @@ const fastify = require('fastify')
 
 t.plan(6)
 
-const app = Fastify()
+const app = fastify()
 
 app.register(require('./syntax-error/app'))
 
@@ -14,7 +14,7 @@ app.ready(function (err) {
   t.match(err.message, /unexpected token/i)
 })
 
-const app2 = Fastify()
+const app2 = fastify()
 
 app2.register(require('./index-error/app'))
 
@@ -23,7 +23,7 @@ app2.ready(function (err) {
   t.match(err.message, /cannot import plugin.*index/i)
 })
 
-const app3 = Fastify()
+const app3 = fastify()
 
 app3.register(require('./ts-error/app'))
 
