@@ -1,7 +1,7 @@
 'use strict'
 
 const t = require('tap')
-const Fastify = require('fastify')
+const fastify = require('fastify')
 
 t.plan(6)
 
