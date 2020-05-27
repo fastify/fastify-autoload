@@ -1,9 +1,7 @@
 'use strict'
 
-const promisify = require('util').promisify
-const fs = require('fs')
 const path = require('path')
-const readDirectory = promisify(fs.readdir)
+const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 const semver = require('semver')
 
@@ -53,7 +51,7 @@ function getScriptType (fname, packageType) {
 
 async function findPlugins (dir, options, accumulator = [], prefix) {
   const { indexPattern, ignorePattern, scriptPattern } = options
-  const list = await readDirectory(dir, { withFileTypes: true })
+  const list = await readdir(dir, { withFileTypes: true })
 
   // Contains index file?
   const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
