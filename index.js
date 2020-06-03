@@ -77,7 +77,7 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
 
     const file = path.join(dir, dirent.name)
     if (dirent.isDirectory()) {
-      directoryPromises.push(findPlugins(file, options, accumulator, dirent.name))
+      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '') + dirent.name))
       continue
     }
 
