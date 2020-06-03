@@ -6,7 +6,7 @@ const pkgUp = require('pkg-up')
 const semver = require('semver')
 
 const typescriptSupport = Symbol.for('ts-node.register.instance') in process
-const moduleSupport = semver.satisfies(process.version, '>=14')
+const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
