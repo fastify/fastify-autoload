@@ -1,207 +1,182 @@
 'use strict'
 
-const fs = require('fs')
 const path = require('path')
-const steed = require('steed')
+const { readdir } = require('fs').promises
+const pkgUp = require('pkg-up')
+const semver = require('semver')
 
-module.exports = function (fastify, opts, next) {
-  const defaultPluginOptions = opts.options
+const typescriptSupport = Symbol.for('ts-node.register.instance') in process
+const moduleSupport = semver.satisfies(process.version, '>=14')
 
-  const packagePattern = /^package\.json$/im
-  const indexPattern = opts.includeTypeScript
-    ? /^index\.(ts|js)$/im
-    : /^index\.js$/im
-  const scriptPattern = opts.includeTypeScript
-    ? /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js)$/im // For .ts files, ignore .d.ts
-    : /\.js$/im
+const defaults = {
+  scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
+  indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i
+}
 
-  function enrichError (err) {
-    // Hack SyntaxError message so that we provide
-    // the line number to the user, otherwise they
-    // will be left in the cold.
-    if (err instanceof SyntaxError) {
-      err.message += ' at ' + err.stack.split('\n')[0]
+module.exports = async function fastifyAutoload (fastify, options) {
+  const packageType = await getPackageType(options.dir)
+  const opts = { ...defaults, packageType, ...options }
+  const plugins = await findPlugins(opts.dir, opts)
+  const pluginsMeta = {}
+  for (const { file, type, prefix } of plugins) {
+    try {
+      const plugin = await loadPlugin(file, type, prefix, opts)
+      if (plugin) {
+        pluginsMeta[plugin.name] = plugin
+      }
+    } catch (err) {
+      throw enrichError(err)
     }
-
-    return err
   }
 
-  fs.readdir(opts.dir, function (err, list) {
-    if (err) {
-      next(err)
-      return
+  for (const name in pluginsMeta) {
+    const plugin = pluginsMeta[name]
+    registerPlugin(fastify, plugin, pluginsMeta)
+  }
+}
+
+async function getPackageType (cwd) {
+  const nearestPackage = await pkgUp({ cwd })
+  if (nearestPackage) {
+    return require(nearestPackage).type
+  }
+}
+
+const typescriptPattern = /\.ts$/i
+const modulePattern = /\.mjs$/i
+const commonjsPattern = /\.cjs$/i
+function getScriptType (fname, packageType) {
+  return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
+}
+
+async function findPlugins (dir, options, accumulator = [], prefix) {
+  const { indexPattern, ignorePattern, scriptPattern } = options
+  const list = await readdir(dir, { withFileTypes: true })
+
+  // Contains index file?
+  const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
+  if (indexDirent) {
+    const file = path.join(dir, indexDirent.name)
+    const type = getScriptType(file, options.packageType)
+    accumulator.push({ file, type })
+    return accumulator
+  }
+
+  // Contains package.json but no index.js file?
+  const packageDirent = list.find((dirent) => dirent.name === 'package.json')
+  if (packageDirent) {
+    throw new Error(`fastify-autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
+  }
+
+  // Otherwise treat each script file as a plugin
+  const directoryPromises = []
+  for (const dirent of list) {
+    if (ignorePattern && dirent.name.match(ignorePattern)) {
+      continue
     }
 
-    steed.map(list, (file, cb) => {
-      if (opts.ignorePattern && file.match(opts.ignorePattern)) {
-        cb(null, { skip: true }) // skip files matching `ignorePattern`
-        return
+    const file = path.join(dir, dirent.name)
+    if (dirent.isDirectory()) {
+      directoryPromises.push(findPlugins(file, options, accumulator, dirent.name))
+      continue
+    }
+
+    if (dirent.isFile() && scriptPattern.test(dirent.name)) {
+      const type = getScriptType(file, options.packageType)
+      if (type === 'typescript' && !typescriptSupport) {
+        throw new Error(`fastify-autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
       }
-
-      const toLoad = path.join(opts.dir, file)
-      fs.stat(toLoad, (err, stat) => {
-        if (err) {
-          cb(err)
-          return
-        }
-
-        if (stat.isDirectory()) {
-          fs.readdir(toLoad, (err, files) => {
-            if (err) {
-              cb(err)
-              return
-            }
-
-            const fileList = files.join('\n')
-            // if the directory does not contain a package.json or an index,
-            // load each script file as an independend plugin
-            if (
-              !packagePattern.test(fileList) &&
-              !indexPattern.test(fileList) &&
-              scriptPattern.test(fileList)
-            ) {
-              const plugins = []
-              for (let index = 0; index < files.length; index++) {
-                const file = files[index]
-
-                plugins.push({
-                  skip: !scriptPattern.test(file),
-                  opts: {
-                    prefix: toLoad.split(path.sep).pop()
-                  },
-                  file: path.join(toLoad, file)
-                })
-              }
-              cb(null, plugins)
-            } else {
-              cb(null, {
-                // skip directories without script files inside
-                skip: files.every(name => !scriptPattern.test(name)),
-                file: toLoad
-              })
-            }
-          })
-        } else {
-          cb(null, {
-            // only accept script files
-            skip: !(stat.isFile() && scriptPattern.test(file)),
-            file: toLoad
-          })
-        }
-      })
-    }, (err, files) => {
-      if (err) {
-        next(err)
-        return
+      if (type === 'module' && !moduleSupport) {
+        throw new Error(`fastify-autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
       }
+      accumulator.push({ file, type, prefix })
+    }
+  }
+  await Promise.all(directoryPromises)
 
-      const stats = [].concat(...files)
+  return accumulator
+}
 
-      const allPlugins = {}
+async function loadPlugin (file, type, directoryPrefix, options) {
+  const { options: overrideConfig } = options
+  let content
+  if (type === 'module') {
+    content = await import(file)
+  } else {
+    content = require(file)
+  }
+  const plugin = wrapRoutes(content.default || content)
+  const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
+  const pluginOptions = Object.assign({}, pluginConfig, overrideConfig)
+  const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
 
-      for (let i = 0; i < stats.length; i++) {
-        const { skip, file, opts } = stats[i]
+  if (plugin.autoload === false || content.autoload === false) {
+    return
+  }
 
-        if (skip) {
-          continue
-        }
+  // Reset to support overriding autoConfig for library plugins
+  if (plugin.autoConfig !== undefined) {
+    plugin.autoConfig = undefined
+  }
 
-        try {
-          const content = require(file)
-          let plugin
-          if (content &&
-            Object.prototype.toString.apply(content) === '[object Object]' &&
-            Object.prototype.hasOwnProperty.call(content, 'method')) {
-            plugin = function (fastify, opts, next) {
-              fastify.route(content)
-              next()
-            }
-          } else {
-            plugin = content
-          }
-          const pluginConfig = (plugin.default && plugin.default.autoConfig) || plugin.autoConfig || {}
-          const pluginOptions = Object.assign({}, pluginConfig, defaultPluginOptions)
-          const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
-          const pluginName = pluginMeta.name || file
+  const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
+  const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
+  if (prefixOverride !== undefined) {
+    pluginOptions.prefix = prefixOverride
+  } else if (prefix) {
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix
+  }
 
-          if (plugin.default && plugin.default.autoConfig && typeof plugin.default.autoConfig === 'object') {
-            plugin.default.autoConfig = undefined
-          }
+  return {
+    plugin,
+    name: pluginMeta.name || file,
+    dependencies: pluginMeta.dependencies,
+    options: pluginOptions,
+    registered: false
+  }
+}
 
-          if (typeof plugin.autoConfig === 'object') {
-            plugin.autoConfig = undefined
-          }
+function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
+  const { plugin, name, options, dependencies = [] } = meta
 
-          if (opts && !plugin.autoPrefix) {
-            plugin.autoPrefix = opts.prefix
-          }
+  if (parentPlugins[name]) {
+    throw new Error('Cyclic dependency')
+  }
 
-          if (plugin.autoload === false) {
-            continue
-          }
+  if (meta.registered) {
+    return
+  }
 
-          if (plugin.autoPrefix) {
-            const prefix = pluginOptions.prefix || ''
-            pluginOptions.prefix = prefix + plugin.autoPrefix
-          }
+  parentPlugins[name] = true
+  for (const name of dependencies) {
+    if (allPlugins[name]) {
+      registerPlugin(fastify, allPlugins[name], allPlugins, parentPlugins)
+    }
+  }
 
-          if (plugin.prefixOverride !== undefined) {
-            pluginOptions.prefix = plugin.prefixOverride
-          }
+  fastify.register(plugin, options)
+  meta.registered = true
+}
 
-          if (allPlugins[pluginName]) {
-            throw new Error(`Duplicate plugin: ${pluginName}`)
-          }
+function wrapRoutes (content) {
+  if (content &&
+    Object.prototype.toString.call(content) === '[object Object]' &&
+    Object.prototype.hasOwnProperty.call(content, 'method')) {
+    return async function (fastify, opts) {
+      fastify.route(content)
+    }
+  }
+  return content
+}
 
-          allPlugins[pluginName] = {
-            plugin,
-            name: pluginName,
-            dependencies: pluginMeta.dependencies,
-            options: pluginOptions
-          }
-        } catch (err) {
-          next(enrichError(err))
-          return
-        }
-      }
-
-      const loadedPlugins = {}
-
-      function registerPlugin (name, plugin, options) {
-        if (loadedPlugins[name]) return
-
-        fastify.register(plugin.default || plugin, options)
-        loadedPlugins[name] = true
-      }
-
-      let cyclicDependencyCheck = {}
-
-      function loadPlugin ({ plugin, name, dependencies = [], options }) {
-        if (cyclicDependencyCheck[name]) throw new Error('Cyclic dependency')
-
-        if (dependencies.length) {
-          cyclicDependencyCheck[name] = true
-          dependencies.forEach((name) => allPlugins[name] && loadPlugin(allPlugins[name]))
-        }
-
-        registerPlugin(name, plugin, options)
-      }
-
-      const pluginKeys = Object.keys(allPlugins)
-      for (let i = 0; i < pluginKeys.length; i++) {
-        cyclicDependencyCheck = {}
-
-        try {
-          loadPlugin(allPlugins[pluginKeys[i]])
-        } catch (err) {
-          next(enrichError(err))
-          return
-        }
-      }
-
-      next()
-    })
-  })
+function enrichError (err) {
+  // Hack SyntaxError message so that we provide
+  // the line number to the user, otherwise they
+  // will be left in the cold.
+  if (err instanceof SyntaxError) {
+    err.message += ' at ' + err.stack.split('\n')[0]
+  }
+  return err
 }
 
 // do not create a new context, do not encapsulate

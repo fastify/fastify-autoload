@@ -5,8 +5,9 @@ import { FastifyPlugin, FastifyPluginOptions } from 'fastify'
 
 export interface AutoloadPluginOptions {
   dir: string
-  ignorePattern?: RegExp | string
-  includeTypeScript?: boolean
+  ignorePattern?: RegExp
+  scriptPattern?: RegExp
+  indexPattern?: RegExp
   options?: FastifyPluginOptions
 }
 

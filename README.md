@@ -1,231 +1,272 @@
 # fastify-autoload
 
-Require all plugins in a directory.
+Convenience plugin for Fastify that loads all plugins found in a directory and automatically configures routes matching the folder structure.
 
-## Install
+## Installation
 
 ```
-npm i fastify fastify-autoload
+npm i fastify-autoload
 ```
 
 ## Example
 
+Fastify server that automatically loads in all plugins from the `plugins` directory:
+
 ```js
-'use strict'
+const fastify = require('fastify')
+const autoload = require('fastify-autoload')
 
-const Fastify = require('fastify')
-const AutoLoad = require('fastify-autoload')
+const app = fastify()
 
-const fastify = Fastify()
-
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo')
+app.register(autoload, {
+  dir: path.join(__dirname, 'plugins')
 })
 
-fastify.listen(3000)
+app.listen(3000)
 ```
 
-## Custom configuration
-
-Each autloaded plugin can define a configuration object using the `autoConfig` property, which will passed in as the `opts` parameter:
+or with ESM syntax:
 
 ```js
-module.exports = function (fastify, opts, next) {
-  console.log(opts.foo) // 'bar'
-  next()
-}
+import path from 'path'
+import autoLoad from 'fastify-autoload'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import fastify from 'fastify'
 
-module.exports.autoConfig = { foo: 'bar' }
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const app = fastify()
+
+app.register(autoLoad, {
+  dir: join(__dirname, 'plugins')
+})
+
+app.listen(3000)
 ```
 
-This is useful as a shorthand for configuring required plugins:
+Folder structure:
 
-```js
-const helmet = require('fastify-helmet')
-helmet.autoConfig = { referrerPolicy: true }
-module.exports = helmet
+```
+├── plugins
+│   ├── single-plugin
+│   │   ├── index.js
+│   │   └── utils.js
+│   ├── more-plugins
+│   │   ├── commonjs.cjs
+│   │   ├── module.mjs
+│   │   └── typescript.ts
+│   └── another-plugin.js
+├── package.json
+└── app.js
 ```
 
+## Global Configuration
 
-Each time an `autoConfig` property is consumed by `fastify-autoload` it will be reset back to `undefined`, this means the auto configuration only applies where it's declared, even if the same plugin is auto loaded in two separate folders.
+Autoload can be customised using the following options:
 
+- `dir` (required) - Base directory containing plugins to be loaded
 
-Plugins in the loaded folder could add an `autoPrefix` property, so that
-a prefix is applied automatically when loaded with `fastify-autoload`:
+  Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In that case only the index file will be loaded.
+  
+  The following script types are supported:
 
-```js
-module.exports = function (fastify, opts, next) {
-  // when loaded with autoload, this will be exposed as /something
-  fastify.get('/', (request, reply) => {
-    reply.send({ hello: 'world' })
+  - `.js ` (CommonJS or ES modules depending on `type` field of parent `package.json`)
+  - `.cjs` (CommonJS)
+  - `.mjs` (ES modules)
+  - `.ts` (TypeScript)
+
+- `ignorePattern` (optional) - Regex matching any file that should not be loaded
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    ignorePattern: /.*(test|spec).js/
+  })
+  ```
+
+- `options` (optional) - Global options object used for all registered plugins
+
+  Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.
+
+  When setting both `options.prefix` and `plugin.autoPrefix` they will be concatenated.
+
+  ```js
+  // index.js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    options: { prefix: '/defaultPrefix' }
   })
 
-  next()
-}
-
-// optional
-module.exports.autoPrefix = '/something'
-```
-
-If you need to disable the auto loading for a specific plugin, add `autoload = false` property.
-```js
-module.exports = function (fastify, opts, next) {
-  // your plugin
-}
-
-// optional
-module.exports.autoload = false
-```
-
-If you want to pass some custom options to all registered plugins via `fastify-autoload`, use the `options` key:
-
-```js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  options: { foo: 'bar' }
-})
-```
-> *Note: `options` will be passed to all loaded plugins.*
-> *Note: global default options will override the `plugin.autoConfig` property*
-
-You can set the prefix option in the options passed to all plugins to set them all default prefix.
-When plugins get passed `prefix` as a default option, the `autoPrefix` property gets appended to them.
-This means you can load all plugins in a folder with a default prefix.
-
-```js
-// index.js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  options: { prefix: '/defaultPrefix' }
-})
-
-// /foo/something.js
-module.exports = function (fastify, opts, next) {
-  // your plugin
-}
-
-// optional
-module.exports.autoPrefix = '/something'
-
-// routes can now be added to /defaultPrefix/something
-```
-
-If you have a plugin in the folder you don't want the default prefix applied to, you can add the `prefixOverride` key:
-
-```js
-// index.js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  options: { prefix: '/defaultPrefix' }
-})
-
-// /foo/something.js
-module.exports = function (fastify, opts, next) {
-  // your plugin
-}
-
-// optional
-module.exports.prefixOverride = '/overriddenPrefix'
-
-// routes can now be added to /overriddenPrefix
-```
-
-If you have a plugin in the folder you don't want the any prefix applied to, you can set `prefixOverride = ''`:
-
-```js
-// index.js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  options: { prefix: '/defaultPrefix' }
-})
-
-// /foo/something.js
-module.exports = function (fastify, opts, next) {
-  // your plugin
-}
-
-// optional
-module.exports.prefixOverride = ''
-
-// routes can now be added without a prefix
-```
-
-If you have some files in the folder that you'd like autoload to skip you can set `ignorePattern` option to a regex. If
-that matches a file it will not load it.
-
-```js
-// index.js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  options: { prefix: '/defaultPrefix' },
-  ignorePattern: /.*(test|spec).js/
-})
-```
-
-If you are using TypeScript and something like [ts-node](https://github.com/TypeStrong/ts-node) to load the `.ts` files directly you can set `includeTypeScript` option to `true`. This will load plugins from `.ts` files as well as `.js` files.
-
-```ts
-// index.ts
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'foo'),
-  includeTypeScript: true
-})
-```
-> *Note: This is not required when running compiled TypeScript. Type definition files (`.d.ts`) will always be ignored (see [#65](https://github.com/fastify/fastify-autoload/issues/65)).*
-
-
-fastify-autoload loads folders with route definitions automatically, without explicitly registering them. The folder name is used as default prefix for all files in that folder, unless otherwise specified in an `index.js`. See "module.exports.autoPrefix" on how to overwrite this behaviour.
-
-```js
-// index.js
-fastify.register(AutoLoad, {
-  dir: path.join(__dirname, 'services'),
-  options: {}
-})
-
-// /services/items/get.js
-module.exports = function (f, opts, next) {
-  f.get('/:id', (request, reply) => {
-    reply.send({ answer: 42 })
-  })
-
-  next()
-}
-
-// /services/items/list.js
-module.exports = function (f, opts, next) {
-  f.get('/', (request, reply) => {
-    reply.send([0, 1, 2])
-  })
-
-  next()
-}
-
-/**
- * Routes generated:
- * GET /items
- * GET /items/:id
- */
-```
-
-For routes (not plugins), you can skip the "boilerplate" of exporting the fastify function and use a route schema ([full route declaration](https://www.fastify.io/docs/master/Routes/#full-declaration)) instead. The method, url and handler are required, everything else optional. If you need additional options such as a `prefix` or `ignorePattern`, this does _not_ work.
-
-```js
-// /services/items/list.js
-module.exports = {
-  method: 'GET',
-  url: '/',
-  handler: (request, reply) => {
-    reply.send({ answer: 42 })
+  // /plugins/something.js
+  module.exports = function (fastify, opts, next) {
+    // your plugin
   }
-}
 
-/**
- * Routes generated:
- * GET /items
- */
-```
+  module.exports.autoPrefix = '/something'
 
+  // /plugins/something.mjs
+  export default function (f, opts, next) {
+    f.get('/', (request, reply) => {
+      reply.send({ something: 'else' })
+    })
+
+    next()
+  }
+
+  export const autoPrefix = '/prefixed'
+
+  // routes can now be added to /defaultPrefix/something
+  ```
+
+## Plugin Configuration
+
+Each plugin can be individually configured using the following module properties:
+
+- `plugin.autoConfig` - Configuration object which will be used as `opts` parameter
+
+  ```js
+  module.exports = function (fastify, opts, next) {
+    console.log(opts.foo) // 'bar'
+    next()
+  }
+
+  module.exports.autoConfig = { foo: 'bar' }
+  ```
+
+  Or with ESM syntax:
+
+  ```js
+  import plugin from '../lib-plugin.js'
+
+  export default async function myPlugin (app, options) {
+    app.get('/', async (request, reply) => {
+      retrun { hello: options.name }
+    })
+  }
+  export const autoConfig = { name: 'y' }
+  ```
+
+- `plugin.autoPrefix` - Set routing prefix for plugin
+
+  ```js
+  module.exports = function (fastify, opts, next) {
+    fastify.get('/', (request, reply) => {
+      reply.send({ hello: 'world' })
+    })
+
+    next()
+  }
+
+  module.exports.autoPrefix = '/something'
+
+  // when loaded with autoload, this will be exposed as /something
+  ```
+
+  Or with ESM syntax:
+
+  ```js
+  export default async function (app, opts) {
+    app.get('/', (request, reply) => {
+      return { something: 'else' }
+    })
+  }
+
+  export const autoPrefix = '/prefixed'
+  ```
+
+  
+- `plugin.prefixOverride` - Override all other prefix option
+
+  ```js
+  // index.js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    options: { prefix: '/defaultPrefix' }
+  })
+
+  // /foo/something.js
+  module.exports = function (fastify, opts, next) {
+    // your plugin
+  }
+
+  module.exports.prefixOverride = '/overriddenPrefix'
+
+  // this will be exposed as /overriddenPrefix
+  ```
+
+  Or with ESM syntax:
+
+  ```js
+  export default async function (app, opts) {
+    // your plugin
+  }
+
+  export const prefixOverride = '/overriddenPrefix'
+  ```
+
+  If you have a plugin in the folder you don't want the any prefix applied to, you can set `prefixOverride = ''`:
+
+  ```js
+  // index.js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    options: { prefix: '/defaultPrefix' }
+  })
+
+  // /foo/something.js
+  module.exports = function (fastify, opts, next) {
+    // your plugin
+  }
+
+  // optional
+  module.exports.prefixOverride = ''
+
+  // routes can now be added without a prefix
+  ```
+
+- `plugin.autoload` - Toggle whether the plugin should be loaded
+
+  Example:
+  
+  ```js
+  module.exports = function (fastify, opts, next) {
+    // your plugin
+  }
+
+  // optional
+  module.exports.autoload = false
+  ```
+
+- `opts.name` - Set name of plugin so that it can be referenced as a dependency
+
+- `opts.dependencies` - Set plugin dependencies to ensure correct load order
+
+  Example:
+
+  ```js
+  // plugins/plugin-a.js
+  const fp = require('fastify-plugin')
+
+  function plugin (fastify, opts, next) {
+    // plugin a
+  }
+
+  module.exports = fp(plugin, {
+    name: 'plugin-a',
+    dependencies: ['plugin-b']
+  })
+  
+  // plugins/plugin-b.js
+  function plugin (fastify, opts, next) {
+    // plugin b
+  }
+
+  module.exports = fp(plugin, {
+    name: 'plugin-b'
+  })
+  ```
 
 ## License
 

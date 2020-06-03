@@ -1,0 +1,5 @@
+esm: false
+ts: true
+jsx: false
+flow: false
+coverage: true
