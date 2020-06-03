@@ -58,7 +58,7 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
-    accumulator.push({ file, type })
+    accumulator.push({ file, type, prefix })
     return accumulator
   }
 

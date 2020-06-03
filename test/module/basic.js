@@ -75,7 +75,7 @@ app.ready(function (err) {
   })
 
   app.inject({
-    url: '/foo/bar'
+    url: '/bar'
   }, function (err, res) {
     t.error(err)
 
