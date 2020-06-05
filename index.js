@@ -18,16 +18,18 @@ module.exports = async function fastifyAutoload (fastify, options) {
   const opts = { ...defaults, packageType, ...options }
   const plugins = await findPlugins(opts.dir, opts)
   const pluginsMeta = {}
-  for (const { file, type, prefix } of plugins) {
-    try {
-      const plugin = await loadPlugin(file, type, prefix, opts)
-      if (plugin) {
-        pluginsMeta[plugin.name] = plugin
-      }
-    } catch (err) {
-      throw enrichError(err)
-    }
-  }
+
+  await Promise.all(plugins.map(({ file, type, prefix }) => {
+    return loadPlugin(file, type, prefix, opts)
+      .then((plugin) => {
+        if (plugin) {
+          pluginsMeta[plugin.name] = plugin
+        }
+      })
+      .catch((err) => {
+        throw enrichError(err)
+      })
+  }))
 
   for (const name in pluginsMeta) {
     const plugin = pluginsMeta[name]
