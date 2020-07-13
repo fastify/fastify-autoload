@@ -61,7 +61,11 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
     accumulator.push({ file, type, prefix })
-    return accumulator
+    const hasDirectory = list.find((dirent) => dirent.isDirectory())
+
+    if (!hasDirectory) {
+      return accumulator
+    }
   }
 
   // Contains package.json but no index.js file?
