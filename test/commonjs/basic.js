@@ -184,5 +184,4 @@ app.ready(function (err) {
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { works: true })
   })
-
 })
