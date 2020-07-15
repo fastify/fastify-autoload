@@ -62,6 +62,17 @@ Folder structure:
 └── app.js
 ```
 
+**You can pass the options like as an array to load multiple instances.**
+
+```js
+...
+app.register(autoLoad, [
+  { dir: join(__dirname, 'plugins')},
+  { dir: join(__dirname, 'routes')},
+])
+....
+```
+
 ## Global Configuration
 
 Autoload can be customised using the following options:

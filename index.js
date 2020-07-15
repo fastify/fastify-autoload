@@ -14,6 +14,14 @@ const defaults = {
 }
 
 module.exports = async function fastifyAutoload (fastify, options) {
+  if (Array.isArray(options)) {
+    options.map(opts => {
+      fastifyAutoload(fastify, opts)
+    })
+
+    return
+  }
+
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
   const plugins = await findPlugins(opts.dir, opts)

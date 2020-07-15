@@ -11,6 +11,6 @@ export interface AutoloadPluginOptions {
   options?: FastifyPluginOptions
 }
 
-declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
+declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions | AutoloadPluginOptions[]>
 
 export default fastifyAutoload
