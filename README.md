@@ -68,7 +68,7 @@ Autoload can be customised using the following options:
 
 - `dir` (required) - Base directory containing plugins to be loaded
 
-  Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In that case only the index file will be loaded.
+  Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In that case only the index file (and the potential sub-directories) will be loaded.
   
   The following script types are supported:
 

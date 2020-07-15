@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(59)
+t.plan(61)
 
 const app = Fastify()
 
@@ -183,5 +183,12 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/index/ignored'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 404)
   })
 })
