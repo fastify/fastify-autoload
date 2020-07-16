@@ -2,7 +2,7 @@ import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(53)
+t.plan(56)
 
 const app = fastify()
 
@@ -166,5 +166,13 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { no: 'prefix' })
+  })
+
+  app.inject({
+    url: '/dir'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { ecto: 'ries' })
   })
 })
