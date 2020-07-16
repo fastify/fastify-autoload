@@ -15,9 +15,17 @@ const defaults = {
 
 module.exports = async function fastifyAutoload (fastify, options) {
   if (Array.isArray(options)) {
-    options.map(opts => {
+    await Promise.all(options.map(opts =>
       fastifyAutoload(fastify, opts)
-    })
+    ))
+
+    return
+  }
+
+  if (Array.isArray(options.dir)) {
+    await Promise.all(options.dir.map(dir =>
+      fastifyAutoload(fastify, { ...options, dir })
+    ))
 
     return
   }
