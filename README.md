@@ -62,14 +62,22 @@ Folder structure:
 └── app.js
 ```
 
-**You can pass the options like as an array to load multiple instances.**
+**You can use arrays to load multiple instances, by you way.**
 
 ```js
 ...
+
+app.register(autoLoad, {
+  dir: [join(__dirname, 'plugins'), join(__dirname, 'routes')]
+})
+
+// or to don't share options inter directories:
+
 app.register(autoLoad, [
   { dir: join(__dirname, 'plugins')},
   { dir: join(__dirname, 'routes')},
 ])
+
 ....
 ```
 

@@ -4,7 +4,7 @@
 import { FastifyPlugin, FastifyPluginOptions } from 'fastify'
 
 export interface AutoloadPluginOptions {
-  dir: string
+  dir: string | string []
   ignorePattern?: RegExp
   scriptPattern?: RegExp
   indexPattern?: RegExp
