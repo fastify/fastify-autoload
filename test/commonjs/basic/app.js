@@ -17,6 +17,11 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'one'),
+    options: { prefix: 'one/' }
+  })
+
+  fastify.register(autoLoad, {
     dir: path.join(__dirname, 'index'),
     options: { prefix: 'index/' }
   })

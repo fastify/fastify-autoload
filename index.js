@@ -99,7 +99,7 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
 
     const file = path.join(dir, dirent.name)
     if (dirent.isDirectory()) {
-      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '') + dirent.name))
+      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '/') + dirent.name))
       continue
     }
 
@@ -141,6 +141,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
     plugin.autoConfig = undefined
   }
 
+  pluginOptions.prefix = (pluginOptions.prefix && pluginOptions.prefix.endsWith('/')) ? pluginOptions.prefix.slice(0, -1) : pluginOptions.prefix
   const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
   const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
   if (prefixOverride !== undefined) {
