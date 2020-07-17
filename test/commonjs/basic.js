@@ -191,7 +191,7 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 404)
   })
-  
+
   app.inject({
     url: '/one/'
   }, function (err, res) {
