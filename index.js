@@ -85,6 +85,9 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
     if (dirent.isDirectory()) {
       directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '/') + dirent.name))
       continue
+    } else if (indexDirent) {
+      // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)
+      continue
     }
 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
