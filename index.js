@@ -5,9 +5,12 @@ const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 const semver = require('semver')
 
-const typescriptSupport =
-  Symbol.for('ts-node.register.instance') in process ||
+const isTsNode = Symbol.for('ts-node.register.instance') in process
+const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
+const hasTsJest =
   process.env.npm_package_jest_transform_______ts_tsx__ === 'ts-jest'
+const typescriptSupport = isTsNode || (isJestEnviroment && hasTsJest)
+
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 
 const defaults = {
