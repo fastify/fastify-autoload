@@ -7,7 +7,7 @@ const semver = require('semver')
 
 const isTsNode = Symbol.for('ts-node.register.instance') in process
 const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
-const hasTsJest = "npm_package_devDependencies_ts_jest" in process.env
+const hasTsJest = 'npm_package_devDependencies_ts_jest' in process.env
 const typescriptSupport = isTsNode || (isJestEnviroment && hasTsJest)
 
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
