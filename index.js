@@ -164,7 +164,9 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   parentPlugins[name] = true
   for (const name of dependencies) {
     if (allPlugins[name]) {
-      registerPlugin(fastify, allPlugins[name], allPlugins, parentPlugins)
+      // we create a shallow copy of parentPlugins so we can load once the ones that are
+      // on two different dependency chains
+      registerPlugin(fastify, allPlugins[name], allPlugins, { ...parentPlugins })
     }
   }
 
