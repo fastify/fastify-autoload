@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const url = require('url')
 const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 const semver = require('semver')
@@ -114,7 +115,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   const { options: overrideConfig } = options
   let content
   if (type === 'module') {
-    content = await import(file)
+    content = await import(url.pathToFileURL(file).href)
   } else {
     content = require(file)
   }
