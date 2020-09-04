@@ -86,6 +86,15 @@ Autoload can be customised using the following options:
   })
   ```
 
+- `indexPattern` (optional) - Regex to override the `index.js` naming convention
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    indexPattern: /.*routes(\.ts|\.js|\.cjs|\.mjs)$/
+  })
+  ```
+  
 - `options` (optional) - Global options object used for all registered plugins
 
   Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.
