@@ -77,6 +77,16 @@ Autoload can be customised using the following options:
   - `.mjs` (ES modules)
   - `.ts` (TypeScript)
 
+- `dirNameRoutePrefix` (optional) - Default: true. Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'routes'),
+    dirNameRoutePrefix: false // lack of prefix will mean no prefix, instead of directory name
+  })
+  ```
+
+
 - `ignorePattern` (optional) - Regex matching any file that should not be loaded
 
   ```js

@@ -2,7 +2,7 @@ import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(59)
+t.plan(65)
 
 const app = fastify()
 
@@ -178,6 +178,22 @@ app.ready(function (err) {
 
   app.inject({
     url: '/one/two/three'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/ten/'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/ten/eight'
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
