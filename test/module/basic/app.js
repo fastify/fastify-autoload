@@ -24,6 +24,12 @@ export default function (fastify, opts, next) {
     options: { prefix: 'one/' }
   })
 
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'ten'),
+    dirNameRoutePrefix: false,
+    options: { prefix: 'ten/' }
+  })
+
   const skipDir = path.join(__dirname, 'skip')
   fs.mkdir(path.join(skipDir, 'empty'), () => {
     fastify.register(autoLoad, {
