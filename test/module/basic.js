@@ -2,7 +2,7 @@ import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(65)
+t.plan(74)
 
 const app = fastify()
 
@@ -198,5 +198,33 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/nested/shallow'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/nested/shallow/deep'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.deepEqual(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/nested/shallow/deep/deeper'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 404)
+    t.deepEqual(JSON.parse(res.payload), {
+      message: 'Route GET:/nested/shallow/deep/deeper not found',
+      error: 'Not Found',
+      statusCode: 404
+    })
   })
 })
