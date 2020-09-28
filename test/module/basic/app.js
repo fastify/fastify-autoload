@@ -30,6 +30,12 @@ export default function (fastify, opts, next) {
     options: { prefix: 'ten/' }
   })
 
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'nested'),
+    maxDepth: 2,
+    options: { prefix: 'nested/' }
+  })
+
   const skipDir = path.join(__dirname, 'skip')
   fs.mkdir(path.join(skipDir, 'empty'), () => {
     fastify.register(autoLoad, {

@@ -69,7 +69,7 @@ Autoload can be customised using the following options:
 - `dir` (required) - Base directory containing plugins to be loaded
 
   Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In that case only the index file (and the potential sub-directories) will be loaded.
-  
+
   The following script types are supported:
 
   - `.js ` (CommonJS or ES modules depending on `type` field of parent `package.json`)
@@ -104,7 +104,16 @@ Autoload can be customised using the following options:
     indexPattern: /.*routes(\.ts|\.js|\.cjs|\.mjs)$/
   })
   ```
-  
+
+- `maxDepth` (optional) - Limits the depth at which nested plugins are loaded
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    maxDepth: 2 // files in `opts.dir` nested more than 2 directories deep will be ignored.
+  })
+  ```
+
 - `options` (optional) - Global options object used for all registered plugins
 
   Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.
@@ -195,7 +204,7 @@ Each plugin can be individually configured using the following module properties
   export const autoPrefix = '/prefixed'
   ```
 
-  
+
 - `plugin.prefixOverride` - Override all other prefix option
 
   ```js
@@ -248,7 +257,7 @@ Each plugin can be individually configured using the following module properties
 - `plugin.autoload` - Toggle whether the plugin should be loaded
 
   Example:
-  
+
   ```js
   module.exports = function (fastify, opts, next) {
     // your plugin
@@ -276,7 +285,7 @@ Each plugin can be individually configured using the following module properties
     name: 'plugin-a',
     dependencies: ['plugin-b']
   })
-  
+
   // plugins/plugin-b.js
   function plugin (fastify, opts, next) {
     // plugin b

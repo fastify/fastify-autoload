@@ -56,8 +56,8 @@ function getScriptType (fname, packageType) {
   return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
 }
 
-async function findPlugins (dir, options, accumulator = [], prefix) {
-  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix = true } = options
+async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
+  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix = true, maxDepth } = options
   const list = await readdir(dir, { withFileTypes: true })
 
   // Contains index file?
@@ -86,9 +86,10 @@ async function findPlugins (dir, options, accumulator = [], prefix) {
       continue
     }
 
+    const atMaxDepth = Number.isFinite(maxDepth) && maxDepth <= depth
     const file = path.join(dir, dirent.name)
-    if (dirent.isDirectory()) {
-      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '/') + (dirNameRoutePrefix ? dirent.name : '')))
+    if (dirent.isDirectory() && !atMaxDepth) {
+      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '/') + (dirNameRoutePrefix ? dirent.name : ''), depth + 1))
       continue
     } else if (indexDirent) {
       // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)
