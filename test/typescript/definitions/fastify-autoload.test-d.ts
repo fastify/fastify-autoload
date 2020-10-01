@@ -20,7 +20,12 @@ const opt4: AutoloadPluginOptions = {
     prefix: 'test'
   }
 }
+const opt5: AutoloadPluginOptions = {
+  dir: 'test',
+  maxDepth: 1,
+}
 app.register(autoload, opt1)
 app.register(autoload, opt2)
 app.register(autoload, opt3)
 app.register(autoload, opt4)
+app.register(autoload, opt5)
