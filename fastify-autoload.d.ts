@@ -10,7 +10,7 @@ export interface AutoloadPluginOptions {
   scriptPattern?: RegExp
   indexPattern?: RegExp
   options?: FastifyPluginOptions
-  maxDepth: number
+  maxDepth?: number
 }
 
 declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
