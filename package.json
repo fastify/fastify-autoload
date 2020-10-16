@@ -38,7 +38,7 @@
     "@types/jest": "^26.0.8",
     "@types/node": "^14.0.27",
     "fastify": "^3.0.0",
-    "fastify-plugin": "^2.0.3",
+    "fastify-plugin": "^3.0.0",
     "fastify-url-data": "^3.0.3",
     "jest": "^26.2.2",
     "pre-commit": "^1.2.2",
