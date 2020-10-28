@@ -42,7 +42,7 @@
     "fastify-url-data": "^3.0.3",
     "jest": "^26.2.2",
     "pre-commit": "^1.2.2",
-    "snazzy": "^8.0.0",
+    "snazzy": "^9.0.0",
     "standard": "^15.0.0",
     "tap": "^14.10.8",
     "ts-jest": "^26.1.3",
