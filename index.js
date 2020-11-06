@@ -56,6 +56,7 @@ function getScriptType (fname, packageType) {
   return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
 }
 
+// eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
   const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix = true, maxDepth } = options
   const list = await readdir(dir, { withFileTypes: true })
