@@ -12,6 +12,13 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'index-pattern'),
+    options: { prefix: '/custom-index' },
+    indexPattern: /.custom\.js$/,
+    ignorePattern: /^index/
+  })
+
+  fastify.register(autoLoad, {
     dir: path.join(__dirname, 'defaultPrefix'),
     options: { prefix: '/defaultPrefix' }
   })
