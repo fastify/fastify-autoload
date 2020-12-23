@@ -15,7 +15,8 @@ const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 1
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
-  indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i
+  indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
+  dirNameRoutePrefix: true
 }
 
 module.exports = async function fastifyAutoload (fastify, options) {
@@ -58,7 +59,7 @@ function getScriptType (fname, packageType) {
 
 // eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
-  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix = true, maxDepth } = options
+  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth } = options
   const list = await readdir(dir, { withFileTypes: true })
 
   // Contains index file?
@@ -90,7 +91,17 @@ async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
     const atMaxDepth = Number.isFinite(maxDepth) && maxDepth <= depth
     const file = path.join(dir, dirent.name)
     if (dirent.isDirectory() && !atMaxDepth) {
-      directoryPromises.push(findPlugins(file, options, accumulator, (prefix ? prefix + '/' : '/') + (dirNameRoutePrefix ? dirent.name : ''), depth + 1))
+      let prefixBreadCrumb = (prefix ? `${prefix}/` : '/')
+      if (dirNameRoutePrefix === true) {
+        prefixBreadCrumb += dirent.name
+      } else if (typeof dirNameRoutePrefix === 'function') {
+        const prefixReplacer = dirNameRoutePrefix(dir, dirent.name)
+        if (prefixReplacer) {
+          prefixBreadCrumb += prefixReplacer
+        }
+      }
+
+      directoryPromises.push(findPlugins(file, options, accumulator, prefixBreadCrumb, depth + 1))
       continue
     } else if (indexDirent) {
       // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)

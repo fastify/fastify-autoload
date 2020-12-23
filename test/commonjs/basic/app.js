@@ -19,6 +19,23 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'rewrite-route-prefix'),
+    options: { prefix: '/rewrite-route-prefix' },
+    dirNameRoutePrefix: function rewrite (folderParent, folderName) {
+      switch (folderName) {
+        case 'two': // called twice
+          return false
+        case 'three':
+          return 'tre'
+        case 'empty':
+          return folderName
+        default:
+          throw new Error('rewrite called too much times')
+      }
+    }
+  })
+
+  fastify.register(autoLoad, {
     dir: path.join(__dirname, 'defaultPrefix'),
     options: { prefix: '/defaultPrefix' }
   })
