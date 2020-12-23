@@ -141,7 +141,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   if (prefixOverride !== undefined) {
     pluginOptions.prefix = prefixOverride
   } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/g, '/')
   }
 
   return {
