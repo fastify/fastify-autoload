@@ -8,13 +8,17 @@ describe("integration test", function () {
         const child = spawn(instance, [
           `${process.cwd()}/test/typescript-jest/integration/instance.ts`,
         ]);
-        child.stderr.once("data", function () {
-          expect(false).toBeTruthy();
+        let stderr = "";
+        child.stderr.on("data", function (b) {
+          stderr = stderr + b.toString();
         });
-        child.stdout.once("data", function () {
-          expect(true).toBeTruthy();
+        let stdout = "";
+        child.stdout.on("data", function (b) {
+          stdout = stdout + b.toString();
         });
         child.once("close", function () {
+          expect(stderr.includes("failed")).toStrictEqual(false);
+          expect(stdout.includes("success")).toStrictEqual(true);
           resolve("");
         });
       });
