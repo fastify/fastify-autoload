@@ -22,6 +22,7 @@ describe("integration test", function () {
           resolve("");
         });
       });
-    }
+    },
+    10000
   );
 });
