@@ -18,3 +18,4 @@ declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
 type RewritePrefix = (folderParent: string, folderName: string) => string | boolean
 
 export default fastifyAutoload
+export { fastifyAutoload }

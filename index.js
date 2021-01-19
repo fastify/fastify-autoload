@@ -19,7 +19,7 @@ const defaults = {
   dirNameRoutePrefix: true
 }
 
-const autoload = async function fastifyAutoload (fastify, options) {
+const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
   const plugins = await findPlugins(opts.dir, opts)
@@ -209,8 +209,9 @@ function enrichError (err) {
   return err
 }
 
-module.exports = autoload
-module.exports.default = autoload
+fastifyAutoload.fastifyAutoload = fastifyAutoload
+fastifyAutoload.default = fastifyAutoload
+module.exports = fastifyAutoload
 
 // do not create a new context, do not encapsulate
 // same as fastify-plugin
