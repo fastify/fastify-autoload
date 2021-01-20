@@ -209,10 +209,10 @@ function enrichError (err) {
   return err
 }
 
-fastifyAutoload.fastifyAutoload = fastifyAutoload
-fastifyAutoload.default = fastifyAutoload
-module.exports = fastifyAutoload
-
 // do not create a new context, do not encapsulate
 // same as fastify-plugin
 module.exports[Symbol.for('skip-override')] = true
+
+module.exports = fastifyAutoload
+module.exports.fastifyAutoload = fastifyAutoload
+module.exports.default = fastifyAutoload
