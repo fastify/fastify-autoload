@@ -1,6 +1,6 @@
 import { FastifyPlugin } from 'fastify'
 import { join } from 'path'
-const fastifyAutoLoad = require('../../../')
+import fastifyAutoLoad from '../../../'
 
 const app: FastifyPlugin = function (fastify, opts, next): void {
   fastify.register(fastifyAutoLoad, {
