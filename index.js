@@ -211,7 +211,7 @@ function enrichError (err) {
 
 // do not create a new context, do not encapsulate
 // same as fastify-plugin
-module.exports[Symbol.for('skip-override')] = true
+fastifyAutoload[Symbol.for('skip-override')] = true
 
 module.exports = fastifyAutoload
 module.exports.fastifyAutoload = fastifyAutoload
