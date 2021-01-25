@@ -1,48 +1,59 @@
 import t from 'tap'
 import fastify from 'fastify'
-import esmImportApp from './esm-import/app.js'
+import esmImportAppDefault from './esm-import/app-default.js'
+import esmImportAppNamed from './esm-import/app-named.js'
+import esmImportAppStarDefault from './esm-import/app-star-default.js'
+import esmImportAppStarNamed from './esm-import/app-star-named.js'
 
-t.plan(13)
+const { test } = t
 
-const app = fastify()
+test('default', async () => {
+  const app = fastify()
 
-app.register(esmImportApp)
+  app.register(esmImportAppDefault)
 
-app.ready(function (err) {
-  t.error(err)
+  await app.ready()
 
-  app.inject({
-    url: '/named'
-  }, function (err, res) {
-    t.error(err)
+  const res = await app.inject('/default')
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { script: 'default' })
+})
 
-    t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'named' })
-  })
+test('named', async () => {
+  const app = fastify()
 
-  app.inject({
-    url: '/default'
-  }, function (err, res) {
-    t.error(err)
+  app.register(esmImportAppNamed)
 
-    t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'default' })
-  })
+  await app.ready()
 
-  app.inject({
-    url: '/star-default'
-  }, function (err, res) {
-    t.error(err)
+  const res = await app.inject('/named')
 
-    t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'star-default' })
-  })
-  app.inject({
-    url: '/star-named'
-  }, function (err, res) {
-    t.error(err)
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { script: 'named' })
+})
 
-    t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'star-named' })
-  })
+test('star-default', async () => {
+  const app = fastify()
+
+  app.register(esmImportAppStarDefault)
+
+  await app.ready()
+
+  const res = await app.inject('/star-default')
+
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { script: 'star-default' })
+})
+
+test('star-named', async () => {
+  const app = fastify()
+
+  app.register(esmImportAppStarNamed)
+
+  await app.ready()
+
+  const res = await app.inject('/star-named')
+
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { script: 'star-named' })
 })

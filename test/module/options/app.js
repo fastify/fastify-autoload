@@ -1,11 +1,11 @@
 import path from 'path'
 import fastifyUrlData from 'fastify-url-data'
+import { fileURLToPath } from 'url'
 import autoLoad from '../../../index.js'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { dirname } = path
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default function (fastify, opts, next) {
   fastify.register(fastifyUrlData)
