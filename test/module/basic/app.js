@@ -1,11 +1,10 @@
 import fs from 'fs'
-import path from 'path'
+import path, { dirname } from 'path'
 import autoLoad from '../../../index.js'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default function (fastify, opts, next) {
   fastify.register(autoLoad, {

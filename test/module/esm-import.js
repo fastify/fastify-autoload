@@ -11,48 +11,45 @@ test('default', async () => {
   const app = fastify()
 
   app.register(esmImportAppDefault)
-  
-  await app.ready() 
-  
-  const res = await app.inject('/default') 
+
+  await app.ready()
+
+  const res = await app.inject('/default')
   t.equal(res.statusCode, 200)
   t.deepEqual(res.json(), { script: 'default' })
 })
-
 
 test('named', async () => {
   const app = fastify()
 
   app.register(esmImportAppNamed)
-  
+
   await app.ready()
-  
+
   const res = await app.inject('/named')
 
   t.equal(res.statusCode, 200)
   t.deepEqual(res.json(), { script: 'named' })
 })
 
-
 test('star-default', async () => {
   const app = fastify()
 
   app.register(esmImportAppStarDefault)
-  
+
   await app.ready()
-  
+
   const res = await app.inject('/star-default')
 
   t.equal(res.statusCode, 200)
   t.deepEqual(res.json(), { script: 'star-default' })
 })
 
-
 test('star-named', async () => {
   const app = fastify()
 
   app.register(esmImportAppStarNamed)
-  
+
   await app.ready()
 
   const res = await app.inject('/star-named')

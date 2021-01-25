@@ -56,8 +56,7 @@
   },
   "standard": {
     "ignore": [
-      "test/*/*-error/lib/a.js",
-      "test/module/*/app.js"
+      "test/*/*-error/lib/a.js"
     ]
   },
   "tsd": {
