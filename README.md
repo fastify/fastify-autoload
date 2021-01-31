@@ -224,27 +224,27 @@ Autoload can be customised using the following options:
 
   Default behaviour:
 
-  /standard-plugin/ `{}`
-  /hooked-plugin/routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/old-routes `{}`
-  /hooked-plugin/children/new-routes `{}`
-  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`
+  /standard-plugin/ `{}`  
+  /hooked-plugin/routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/old-routes `{}`  
+  /hooked-plugin/children/new-routes `{}`  
+  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`  
 
   Behaviour with `cascadeHooks: true`:
 
-  /standard-plugin/ `{}`
-  /hooked-plugin/routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/grandchildren/routes `{ hookOne: 'yes', hookTwo: 'yes' }`
+  /standard-plugin/ `{}`  
+  /hooked-plugin/routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/grandchildren/routes `{ hookOne: 'yes', hookTwo: 'yes' }`  
 
   Behaviour with `cascadeHooks: true` and `overwriteHooks: true`:
 
-  /standard-plugin/ `{}`
-  /hooked-plugin/routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`
-  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`
+  /standard-plugin/ `{}`  
+  /hooked-plugin/routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`  
+  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`  
 
 ## Plugin Configuration
 
