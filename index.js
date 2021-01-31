@@ -16,17 +16,28 @@ const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 1
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
   indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
+  autoHooksPattern: /^[_\.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i,
   dirNameRoutePrefix: true
 }
+
+let fp = null
 
 const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
-  const plugins = await findPlugins(opts.dir, opts)
+  const plugins = await findPlugins(opts.dir, opts)  
   const pluginsMeta = {}
 
-  await Promise.all(plugins.map(({ file, type, prefix }) => {
-    return loadPlugin(file, type, prefix, opts)
+  try {
+    // bring in fp so we can expose the hooks to the parent plugin
+    if (opts.autoHooks) fp = require('fastify-plugin')
+  } catch (e) {
+    // throw a more descriptive error if fp isn't available
+    if (opts.autoHooks && !fp) throw enrichError(new Error('Automatic hook insertion requires `fastify-plugin` package'))
+  }
+
+  await Promise.all(plugins.map(({ file, type, prefix, hooks }) => {
+    return loadPlugin(file, type, prefix, opts, hooks)
       .then((plugin) => {
         if (plugin) {
           pluginsMeta[plugin.name] = plugin
@@ -36,7 +47,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
         throw enrichError(err)
       })
   }))
-
+  
   for (const name in pluginsMeta) {
     const plugin = pluginsMeta[name]
     registerPlugin(fastify, plugin, pluginsMeta)
@@ -58,16 +69,43 @@ function getScriptType (fname, packageType) {
 }
 
 // eslint-disable-next-line default-param-last
-async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
-  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth } = options
-  const list = await readdir(dir, { withFileTypes: true })
+async function findPlugins (dir, options, accumulator = [], prefix, depth = 0, hooks = []) {
+  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
+  const list = await readdir(dir, { withFileTypes: true })  
+  let currentHooks = [];
+
+  if (options.autoHooks) {
+
+    // Hooks were passed in, create new array specific to this plugin item
+    if (hooks && hooks.length > 0 ) {
+      for (let hook of hooks) {
+        currentHooks.push(hook);
+      }
+    }
+    
+    // Contains auto hooks file?
+    const autoHooks = list.find((dirent) => autoHooksPattern.test(dirent.name))
+    if (autoHooks) {
+      const autoHooksFile = path.join(dir, autoHooks.name)
+      const autoHooksType = getScriptType(autoHooksFile, options.packageType)
+
+      // Overwrite current hooks?
+      if (options.overwriteHooks && currentHooks.length > 0) {
+        currentHooks = [];
+      }
+
+      // Add hook to chain
+      currentHooks.push({ file: autoHooksFile, type: autoHooksType })
+    }  
+  }
+
 
   // Contains index file?
   const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
-    accumulator.push({ file, type, prefix })
+    accumulator.push({ file, type, prefix, hooks })
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
     if (!hasDirectory) {
@@ -101,7 +139,14 @@ async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
         }
       }
 
-      directoryPromises.push(findPlugins(file, options, accumulator, prefixBreadCrumb, depth + 1))
+      // Pass hooks forward to next level
+      if (options.autoHooks && options.cascadeHooks) {
+        directoryPromises.push(findPlugins(file, options, accumulator, prefixBreadCrumb, depth + 1, currentHooks))
+      } else {
+        directoryPromises.push(findPlugins(file, options, accumulator, prefixBreadCrumb, depth + 1))
+      }
+
+      
       continue
     } else if (indexDirent) {
       // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)
@@ -116,7 +161,11 @@ async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
       if (type === 'module' && !moduleSupport) {
         throw new Error(`fastify-autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
       }
-      accumulator.push({ file, type, prefix })
+      
+      // Don't place hook in plugin queue      
+      if (!autoHooksPattern.test(dirent.name)) {
+        accumulator.push({ file, type, prefix, hooks: currentHooks })
+      }
     }
   }
   await Promise.all(directoryPromises)
@@ -124,14 +173,29 @@ async function findPlugins (dir, options, accumulator = [], prefix, depth = 0) {
   return accumulator
 }
 
-async function loadPlugin (file, type, directoryPrefix, options) {
+async function loadPlugin (file, type, directoryPrefix, options, hooks) {  
+
   const { options: overrideConfig } = options
-  let content
+  let content, hookArray, hookContent
   if (type === 'module') {
     content = await import(url.pathToFileURL(file).href)
   } else {
     content = require(file)
   }
+  
+  // plugin has hooks attached, load them
+  if (hooks && hooks.length > 0) {
+    hookArray = [];
+    for (let hook of hooks) {
+      if (hook.type === 'module') {
+        hookContent = await import(url.pathToFileURL(hook.file).href)
+      } else {
+        hookContent = require(hook.file)
+      }
+      hookArray.push(hookContent);      
+    }
+  }
+  
   const plugin = wrapRoutes(content.default || content)
   const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
   const pluginOptions = Object.assign({}, pluginConfig, overrideConfig)
@@ -157,6 +221,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
 
   return {
     plugin,
+    hooks: hookArray,
     name: pluginMeta.name || file,
     dependencies: pluginMeta.dependencies,
     options: pluginOptions,
@@ -165,7 +230,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
 }
 
 function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
-  const { plugin, name, options, dependencies = [] } = meta
+  const { plugin, hooks, name, options, dependencies = [] } = meta
 
   if (parentPlugins[name]) {
     throw new Error('Cyclic dependency')
@@ -183,12 +248,27 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
       registerPlugin(fastify, allPlugins[name], allPlugins, { ...parentPlugins })
     }
   }
+    
+  if (hooks && hooks.length > 0) {
 
-  fastify.register(plugin, options)
+    // plugin has hooks, which we need to encapsulate at the same layer as the plugin      
+    fastify.register(async function(app, opts) {      
+      for (let hook of hooks) {        
+        app.register(fp(hook), options);
+      };
+      
+      app.register(plugin, options);
+    })
+  } else {
+
+    // register plugin as normal
+    fastify.register(plugin, options);
+  }
+
   meta.registered = true
 }
 
-function wrapRoutes (content) {
+function wrapRoutes (content) {  
   if (content &&
     Object.prototype.toString.call(content) === '[object Object]' &&
     Object.prototype.hasOwnProperty.call(content, 'method')) {
