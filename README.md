@@ -50,6 +50,13 @@ Folder structure:
 
 ```
 ├── plugins
+│   ├── hooked-plugin
+│   │   ├── .autohooks.mjs
+│   │   ├── routes.js
+│   │   └── children
+│   │       ├── commonjs.cjs
+│   │       ├── module.mjs
+│   │       └── typescript.ts
 │   ├── single-plugin
 │   │   ├── index.js
 │   │   └── utils.js
@@ -160,6 +167,84 @@ Autoload can be customised using the following options:
 
   // routes can now be added to /defaultPrefix/something
   ```
+
+- `autoHooks` (optional) - Apply hooks from `.autohooks.js` file(s) to plugins found in folder
+
+   Automatic hooks from `.autohooks.js` files will be encapsulated with plugins. If `false`, all `.autohooks.js` files will be ignored.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true // apply hooks to routes in this level
+  })
+  ```
+
+- `cascadeHooks` (optional) - If using `autoHooks`, cascade hooks to all children. Ignored if `autoHooks` is `false`.
+
+  Default behaviour of `autoHooks` is to apply hooks only to the level on which the `.autohooks.js` file is found. Setting `cascadeHooks: true` will continue applying the hooks to any children.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true // apply hooks to routes in this level,
+    cascadeHooks: true // continue applying hooks to children, starting at this level    
+  })
+  ```
+
+- `overwriteHooks` (optional) - If using `cascadeHooks`, cascade will be reset when a new `.autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
+
+  Default behaviour of `cascadeHooks` is to accumulate hooks as new `.autohooks.js` files are discovered and cascade to children. Setting `overwriteHooks: true` will start a new hook cascade when new `.autohooks.js` files are encountered.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true // apply hooks to routes in this level,
+    cascadeHooks: true // continue applying hooks to children, starting at this level,
+    overwriteHooks: true // re-start hook cascade when a new `.autohooks.js` file is found
+  })
+  ```
+
+  Example:
+
+  ```
+  ├── plugins
+  │   ├── hooked-plugin
+  │   │   ├── .autohooks.js // reply.hookOne = 'yes'
+  │   │   ├── routes.js
+  │   │   └── children
+  │   │       ├── old-routes.js
+  │   │       └── new-routes.js
+  │   │           └── grandchildren
+  │   │               ├── .autohooks.mjs // reply.hookTwo = 'yes'
+  │   │               └── routes.js
+  │   └── standard-plugin.js
+  └── app.js
+  ```
+
+
+  Default behaviour:
+
+  /standard-plugin/ `{}`
+  /hooked-plugin/routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/old-routes `{}`
+  /hooked-plugin/children/new-routes `{}`
+  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`
+
+  Behaviour with `cascadeHooks: true`:
+
+  /standard-plugin/ `{}`
+  /hooked-plugin/routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/grandchildren/routes `{ hookOne: 'yes', hookTwo: 'yes' }`
+
+  Behaviour with `cascadeHooks: true` and `overwriteHooks: true`:
+
+  /standard-plugin/ `{}`
+  /hooked-plugin/routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`
+  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`
 
 ## Plugin Configuration
 
