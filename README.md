@@ -186,7 +186,7 @@ Autoload can be customised using the following options:
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
-    autoHooks: true // apply hooks to routes in this level,
+    autoHooks: true, // apply hooks to routes in this level,
     cascadeHooks: true // continue applying hooks to children, starting at this level    
   })
   ```
@@ -198,8 +198,8 @@ Autoload can be customised using the following options:
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
-    autoHooks: true // apply hooks to routes in this level,
-    cascadeHooks: true // continue applying hooks to children, starting at this level,
+    autoHooks: true, // apply hooks to routes in this level,
+    cascadeHooks: true, // continue applying hooks to children, starting at this level,
     overwriteHooks: true // re-start hook cascade when a new `.autohooks.js` file is found
   })
   ```
