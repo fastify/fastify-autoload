@@ -5,6 +5,7 @@ const url = require('url')
 const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 const semver = require('semver')
+const fp = require('fastify-plugin')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
@@ -20,21 +21,11 @@ const defaults = {
   dirNameRoutePrefix: true
 }
 
-let fp = null
-
 const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
   const plugins = await findPlugins(opts.dir, opts)
   const pluginsMeta = {}
-
-  try {
-    // bring in fp so we can expose the hooks to the parent plugin
-    if (opts.autoHooks) fp = require('fastify-plugin')
-  } catch (e) {
-    // throw a more descriptive error if fp isn't available
-    if (opts.autoHooks && !fp) throw enrichError(new Error('Automatic hook insertion requires `fastify-plugin` package'))
-  }
 
   await Promise.all(plugins.map(({ file, type, prefix, hooks }) => {
     return loadPlugin(file, type, prefix, opts, hooks)
