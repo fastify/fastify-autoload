@@ -5,7 +5,6 @@ const url = require('url')
 const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 const semver = require('semver')
-const fp = require('fastify-plugin')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
@@ -240,7 +239,8 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
     // plugin has hooks, which we need to encapsulate at the same layer as the plugin
     fastify.register(async function (app, opts) {
       for (const hook of hooks) {
-        app.register(fp(hook), options)
+        if (hook.default) hook.default[Symbol.for('skip-override')] = true
+        app.register(hook, options)
       };
 
       app.register(plugin, options)
