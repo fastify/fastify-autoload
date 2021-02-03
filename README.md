@@ -204,48 +204,6 @@ Autoload can be customised using the following options:
   })
   ```
 
-  Example:
-
-  ```
-  ├── plugins
-  │   ├── hooked-plugin
-  │   │   ├── .autohooks.js // reply.hookOne = 'yes'
-  │   │   ├── routes.js
-  │   │   └── children
-  │   │       ├── old-routes.js
-  │   │       └── new-routes.js
-  │   │           └── grandchildren
-  │   │               ├── .autohooks.mjs // reply.hookTwo = 'yes'
-  │   │               └── routes.js
-  │   └── standard-plugin.js
-  └── app.js
-  ```
-
-
-  Default behaviour:
-
-  /standard-plugin/ `{}`  
-  /hooked-plugin/routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/old-routes `{}`  
-  /hooked-plugin/children/new-routes `{}`  
-  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`  
-
-  Behaviour with `cascadeHooks: true`:
-
-  /standard-plugin/ `{}`  
-  /hooked-plugin/routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/grandchildren/routes `{ hookOne: 'yes', hookTwo: 'yes' }`  
-
-  Behaviour with `cascadeHooks: true` and `overwriteHooks: true`:
-
-  /standard-plugin/ `{}`  
-  /hooked-plugin/routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/old-routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/new-routes `{ hookOne: 'yes' }`  
-  /hooked-plugin/children/grandchildren/routes `{ hookTwo: 'yes' }`  
-
 ## Plugin Configuration
 
 Each plugin can be individually configured using the following module properties:
@@ -393,6 +351,98 @@ Each plugin can be individually configured using the following module properties
     name: 'plugin-b'
   })
   ```
+
+  ## Autohooks:
+
+  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. The default behaviour of `autoHooks: true` will apply the `.autohooks.js` plugin only to the contents of the folder containing the file.
+  
+  The `cascadeHooks: true` option allows hooks to apply to the current folder and all subsequent children, with any new `.autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time a new `.autohooks.js` file is encountered.
+
+    ### Example:
+
+    ```
+    ├── plugins
+    │   ├── hooked-plugin
+    │   │   ├── .autohooks.js // reply.hookOne = 'yes'
+    │   │   ├── routes.js
+    │   │   └── children
+    │   │       ├── old-routes.js
+    │   │       └── new-routes.js
+    │   │           └── grandchildren
+    │   │               ├── .autohooks.mjs // reply.hookTwo = 'yes'
+    │   │               └── routes.js
+    │   └── standard-plugin.js
+    └── app.js
+    ```
+
+    ```js
+    // hooked-plugin/.autohooks.js
+
+    export default async function (app, opts) {
+      app.addHook('onRequest', async (req, reply) => {
+        req.hookOne = yes
+      })
+    }
+
+    // hooked-plugin/children/grandchildren/.autohooks.js
+
+    export default async function (app, opts) {
+      app.addHook('onRequest', async (req, reply) => {
+        req.hookTwo = yes
+      })
+    }
+    ```
+
+    ```bash
+    # app.js { autoHooks: true }
+
+    $ curl http://localhost:3000/standard-plugin/
+    {} # no hooks in this folder, so behaviour is unchanged
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    {}
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    {}
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookTwo: 'yes' }
+    ```
+
+    ```bash
+    # app.js { autoHooks: true, cascadeHooks: true }
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookOne: 'yes', hookTwo: 'yes' } # hooks are accumulated and applied in ascending order
+    ```
+
+    ```bash
+    # app.js { autoHooks: true, cascadeHooks: true, overwriteHooks: true }
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookTwo: 'yes' } # new .autohooks.js takes over
+    ```
 
 ## License
 
