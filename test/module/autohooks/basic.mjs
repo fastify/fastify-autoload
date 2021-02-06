@@ -9,7 +9,7 @@ const __dirname = dirname(__filename)
 
 export default async function (fastify, opts) {
   fastify.register(autoload, {
-    dir: path.join(__dirname, 'basic'),
+    dir: path.join(__dirname, 'routes'),
     autoHooks: true
   })
 }
