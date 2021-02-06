@@ -170,12 +170,22 @@ Autoload can be customised using the following options:
 
 - `autoHooks` (optional) - Apply hooks from `.autohooks.js` file(s) to plugins found in folder
 
-   Automatic hooks from `.autohooks.js` files will be encapsulated with plugins. If `false`, all `.autohooks.js` files will be ignored.
+  Automatic hooks from `.autohooks.js` files will be encapsulated with plugins. If `false`, all `.autohooks.js` files will be ignored.
 
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
     autoHooks: true // apply hooks to routes in this level
+  })
+  ```
+
+- `autoHooksPattern` (optional) - Regex to override the `.autohooks` naming convention
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true,
+    autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i // default: .autohooks, _autohooks, .auto_hooks, _auto_hooks
   })
   ```
 
@@ -363,13 +373,13 @@ Each plugin can be individually configured using the following module properties
     ```
     ├── plugins
     │   ├── hooked-plugin
-    │   │   ├── .autohooks.js // reply.hookOne = 'yes'
+    │   │   ├── .autohooks.js // req.hookOne = 'yes'
     │   │   ├── routes.js
     │   │   └── children
     │   │       ├── old-routes.js
     │   │       └── new-routes.js
     │   │           └── grandchildren
-    │   │               ├── .autohooks.mjs // reply.hookTwo = 'yes'
+    │   │               ├── .autohooks.mjs // req.hookTwo = 'yes'
     │   │               └── routes.js
     │   └── standard-plugin.js
     └── app.js
