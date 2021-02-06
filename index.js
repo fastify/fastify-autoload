@@ -162,7 +162,7 @@ async function findPlugins (dir, options, accumulator = [], prefix, depth = 0, h
 
 async function loadPlugin (file, type, directoryPrefix, options, hooks) {
   const { options: overrideConfig } = options
-  let content, hookArray, hookContent
+  let content, hookArray, hookContent, hookPlugin
   if (type === 'module') {
     content = await import(url.pathToFileURL(file).href)
   } else {
@@ -178,8 +178,12 @@ async function loadPlugin (file, type, directoryPrefix, options, hooks) {
       } else {
         hookContent = require(hook.file)
       }
-      hookArray.push(hookContent)
+
+      // unpack default export
+      hookArray.push(hookContent.default || hookContent)
     }
+
+    hookPlugin = wrapHooks(hookArray)
   }
 
   const plugin = wrapRoutes(content.default || content)
@@ -207,7 +211,7 @@ async function loadPlugin (file, type, directoryPrefix, options, hooks) {
 
   return {
     plugin,
-    hooks: hookArray,
+    hooks: hookPlugin,
     name: pluginMeta.name || file,
     dependencies: pluginMeta.dependencies,
     options: pluginOptions,
@@ -234,15 +238,10 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
       registerPlugin(fastify, allPlugins[name], allPlugins, { ...parentPlugins })
     }
   }
-
-  if (hooks && hooks.length > 0) {
+  if (hooks) {
     // plugin has hooks, which we need to encapsulate at the same layer as the plugin
     fastify.register(async function (app, opts) {
-      for (const hook of hooks) {
-        if (hook.default) hook.default[Symbol.for('skip-override')] = true
-        app.register(hook, options)
-      };
-
+      app.register(hooks)
       app.register(plugin, options)
     })
   } else {
@@ -262,6 +261,28 @@ function wrapRoutes (content) {
     }
   }
   return content
+}
+
+function wrapHooks (hooks) {
+  // ensure hook functions aren't encapsulated below routes
+  const hookFunctions = hooks.map(h => {
+    if (
+      Object.prototype.toString.call(h) === '[object AsyncFunction]' ||
+      Object.prototype.toString.call(h) === '[object Function]'
+    ) {
+      h[Symbol.for('skip-override')] = true
+    }
+
+    return h
+  })
+
+  const wrappedHooks = async function (app, opts) {
+    hookFunctions.forEach(h => app.register(h))
+  }
+
+  // ensure wrapped hooks aren't encapsulated below routes
+  wrappedHooks[Symbol.for('skip-override')] = true
+  return wrappedHooks
 }
 
 function enrichError (err) {
