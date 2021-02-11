@@ -6,12 +6,12 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
-    "unit": "if semver `node --version` --range '>=14 || >= 12.17.0 < 13.0.0'; then npm run unit:with-modules; else npm run unit:without-modules; fi",
-    "unit:with-modules": "tap test/*/*.js test/*/*.ts",
-    "unit:without-modules": "tap test/commonjs/*.js test/*/*.ts",
     "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest",
     "typescript": "tsd",
-    "typescript:jest": "jest"
+    "typescript:jest": "jest",
+    "unit": "if semver `node --version` --range '>=14 || >= 12.17.0 < 13.0.0'; then npm run unit:with-modules; else npm run unit:without-modules; fi",
+    "unit:with-modules": "tap test/*/*.js test/*/*.ts",
+    "unit:without-modules": "tap test/commonjs/*.js test/*/*.ts"
   },
   "repository": {
     "type": "git",
