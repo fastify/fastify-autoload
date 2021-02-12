@@ -51,7 +51,7 @@ Folder structure:
 ```
 ├── plugins
 │   ├── hooked-plugin
-│   │   ├── .autohooks.mjs
+│   │   ├── autohooks.mjs
 │   │   ├── routes.js
 │   │   └── children
 │   │       ├── commonjs.cjs
