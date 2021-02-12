@@ -293,40 +293,6 @@ async function loadHook (hook) {
   return hookContent
 }
 
-async function loadHooks (hooks) {
-  if (!hooks || hooks.length === 0) return null
-  const hookArray = []
-  for (const hook of hooks) {
-    let hookContent
-    if (hook.type === 'module') {
-      hookContent = await import(url.pathToFileURL(hook.file).href)
-    } else {
-      hookContent = require(hook.file)
-    }
-
-    hookArray.push(hookContent.default || hookContent)
-  }
-
-  const hookFunctions = hookArray.map(h => {
-    if (
-      Object.prototype.toString.call(h) === '[object AsyncFunction]' ||
-      Object.prototype.toString.call(h) === '[object Function]'
-    ) {
-      h[Symbol.for('skip-override')] = true
-    }
-
-    return h
-  })
-
-  const wrappedHooks = async function (app, opts) {
-    hookFunctions.forEach(h => app.register(h))
-  }
-
-  // ensure wrapped hooks aren't encapsulated below routes
-  wrappedHooks[Symbol.for('skip-override')] = true
-  return wrappedHooks
-}
-
 function enrichError (err) {
   // Hack SyntaxError message so that we provide
   // the line number to the user, otherwise they
