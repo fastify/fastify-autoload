@@ -23,11 +23,14 @@ const defaults = {
 const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
-  const plugins = await findPlugins(opts.dir, opts)
+  const pluginTree = await findPlugins(opts.dir, opts)
   const pluginsMeta = {}
   const hooksMeta = {}
 
-  await Promise.all(Object.values(plugins).map(obj => obj.plugins).flat().map(({ file, type, prefix }) => {
+  const pluginArray = [].concat.apply([], Object.values(pluginTree).map(o => o.plugins))
+  const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
+
+  await Promise.all(pluginArray.map(({ file, type, prefix }) => {
     return loadPlugin(file, type, prefix, opts)
       .then((plugin) => {
         if (plugin) {
@@ -39,7 +42,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
       })
   }))
 
-  await Promise.all(Object.values(plugins).map(obj => obj.hooks).flat().map((h) => {
+  await Promise.all(hookArray.map((h) => {
     return loadHook(h)
       .then((hookPlugin) => {
         if (hookPlugin) {
@@ -51,9 +54,9 @@ const fastifyAutoload = async function autoload (fastify, options) {
       })
   }))
 
-  for (const prefix in plugins) {
-    const hookFiles = plugins[prefix].hooks
-    const pluginFiles = plugins[prefix].plugins
+  for (const prefix in pluginTree) {
+    const hookFiles = pluginTree[prefix].hooks
+    const pluginFiles = pluginTree[prefix].plugins
     const composedPlugin = async function (app, opts) {
       // find hook functions for this prefix
       for (const hookFile of hookFiles) {
