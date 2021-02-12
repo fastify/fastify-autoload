@@ -23,10 +23,11 @@ const defaults = {
 const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
-  const { plugins, hooks } = await findPlugins(opts.dir, opts)
+  const plugins = await findPlugins(opts.dir, opts)
   const pluginsMeta = {}
+  const hooksMeta = {}
 
-  await Promise.all(plugins.map(({ file, type, prefix }) => {
+  await Promise.all(Object.values(plugins).map(obj => obj.plugins).flat().map(({ file, type, prefix }) => {
     return loadPlugin(file, type, prefix, opts)
       .then((plugin) => {
         if (plugin) {
@@ -38,25 +39,37 @@ const fastifyAutoload = async function autoload (fastify, options) {
       })
   }))
 
-  if (!options.autoHooks) { // default behaviour: apply plugins at root level of fastify app, no encapsulation required
-    for (const name in pluginsMeta) {
-      const plugin = pluginsMeta[name]
-      registerPlugin(fastify, plugin, pluginsMeta)
-    }
-  } else { // autoHooks behaviour: bundle plugins per prefix, encapsulate, apply hooks
-    for (const prefix in hooks) {
-      const hookFiles = hooks[prefix].hooks
-      const pluginFiles = hooks[prefix].plugins
-      const hookPlugin = await loadHooks(hookFiles)
-      const hookedPlugin = async function (app, opts) {
-        if (hookPlugin) app.register(hookPlugin)
-        for (const pluginFile of pluginFiles) {
-          const plugin = Object.values(pluginsMeta).find((i) => i.filename === pluginFile.file) // object was built before plugin files were loaded, find the correct plugin based on the filename
-          if (plugin) registerPlugin(fastify, plugin, pluginsMeta)
+  await Promise.all(Object.values(plugins).map(obj => obj.hooks).flat().map((h) => {
+    return loadHook(h)
+      .then((hookPlugin) => {
+        if (hookPlugin) {
+          hooksMeta[h.file] = hookPlugin
         }
+      })
+      .catch((err) => {
+        throw enrichError(err)
+      })
+  }))
+
+  for (const prefix in plugins) {
+    const hookFiles = plugins[prefix].hooks
+    const pluginFiles = plugins[prefix].plugins
+    const composedPlugin = async function (app, opts) {
+      // find hook functions for this prefix
+      for (const hookFile of hookFiles) {
+        const hookPlugin = hooksMeta[hookFile.file]
+        // encapsulate hooks at plugin level
+        if (hookPlugin) app.register(hookPlugin)
       }
-      fastify.register(hookedPlugin)
+
+      for (const pluginFile of pluginFiles) {
+        // find plugins for this prefix, based on filename stored in registerPlugins()
+        const plugin = Object.values(pluginsMeta).find((i) => i.filename === pluginFile.file)
+        // register plugins at fastify level
+        if (plugin) registerPlugin(fastify, plugin, pluginsMeta)
+      }
     }
+    fastify.register(composedPlugin)
   }
 }
 
@@ -75,7 +88,7 @@ function getScriptType (fname, packageType) {
 }
 
 // eslint-disable-next-line default-param-last
-async function findPlugins (dir, options, accumulator = [], hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
+async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
   const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
   const list = await readdir(dir, { withFileTypes: true })
   let currentHooks = []
@@ -114,12 +127,11 @@ async function findPlugins (dir, options, accumulator = [], hookedAccumulator = 
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
-    accumulator.push({ file, type, prefix })
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
     if (!hasDirectory) {
-      return { plugins: accumulator, hooks: hookedAccumulator }
+      return hookedAccumulator
     }
   }
 
@@ -151,9 +163,9 @@ async function findPlugins (dir, options, accumulator = [], hookedAccumulator = 
 
       // Pass hooks forward to next level
       if (options.autoHooks && options.cascadeHooks) {
-        directoryPromises.push(findPlugins(file, options, accumulator, hookedAccumulator, prefixBreadCrumb, depth + 1, currentHooks))
+        directoryPromises.push(findPlugins(file, options, hookedAccumulator, prefixBreadCrumb, depth + 1, currentHooks))
       } else {
-        directoryPromises.push(findPlugins(file, options, accumulator, hookedAccumulator, prefixBreadCrumb, depth + 1))
+        directoryPromises.push(findPlugins(file, options, hookedAccumulator, prefixBreadCrumb, depth + 1))
       }
 
       continue
@@ -173,14 +185,13 @@ async function findPlugins (dir, options, accumulator = [], hookedAccumulator = 
 
       // Don't place hook in plugin queue
       if (!autoHooksPattern.test(dirent.name)) {
-        accumulator.push({ file, type, prefix })
         hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
       }
     }
   }
   await Promise.all(directoryPromises)
 
-  return { plugins: accumulator, hooks: hookedAccumulator }
+  return hookedAccumulator
 }
 
 async function loadPlugin (file, type, directoryPrefix, options) {
@@ -259,6 +270,27 @@ function wrapRoutes (content) {
     }
   }
   return content
+}
+
+async function loadHook (hook) {
+  if (!hook) return null
+  let hookContent
+  if (hook.type === 'module') {
+    hookContent = await import(url.pathToFileURL(hook.file).href)
+  } else {
+    hookContent = require(hook.file)
+  }
+
+  hookContent = hookContent.default || hookContent
+
+  if (
+    Object.prototype.toString.call(hookContent) === '[object AsyncFunction]' ||
+    Object.prototype.toString.call(hookContent) === '[object Function]'
+  ) {
+    hookContent[Symbol.for('skip-override')] = true
+  }
+
+  return hookContent
 }
 
 async function loadHooks (hooks) {
