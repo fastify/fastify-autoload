@@ -43,6 +43,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
   }))
 
   await Promise.all(hookArray.map((h) => {
+    if (hooksMeta[h.file]) return null // hook plugin already loaded, skip this instance
     return loadHook(h)
       .then((hookPlugin) => {
         if (hookPlugin) {
