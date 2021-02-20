@@ -131,6 +131,13 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
+    if (type === 'typescript' && !typescriptSupport) {
+      throw new Error(`fastify-autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+    }
+    if (type === 'module' && !moduleSupport) {
+      throw new Error(`fastify-autoload cannot import hooks plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
+    }
+
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 

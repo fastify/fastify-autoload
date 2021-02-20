@@ -170,7 +170,7 @@ Autoload can be customised using the following options:
 
 - `autoHooks` (optional) - Apply hooks from `autohooks.js` file(s) to plugins found in folder
 
-  Automatic hooks from `autohooks.js` files will be encapsulated with plugins. If `false`, all `autohooks.js` files will be ignored.
+  Automatic hooks from `autohooks` files will be encapsulated with plugins. If `false`, all `autohooks.js` files will be ignored.
 
   ```js
   fastify.register(autoLoad, {
@@ -364,7 +364,7 @@ Each plugin can be individually configured using the following module properties
 
   ## Autohooks:
 
-  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. The default behaviour of `autoHooks: true` will apply the `autohooks.js` plugin only to the contents of the folder containing the file.
+  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. The default behaviour of `autoHooks: true` is to apply the `autohooks.js` plugin only to the contents of the folder containing the file. CJS and ESM `autohook` formats are supported.
   
   The `cascadeHooks: true` option allows hooks to apply to the current folder and all subsequent children, with any new `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time a new `autohooks.js` file is encountered.
 
@@ -373,14 +373,14 @@ Each plugin can be individually configured using the following module properties
     ```
     ├── plugins
     │   ├── hooked-plugin
-    │   │   ├── autohooks.js // req.hookOne = 'yes'
+    │   │   ├── autohooks.js // req.hookOne = 'yes' # CJS syntax
     │   │   ├── routes.js
     │   │   └── children
     │   │       ├── old-routes.js
-    │   │       └── new-routes.js
-    │   │           └── grandchildren
-    │   │               ├── .autohooks.mjs // req.hookTwo = 'yes'
-    │   │               └── routes.js
+    │   │       ├── new-routes.js
+    │   │       └── grandchildren
+    │   │           ├── autohooks.mjs // req.hookTwo = 'yes' # ESM syntax
+    │   │           └── routes.mjs
     │   └── standard-plugin.js
     └── app.js
     ```
@@ -388,13 +388,14 @@ Each plugin can be individually configured using the following module properties
     ```js
     // hooked-plugin/autohooks.js
 
-    export default async function (app, opts) {
+    module.exports = async function (app, opts, next) {
       app.addHook('onRequest', async (req, reply) => {
-        req.hookOne = yes
-      })
+        req.hookOne = yes;
+        next();
+      });
     }
 
-    // hooked-plugin/children/grandchildren/autohooks.js
+    // hooked-plugin/children/grandchildren/autohooks.mjs
 
     export default async function (app, opts) {
       app.addHook('onRequest', async (req, reply) => {
