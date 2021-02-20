@@ -364,9 +364,11 @@ Each plugin can be individually configured using the following module properties
 
   ## Autohooks:
 
-  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. The default behaviour of `autoHooks: true` is to apply the `autohooks.js` plugin only to the contents of the folder containing the file. CJS and ESM `autohook` formats are supported.
+  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. CJS and ESM `autohook` formats are supported.
   
-  The `cascadeHooks: true` option allows hooks to apply to the current folder and all subsequent children, with any new `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time a new `autohooks.js` file is encountered.
+  The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
+
+  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `fastify-autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Encapsulation/
 
     ### Example:
 
@@ -381,7 +383,8 @@ Each plugin can be individually configured using the following module properties
     │   │       └── grandchildren
     │   │           ├── autohooks.mjs // req.hookTwo = 'yes' # ESM syntax
     │   │           └── routes.mjs
-    │   └── standard-plugin.js
+    │   └── standard-plugin
+    │       └── routes.js
     └── app.js
     ```
 
