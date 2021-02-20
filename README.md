@@ -185,7 +185,7 @@ Autoload can be customised using the following options:
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
     autoHooks: true,
-    autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i
+    autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i
   })
   ```
 
