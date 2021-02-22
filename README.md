@@ -55,6 +55,13 @@ Folder structure:
 
 ```
 ├── plugins
+│   ├── hooked-plugin
+│   │   ├── autohooks.mjs
+│   │   ├── routes.js
+│   │   └── children
+│   │       ├── commonjs.cjs
+│   │       ├── module.mjs
+│   │       └── typescript.ts
 │   ├── single-plugin
 │   │   ├── index.js
 │   │   └── utils.js
@@ -164,6 +171,52 @@ Autoload can be customised using the following options:
   export const autoPrefix = '/prefixed'
 
   // routes can now be added to /defaultPrefix/something
+  ```
+
+- `autoHooks` (optional) - Apply hooks from `autohooks.js` file(s) to plugins found in folder
+
+  Automatic hooks from `autohooks` files will be encapsulated with plugins. If `false`, all `autohooks.js` files will be ignored.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true // apply hooks to routes in this level
+  })
+  ```
+
+- `autoHooksPattern` (optional) - Regex to override the `autohooks` naming convention
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true,
+    autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i
+  })
+  ```
+
+- `cascadeHooks` (optional) - If using `autoHooks`, cascade hooks to all children. Ignored if `autoHooks` is `false`.
+
+  Default behaviour of `autoHooks` is to apply hooks only to the level on which the `autohooks.js` file is found. Setting `cascadeHooks: true` will continue applying the hooks to any children.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true, // apply hooks to routes in this level,
+    cascadeHooks: true // continue applying hooks to children, starting at this level    
+  })
+  ```
+
+- `overwriteHooks` (optional) - If using `cascadeHooks`, cascade will be reset when a new `autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
+
+  Default behaviour of `cascadeHooks` is to accumulate hooks as new `autohooks.js` files are discovered and cascade to children. Setting `overwriteHooks: true` will start a new hook cascade when new `autohooks.js` files are encountered.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    autoHooks: true, // apply hooks to routes in this level,
+    cascadeHooks: true, // continue applying hooks to children, starting at this level,
+    overwriteHooks: true // re-start hook cascade when a new `autohooks.js` file is found
+  })
   ```
 
 ## Plugin Configuration
@@ -313,6 +366,102 @@ Each plugin can be individually configured using the following module properties
     name: 'plugin-b'
   })
   ```
+
+  ## Autohooks:
+
+  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. CJS and ESM `autohook` formats are supported.
+  
+  The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
+
+  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `fastify-autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Encapsulation/
+
+    ### Example:
+
+    ```
+    ├── plugins
+    │   ├── hooked-plugin
+    │   │   ├── autohooks.js // req.hookOne = 'yes' # CJS syntax
+    │   │   ├── routes.js
+    │   │   └── children
+    │   │       ├── old-routes.js
+    │   │       ├── new-routes.js
+    │   │       └── grandchildren
+    │   │           ├── autohooks.mjs // req.hookTwo = 'yes' # ESM syntax
+    │   │           └── routes.mjs
+    │   └── standard-plugin
+    │       └── routes.js
+    └── app.js
+    ```
+
+    ```js
+    // hooked-plugin/autohooks.js
+
+    module.exports = async function (app, opts, next) {
+      app.addHook('onRequest', async (req, reply) => {
+        req.hookOne = yes;
+        next();
+      });
+    }
+
+    // hooked-plugin/children/grandchildren/autohooks.mjs
+
+    export default async function (app, opts) {
+      app.addHook('onRequest', async (req, reply) => {
+        req.hookTwo = yes
+      })
+    }
+    ```
+
+    ```bash
+    # app.js { autoHooks: true }
+
+    $ curl http://localhost:3000/standard-plugin/
+    {} # no hooks in this folder, so behaviour is unchanged
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    {}
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    {}
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookTwo: 'yes' }
+    ```
+
+    ```bash
+    # app.js { autoHooks: true, cascadeHooks: true }
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookOne: 'yes', hookTwo: 'yes' } # hooks are accumulated and applied in ascending order
+    ```
+
+    ```bash
+    # app.js { autoHooks: true, cascadeHooks: true, overwriteHooks: true }
+
+    $ curl http://localhost:3000/hooked-plugin/
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/old
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/new
+    { hookOne: 'yes' }
+
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    { hookTwo: 'yes' } # new autohooks.js takes over
+    ```
 
 ## License
 
