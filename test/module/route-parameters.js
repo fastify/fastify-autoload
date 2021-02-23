@@ -32,6 +32,10 @@ test('routeParams: Default behaviour', async () => {
   res = await app.inject('/pages/test_id/edit')
   t.equal(res.statusCode, 200)
   t.deepEqual(res.json(), { route: '/pages/:id/edit', id: 'test_id' })
+
+  res = await app.inject('/users/test_id/details')
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { route: '/users/:id/details', id: 'test_id' })
 })
 
 test('routeParams: off', async () => {
@@ -67,4 +71,11 @@ test('routeParams: off', async () => {
   res = await app.inject('/pages/_id/edit')
   t.equal(res.statusCode, 200)
   t.deepEqual(res.json(), { route: '/pages/:id/edit' })
+
+  res = await app.inject('/users/test_id/details')
+  t.equal(res.statusCode, 404)
+
+  res = await app.inject('/users/_id/details')
+  t.equal(res.statusCode, 200)
+  t.deepEqual(res.json(), { route: '/users/:id/details' })
 })
