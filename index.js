@@ -17,6 +17,7 @@ const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
   indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
   autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i,
+  routeParamPattern: /\/_/i,
   dirNameRoutePrefix: true
 }
 
@@ -34,6 +35,8 @@ const fastifyAutoload = async function autoload (fastify, options) {
     return loadPlugin(file, type, prefix, opts)
       .then((plugin) => {
         if (plugin) {
+          // create route parameters from prefixed folders
+          if (options.routeParams) plugin.options.prefix = plugin.options.prefix ? plugin.options.prefix.replace(opts.routeParamPattern, '/:') : plugin.options.prefix
           pluginsMeta[plugin.name] = plugin
         }
       })
@@ -41,7 +44,6 @@ const fastifyAutoload = async function autoload (fastify, options) {
         throw enrichError(err)
       })
   }))
-
   await Promise.all(hookArray.map((h) => {
     if (hooksMeta[h.file]) return null // hook plugin already loaded, skip this instance
     return loadHook(h)
