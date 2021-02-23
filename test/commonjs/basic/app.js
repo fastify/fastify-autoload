@@ -59,3 +59,5 @@ module.exports = function (fastify, opts, next) {
     next()
   })
 }
+
+module.exports[Symbol.for('skip-override')] = true
