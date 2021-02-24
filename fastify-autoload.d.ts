@@ -11,6 +11,10 @@ export interface AutoloadPluginOptions {
   indexPattern?: RegExp
   options?: FastifyPluginOptions
   maxDepth?: number
+  autoHooks?: boolean
+  autoHooksPattern?: RegExp
+  cascadeHooks?: boolean
+  overwriteHooks?: boolean
 }
 
 declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
