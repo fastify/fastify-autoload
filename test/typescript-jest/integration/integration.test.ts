@@ -1,13 +1,11 @@
-import { spawn } from "child_process";
+import { exec } from "child_process";
 
 describe("integration test", function () {
   test.concurrent.each(["ts-node", "ts-node-dev"])(
     "integration with %s",
     async function (instance) {
       await new Promise(function (resolve) {
-        const child = spawn(instance, [
-          `${process.cwd()}/test/typescript-jest/integration/instance.ts`,
-        ]);
+        const child = exec(`${instance} ${process.cwd()}/test/typescript-jest/integration/instance.ts`);
         let stderr = "";
         child.stderr.on("data", function (b) {
           stderr = stderr + b.toString();
