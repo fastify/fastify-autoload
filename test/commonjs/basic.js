@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(85)
+t.plan(86)
 
 const app = Fastify()
 
@@ -11,6 +11,8 @@ app.register(require('./basic/app'))
 
 app.ready(function (err) {
   t.error(err)
+
+  t.is(app.foo, 'bar')
 
   app.inject({
     url: '/something'

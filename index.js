@@ -57,25 +57,33 @@ const fastifyAutoload = async function autoload (fastify, options) {
       })
   }))
 
+  const metas = Object.values(pluginsMeta)
   for (const prefix in pluginTree) {
     const hookFiles = pluginTree[prefix].hooks
     const pluginFiles = pluginTree[prefix].plugins
-    const composedPlugin = async function (app, opts) {
-      // find hook functions for this prefix
-      for (const hookFile of hookFiles) {
-        const hookPlugin = hooksMeta[hookFile.file]
-        // encapsulate hooks at plugin level
-        if (hookPlugin) app.register(hookPlugin)
+    if (hookFiles.length === 0) {
+      registerAllPlugins(fastify, pluginFiles)
+    } else {
+      const composedPlugin = async function (app) {
+        // find hook functions for this prefix
+        for (const hookFile of hookFiles) {
+          const hookPlugin = hooksMeta[hookFile.file]
+          // encapsulate hooks at plugin level
+          if (hookPlugin) app.register(hookPlugin)
+        }
+        registerAllPlugins(app, pluginFiles)
       }
-
-      for (const pluginFile of pluginFiles) {
-        // find plugins for this prefix, based on filename stored in registerPlugins()
-        const plugin = Object.values(pluginsMeta).find((i) => i.filename === pluginFile.file)
-        // register plugins at fastify level
-        if (plugin) registerPlugin(fastify, plugin, pluginsMeta)
-      }
+      fastify.register(composedPlugin)
     }
-    fastify.register(composedPlugin)
+  }
+
+  function registerAllPlugins (app, pluginFiles) {
+    for (const pluginFile of pluginFiles) {
+      // find plugins for this prefix, based on filename stored in registerPlugins()
+      const plugin = metas.find((i) => i.filename === pluginFile.file)
+      // register plugins at fastify level
+      if (plugin) registerPlugin(app, plugin, pluginsMeta)
+    }
   }
 }
 

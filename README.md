@@ -184,6 +184,9 @@ Autoload can be customised using the following options:
   })
   ```
 
+  If `autoHooks` is set, all plugins in the folder will be [encapsulated](https://github.com/fastify/fastify/blob/master/docs/Encapsulation.md)
+  and decorated values _will not be exported_ outside the folder.
+
 - `autoHooksPattern` (optional) - Regex to override the `autohooks` naming convention
 
   ```js

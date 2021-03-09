@@ -50,8 +50,16 @@ const opt5: AutoloadPluginOptions = {
   dir: 'test',
   maxDepth: 1,
 }
+const opt6: AutoloadPluginOptions = {
+  dir: 'test',
+  autoHooks: true,
+  autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i,
+  cascadeHooks: true,
+  overwriteHooks: true,
+}
 app.register(fastifyAutoloadDefault, opt1)
 app.register(fastifyAutoloadDefault, opt2)
 app.register(fastifyAutoloadDefault, opt3)
 app.register(fastifyAutoloadDefault, opt4)
 app.register(fastifyAutoloadDefault, opt5)
+app.register(fastifyAutoloadDefault, opt6)
