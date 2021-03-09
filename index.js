@@ -44,7 +44,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
 
   await Promise.all(hookArray.map((h) => {
     if (hooksMeta[h.file]) return null // hook plugin already loaded, skip this instance
-    return loadHook(h)
+    return loadHook(h, opts)
       .then((hookPlugin) => {
         if (hookPlugin) {
           hooksMeta[h.file] = hookPlugin
@@ -214,9 +214,9 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 }
 
 async function loadPlugin (file, type, directoryPrefix, options) {
-  const { options: overrideConfig } = options
+  const { options: overrideConfig, forceESM } = options
   let content
-  if (type === 'module') {
+  if (forceESM || type === 'module') {
     content = await import(url.pathToFileURL(file).href)
   } else {
     content = require(file)
@@ -291,10 +291,10 @@ function wrapRoutes (content) {
   return content
 }
 
-async function loadHook (hook) {
+async function loadHook (hook, options) {
   if (!hook) return null
   let hookContent
-  if (hook.type === 'module') {
+  if (options.forceESM || hook.type === 'module') {
     hookContent = await import(url.pathToFileURL(hook.file).href)
   } else {
     hookContent = require(hook.file)
