@@ -6,12 +6,13 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
-    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest",
+    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm",
     "typescript": "tsd",
     "typescript:jest": "jest",
+    "typescript:esm": "node scripts/unit-typescript-esm.js",
     "unit": "node scripts/unit.js",
-    "unit:with-modules": "tap test/*/*.js test/*/*.ts",
-    "unit:without-modules": "tap test/commonjs/*.js test/*/*.ts"
+    "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts",
+    "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts"
   },
   "repository": {
     "type": "git",
