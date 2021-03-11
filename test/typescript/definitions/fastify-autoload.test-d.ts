@@ -1,9 +1,8 @@
 import fastify, { FastifyInstance, FastifyPlugin } from 'fastify'
 import { expectType } from 'tsd'
-
-import { fastifyAutoload as fastifyAutoloadNamed, AutoloadPluginOptions } from "../../../"
-import fastifyAutoloadDefault from "../../../"
 import * as fastifyAutoloadStar from "../../../"
+import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from "../../../"
+
 import fastifyAutoloadCjsImport = require("../../../")
 const fastifyAutoloadCjs = require("../../../")
 
@@ -52,6 +51,7 @@ const opt5: AutoloadPluginOptions = {
 }
 const opt6: AutoloadPluginOptions = {
   dir: 'test',
+  forceESM: true,
   autoHooks: true,
   autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i,
   cascadeHooks: true,

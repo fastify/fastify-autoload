@@ -11,6 +11,7 @@ export interface AutoloadPluginOptions {
   indexPattern?: RegExp
   options?: FastifyPluginOptions
   maxDepth?: number
+  forceESM?: boolean
   autoHooks?: boolean
   autoHooksPattern?: RegExp
   cascadeHooks?: boolean

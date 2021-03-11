@@ -139,6 +139,15 @@ Autoload can be customised using the following options:
   })
   ```
 
+- `forceESM` (optional) - If set to 'true' it always use `await import` to load plugins or hooks.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    forceESM: true
+  })
+  ```
+
 - `options` (optional) - Global options object used for all registered plugins
 
   Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.

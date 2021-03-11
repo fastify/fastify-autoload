@@ -9,3 +9,4 @@ const child = exec(semver.satisfies('>=14 || >= 12.17.0 < 13.0.0')
 
 child.stdout.pipe(process.stdout)
 child.stderr.pipe(process.stderr)
+child.once('close', process.exit)
