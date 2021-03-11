@@ -1,7 +1,7 @@
 import fastify from 'fastify'
-import { dirname, resolve } from 'path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import t from 'tap'
-import { fileURLToPath } from 'url'
 import fastifyAutoLoad from '../../'
 
 t.plan(4)
