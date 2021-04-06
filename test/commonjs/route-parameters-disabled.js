@@ -18,7 +18,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { users: [{ id: 7, username: 'example' }] })
+    t.same(JSON.parse(res.payload), { users: [{ id: 7, username: 'example' }] })
   })
 
   app.inject({
@@ -35,6 +35,6 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { user: { id: 'null', username: 'example' } })
+    t.same(JSON.parse(res.payload), { user: { id: 'null', username: 'example' } })
   })
 })

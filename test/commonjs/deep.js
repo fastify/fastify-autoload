@@ -18,7 +18,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'deep-route' })
+    t.same(JSON.parse(res.payload), { data: 'deep-route' })
   })
 
   app.inject({
@@ -27,6 +27,6 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'deep-route' })
+    t.same(JSON.parse(res.payload), { data: 'deep-route' })
   })
 })

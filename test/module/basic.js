@@ -17,7 +17,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { something: 'else' })
+    t.same(JSON.parse(res.payload), { something: 'else' })
   })
 
   app.inject({
@@ -26,7 +26,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+    t.same(JSON.parse(res.payload), { answer: 42 })
   })
 
   app.inject({
@@ -35,7 +35,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
+    t.same(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
   })
 
   app.inject({
@@ -44,7 +44,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+    t.same(JSON.parse(res.payload), { answer: 42 })
   })
 
   app.inject({
@@ -53,7 +53,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
+    t.same(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
   })
 
   app.inject({
@@ -62,7 +62,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { answer: 42 })
+    t.same(JSON.parse(res.payload), { answer: 42 })
   })
 
   app.inject({
@@ -71,7 +71,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
+    t.same(JSON.parse(res.payload), [{ answer: 42 }, { answer: 41 }])
   })
 
   app.inject({
@@ -80,7 +80,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { foo: 'bar' })
+    t.same(JSON.parse(res.payload), { foo: 'bar' })
   })
 
   app.inject({
@@ -89,7 +89,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { something: 'else' })
+    t.same(JSON.parse(res.payload), { something: 'else' })
   })
 
   app.inject({
@@ -104,7 +104,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), {
+    t.same(JSON.parse(res.payload), {
       foo: 'bar'
     })
   })
@@ -114,7 +114,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), {
+    t.same(JSON.parse(res.payload), {
       foo: 'bar'
     })
   })
@@ -124,7 +124,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), {
+    t.same(JSON.parse(res.payload), {
       foo: 'bar'
     })
   })
@@ -134,7 +134,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { index: true })
+    t.same(JSON.parse(res.payload), { index: true })
   })
 
   app.inject({
@@ -142,7 +142,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { prefixed: true })
+    t.same(JSON.parse(res.payload), { prefixed: true })
   })
 
   app.inject({
@@ -157,7 +157,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { overide: 'prefix' })
+    t.same(JSON.parse(res.payload), { overide: 'prefix' })
   })
 
   app.inject({
@@ -165,7 +165,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { no: 'prefix' })
+    t.same(JSON.parse(res.payload), { no: 'prefix' })
   })
 
   app.inject({
@@ -173,7 +173,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -181,7 +181,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -189,7 +189,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -197,7 +197,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -205,7 +205,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -213,7 +213,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { works: true })
+    t.same(JSON.parse(res.payload), { works: true })
   })
 
   app.inject({
@@ -221,7 +221,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 404)
-    t.deepEqual(JSON.parse(res.payload), {
+    t.same(JSON.parse(res.payload), {
       message: 'Route GET:/nested/shallow/deep/deeper not found',
       error: 'Not Found',
       statusCode: 404
