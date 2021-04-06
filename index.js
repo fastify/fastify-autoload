@@ -12,12 +12,12 @@ const hasTsJest = 'npm_package_devDependencies_ts_jest' in process.env
 const typescriptSupport = isTsNode || (isJestEnviroment && hasTsJest)
 
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
+const routeParamPattern = /\/_/i
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
   indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
   autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i,
-  routeParamPattern: /\/_/i,
   dirNameRoutePrefix: true
 }
 
@@ -36,7 +36,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
       .then((plugin) => {
         if (plugin) {
           // create route parameters from prefixed folders
-          if (options.routeParams) plugin.options.prefix = plugin.options.prefix ? plugin.options.prefix.replace(opts.routeParamPattern, '/:') : plugin.options.prefix
+          if (options.routeParams) plugin.options.prefix = plugin.options.prefix ? plugin.options.prefix.replace(routeParamPattern, '/:') : plugin.options.prefix
           pluginsMeta[plugin.name] = plugin
         }
       })
