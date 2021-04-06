@@ -231,6 +231,31 @@ Autoload can be customised using the following options:
   })
   ```
 
+- `routeParams` (optional) - Folders prefixed with `_` will be turned into route parameters.
+
+  ```js
+  /*
+  ├── routes
+  │   └── users
+  │       ├── _id
+  │       │   └── actions.js
+  │       └── index.js
+  └── app.js
+  */
+
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'routes'),
+    routeParams: true // routes/users/_id/actions.js will be loaded with prefix /users/:id
+  })  
+
+  // curl http://localhost:3000/users/index
+  // { userIndex: [ { id: 7, username: 'example' } ] }
+
+  // curl http://localhost:3000/users/7/details
+  // { user: { id: 7, username: 'example' } }
+
+  ```
+
 ## Plugin Configuration
 
 Each plugin can be individually configured using the following module properties:
