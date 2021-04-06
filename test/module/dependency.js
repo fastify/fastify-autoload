@@ -16,7 +16,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-a' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-a' })
   })
 
   app.inject({
@@ -24,7 +24,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-b' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-b' })
   })
 
   app.inject({
@@ -32,7 +32,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-c' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-c' })
   })
 
   app.inject({
@@ -40,7 +40,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-d' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-d' })
   })
 
   app.inject({
@@ -48,7 +48,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-e' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-e' })
   })
 
   app.inject({
@@ -56,7 +56,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'plugin-f' })
+    t.same(JSON.parse(res.payload), { data: 'plugin-f' })
   })
 
   app.inject({
@@ -64,6 +64,6 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload).path, '/plugin-g')
+    t.same(JSON.parse(res.payload).path, '/plugin-g')
   })
 })

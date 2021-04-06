@@ -19,7 +19,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hooked: 'disabled' })
+    t.same(JSON.parse(res.payload), { hooked: 'disabled' })
   })
 
   app.inject({
@@ -28,7 +28,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hooked: 'disabled' })
+    t.same(JSON.parse(res.payload), { hooked: 'disabled' })
   })
 
   app.inject({
@@ -37,7 +37,7 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hooked: 'disabled' })
+    t.same(JSON.parse(res.payload), { hooked: 'disabled' })
   })
 
   app.inject({
@@ -46,6 +46,6 @@ app.ready(function (err) {
     t.error(err)
 
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hooked: 'disabled' })
+    t.same(JSON.parse(res.payload), { hooked: 'disabled' })
   })
 })

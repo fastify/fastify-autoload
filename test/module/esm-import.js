@@ -16,7 +16,7 @@ test('default', async () => {
 
   const res = await app.inject('/default')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { script: 'default' })
+  t.same(res.json(), { script: 'default' })
 })
 
 test('named', async () => {
@@ -29,7 +29,7 @@ test('named', async () => {
   const res = await app.inject('/named')
 
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { script: 'named' })
+  t.same(res.json(), { script: 'named' })
 })
 
 test('star-default', async () => {
@@ -42,7 +42,7 @@ test('star-default', async () => {
   const res = await app.inject('/star-default')
 
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { script: 'star-default' })
+  t.same(res.json(), { script: 'star-default' })
 })
 
 test('star-named', async () => {
@@ -55,5 +55,5 @@ test('star-named', async () => {
   const res = await app.inject('/star-named')
 
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { script: 'star-named' })
+  t.same(res.json(), { script: 'star-named' })
 })

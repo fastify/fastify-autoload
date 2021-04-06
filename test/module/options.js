@@ -17,7 +17,7 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     // a is overriden by global option:
-    t.deepEqual(JSON.parse(res.payload), { data: 'test-1' })
+    t.same(JSON.parse(res.payload), { data: 'test-1' })
   })
 
   app.inject({
@@ -25,7 +25,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'override' })
+    t.same(JSON.parse(res.payload), { data: 'override' })
   })
 
   app.inject({
@@ -33,7 +33,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'default' })
+    t.same(JSON.parse(res.payload), { data: 'default' })
   })
 
   app.inject({
@@ -41,7 +41,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'c' })
+    t.same(JSON.parse(res.payload), { data: 'c' })
   })
 
   app.inject({
@@ -49,7 +49,7 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'test-3' })
+    t.same(JSON.parse(res.payload), { data: 'test-3' })
   })
 
   app.inject({
@@ -57,6 +57,6 @@ app.ready(function (err) {
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { data: 'y' })
+    t.same(JSON.parse(res.payload), { data: 'y' })
   })
 })

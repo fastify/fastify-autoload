@@ -18,19 +18,19 @@ test('autohooks: Default behaviour', async () => {
 
   res = await app.inject('/')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root'] })
+  t.same(res.json(), { hooked: ['root'] })
 
   res = await app.inject('/child')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['child'] })
+  t.same(res.json(), { hooked: ['child'] })
 
   res = await app.inject('/child/grandchild')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['grandchild'] })
+  t.same(res.json(), { hooked: ['grandchild'] })
 
   res = await app.inject('/sibling')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: '' })
+  t.same(res.json(), { hooked: '' })
 })
 
 test('autohooks: Cascade behaviour', async () => {
@@ -44,19 +44,19 @@ test('autohooks: Cascade behaviour', async () => {
 
   res = await app.inject('/')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root'] })
+  t.same(res.json(), { hooked: ['root'] })
 
   res = await app.inject('/child')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root', 'child'] })
+  t.same(res.json(), { hooked: ['root', 'child'] })
 
   res = await app.inject('/child/grandchild')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root', 'child', 'grandchild'] })
+  t.same(res.json(), { hooked: ['root', 'child', 'grandchild'] })
 
   res = await app.inject('/sibling')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root'] })
+  t.same(res.json(), { hooked: ['root'] })
 })
 
 test('autohooks: Overwrite cascade behaviour', async () => {
@@ -70,19 +70,19 @@ test('autohooks: Overwrite cascade behaviour', async () => {
 
   res = await app.inject('/')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root'] })
+  t.same(res.json(), { hooked: ['root'] })
 
   res = await app.inject('/child')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['child'] })
+  t.same(res.json(), { hooked: ['child'] })
 
   res = await app.inject('/child/grandchild')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['grandchild'] })
+  t.same(res.json(), { hooked: ['grandchild'] })
 
   res = await app.inject('/sibling')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: ['root'] })
+  t.same(res.json(), { hooked: ['root'] })
 })
 
 test('autohooks: Disabled behaviour', async () => {
@@ -96,17 +96,17 @@ test('autohooks: Disabled behaviour', async () => {
 
   res = await app.inject('/')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: 'disabled' })
+  t.same(res.json(), { hooked: 'disabled' })
 
   res = await app.inject('/child')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: 'disabled' })
+  t.same(res.json(), { hooked: 'disabled' })
 
   res = await app.inject('/child/grandchild')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: 'disabled' })
+  t.same(res.json(), { hooked: 'disabled' })
 
   res = await app.inject('/sibling')
   t.equal(res.statusCode, 200)
-  t.deepEqual(res.json(), { hooked: 'disabled' })
+  t.same(res.json(), { hooked: 'disabled' })
 })

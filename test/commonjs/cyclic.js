@@ -10,5 +10,5 @@ const app = Fastify()
 app.register(require('./cyclic-dependency/app'))
 
 app.ready(function (err) {
-  t.is(err.message, 'Cyclic dependency')
+  t.equal(err.message, 'Cyclic dependency')
 })
