@@ -313,7 +313,7 @@ Each plugin can be individually configured using the following module properties
   ```
 
 
-- `plugin.prefixOverride` - Override all other prefix option
+- `plugin.prefixOverride` - Override all other prefix options
 
   ```js
   // index.js
@@ -342,7 +342,7 @@ Each plugin can be individually configured using the following module properties
   export const prefixOverride = '/overriddenPrefix'
   ```
 
-  If you have a plugin in the folder you don't want the any prefix applied to, you can set `prefixOverride = ''`:
+  If you have a plugin in the folder you do not want any prefix applied to, you can set `prefixOverride = ''`:
 
   ```js
   // index.js
@@ -406,7 +406,7 @@ Each plugin can be individually configured using the following module properties
 
   ## Autohooks:
 
-  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc... to your routes. CJS and ESM `autohook` formats are supported.
+  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.
   
   The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
 
