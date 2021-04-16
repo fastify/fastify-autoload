@@ -18,13 +18,9 @@ app.register(fastifyAutoloadStar.fastifyAutoload);
 expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadNamed);
 expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadDefault);
 expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(
-  fastifyAutoloadCjsImport.fastifyAutoload
-);
+expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload);
 expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadStar.default);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(
-  fastifyAutoloadStar.fastifyAutoload
-);
+expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload);
 expectType<any>(fastifyAutoloadCjs);
 
 let opt1: AutoloadPluginOptions = {
@@ -51,6 +47,10 @@ const opt5: AutoloadPluginOptions = {
 }
 const opt6: AutoloadPluginOptions = {
   dir: 'test',
+  routeParams: true,
+}
+const opt7: AutoloadPluginOptions = {
+  dir: 'test',
   forceESM: true,
   autoHooks: true,
   autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i,
@@ -63,3 +63,4 @@ app.register(fastifyAutoloadDefault, opt3)
 app.register(fastifyAutoloadDefault, opt4)
 app.register(fastifyAutoloadDefault, opt5)
 app.register(fastifyAutoloadDefault, opt6)
+app.register(fastifyAutoloadDefault, opt7)

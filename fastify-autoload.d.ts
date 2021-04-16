@@ -16,6 +16,7 @@ export interface AutoloadPluginOptions {
   autoHooksPattern?: RegExp
   cascadeHooks?: boolean
   overwriteHooks?: boolean
+  routeParams?: boolean
 }
 
 declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
