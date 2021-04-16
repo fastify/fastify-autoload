@@ -1,6 +1,6 @@
 {
   "name": "fastify-autoload",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "Require all plugins in a directory",
   "main": "index.js",
   "types": "fastify-autoload.d.ts",
