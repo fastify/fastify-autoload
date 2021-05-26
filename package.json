@@ -41,7 +41,7 @@
     "fastify": "^3.0.0",
     "fastify-plugin": "^3.0.0",
     "fastify-url-data": "^3.0.3",
-    "jest": "^26.2.2",
+    "jest": "^27.0.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
     "standard": "^16.0.1",
