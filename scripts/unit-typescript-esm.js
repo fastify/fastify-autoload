@@ -3,7 +3,7 @@
 const { exec } = require('child_process')
 const semver = require('semver')
 
-if (semver.satisfies(process.version, '>= 14 || >= 13.4.0 || >= 12.16.0 < 13.0.0')) {
+if (semver.satisfies(process.version, '>= 14')) {
   const args = [
     'tap',
     '--node-arg=--loader=ts-node/esm',
