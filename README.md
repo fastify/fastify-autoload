@@ -33,7 +33,6 @@ app.listen(3000)
 or with ESM syntax:
 
 ```js
-import path from 'path'
 import autoLoad from 'fastify-autoload'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
