@@ -11,7 +11,7 @@ const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
 const typescriptSupport = isTsNode || isJestEnviroment
 
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
-const routeParamPattern = /\/_/i
+const routeParamPattern = /\/_/ig
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
