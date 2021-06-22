@@ -50,6 +50,12 @@ module.exports = function (fastify, opts, next) {
     options: { prefix: 'index/' }
   })
 
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'routeParams'),
+    options: { prefix: 'routeParams/' },
+    routeParams: true
+  })
+
   const skipDir = path.join(__dirname, 'skip')
   fs.mkdir(path.join(skipDir, 'empty'), () => {
     fastify.register(autoLoad, {
