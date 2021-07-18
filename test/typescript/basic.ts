@@ -1,4 +1,4 @@
-import * as t from 'tap'
+import t from 'tap'
 import fastify from 'fastify'
 
 import basicApp from './basic/app'
