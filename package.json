@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
-    "@types/jest": "^26.0.8",
+    "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
     "@types/tap": "^15.0.5",
     "fastify": "^3.0.0",
