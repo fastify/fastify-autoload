@@ -157,7 +157,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
   // Contains package.json but no index.js file?
   const packageDirent = list.find((dirent) => dirent.name === 'package.json')
-  if (packageDirent) {
+  if (packageDirent && !indexDirent) {
     throw new Error(`fastify-autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
   }
 
