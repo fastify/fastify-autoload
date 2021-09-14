@@ -6,10 +6,11 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
-    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm",
+    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc",
     "typescript": "tsd",
     "typescript:jest": "jest",
     "typescript:esm": "node scripts/unit-typescript-esm.js",
+    "typescript:swc": "node scripts/unit-typescript-swc.js",
     "unit": "node scripts/unit.js",
     "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts",
     "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts"
@@ -36,6 +37,8 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
+    "@swc/core": "^1.2.85",
+    "@swc/register": "^0.1.7",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
     "@types/tap": "^15.0.5",
