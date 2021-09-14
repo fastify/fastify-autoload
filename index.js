@@ -7,8 +7,10 @@ const pkgUp = require('pkg-up')
 const semver = require('semver')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
-const isJestEnviroment = process.env.JEST_WORKER_ID !== undefined
-const typescriptSupport = isTsNode || isJestEnviroment
+const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
+const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
+const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
+const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode
 
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 const routeParamPattern = /\/_/ig
