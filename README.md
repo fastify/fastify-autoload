@@ -432,10 +432,9 @@ Each plugin can be individually configured using the following module properties
     ```js
     // hooked-plugin/autohooks.js
 
-    module.exports = async function (app, opts, next) {
+    module.exports = async function (app, opts) {
       app.addHook('onRequest', async (req, reply) => {
         req.hookOne = yes;
-        next();
       });
     }
 
