@@ -241,11 +241,11 @@ async function loadPlugin (file, type, directoryPrefix, options) {
 
   pluginOptions.prefix = (pluginOptions.prefix && pluginOptions.prefix.endsWith('/')) ? pluginOptions.prefix.slice(0, -1) : pluginOptions.prefix
   const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
-  const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
+  const prefix = plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : ''
   if (prefixOverride !== undefined) {
     pluginOptions.prefix = prefixOverride
-  } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/g, '/')
+  } else {
+    pluginOptions.prefix = (directoryPrefix || '') + (pluginOptions.prefix || '') + prefix.replace(/\/+/g, '/')
   }
 
   return {
