@@ -11,7 +11,7 @@ on:
       - '*.md'
 
 jobs:
-  call-reuseable-workflow:
+  test:
     uses: fastify/workflows/.github/workflows/plugins-ci.yml@v1
     with:
       generate-coverage: true
