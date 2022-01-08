@@ -10,8 +10,8 @@ const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!proce
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
-const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode
-
+const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
+const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode || isTsm
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 const routeParamPattern = /\/_/ig
 
