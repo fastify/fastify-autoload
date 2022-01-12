@@ -12,6 +12,4 @@ on:
 
 jobs:
   test:
-    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v1
-    with:
-      generate-coverage: true
+    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v2
