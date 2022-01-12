@@ -13,8 +13,8 @@
     "typescript:swc": "node scripts/unit-typescript-swc.js",
     "typescript:tsm": "node scripts/unit-typescript-tsm.js",
     "unit": "node scripts/unit.js",
-    "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts --cov --coverage-report=html",
-    "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts --cov --coverage-report=html"
+    "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts",
+    "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts"
   },
   "repository": {
     "type": "git",
