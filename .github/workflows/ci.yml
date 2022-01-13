@@ -1,45 +1,15 @@
 name: ci
-'on':
+
+on:
   push:
     paths-ignore:
-      - docs/**
+      - 'docs/**'
       - '*.md'
   pull_request:
     paths-ignore:
-      - docs/**
+      - 'docs/**'
       - '*.md'
+
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version:
-          - 10
-          - 12
-          - 14
-          - 16
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macOS-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install Dependencies
-        run: npm install --ignore-scripts
-      - name: Run Tests
-        run: |
-          npm test
-  automerge:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: fastify/github-action-merge-dependabot@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+  test:
+    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v2
