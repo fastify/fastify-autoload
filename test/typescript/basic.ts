@@ -3,28 +3,30 @@ import fastify from 'fastify'
 
 import basicApp from './basic/app'
 
-t.plan(7)
+t.plan(5)
 
 const app = fastify()
 
 app.register(basicApp)
 
-app.ready(function (err): void {
+app.ready(async function (err): Promise<void> {
   t.error(err)
 
-  app.inject({
+  await app.inject({
     url: '/javascript'
-  }, function (err, res): void {
-    t.error(err)
+  }).then(function (res): void {
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { script: 'java' })
+  }).catch((err) => {
+    t.error(err)
   })
 
-  app.inject({
+  await app.inject({
     url: '/typescript'
-  }, function (err, res): void {
-    t.error(err)
+  }).then(function (res): void {
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { script: 'type' })
+  }).catch((err) => {
+    t.error(err)
   })
 })
