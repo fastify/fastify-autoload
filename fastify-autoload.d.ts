@@ -1,7 +1,7 @@
 /* eslint no-redeclare: off */
 /* eslint no-unused-vars: off */
 
-import { FastifyPlugin, FastifyPluginOptions } from 'fastify'
+import { FastifyPluginCallback, FastifyPluginOptions } from 'fastify'
 
 export interface AutoloadPluginOptions {
   dir: string
@@ -19,7 +19,7 @@ export interface AutoloadPluginOptions {
   routeParams?: boolean
 }
 
-declare const fastifyAutoload: FastifyPlugin<AutoloadPluginOptions>
+declare const fastifyAutoload: FastifyPluginCallback<AutoloadPluginOptions>
 
 type RewritePrefix = (folderParent: string, folderName: string) => string | boolean
 

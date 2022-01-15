@@ -21,7 +21,7 @@ app.ready(function (err): void {
     function (err, res): void {
       t.error(err)
       t.equal(res.statusCode, 200)
-      t.deepEqual(JSON.parse(res.payload), { result: 'ok' })
+      t.same(JSON.parse(res.payload), { result: 'ok' })
     }
   )
 })
