@@ -17,7 +17,7 @@ app.ready(function (err): void {
   }, function (err, res): void {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'java' })
+    t.same(JSON.parse(res.payload), { script: 'java' })
   })
 
   app.inject({
@@ -25,6 +25,6 @@ app.ready(function (err): void {
   }, function (err, res): void {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { script: 'type' })
+    t.same(JSON.parse(res.payload), { script: 'type' })
   })
 })

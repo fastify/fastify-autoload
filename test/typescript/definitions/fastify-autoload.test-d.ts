@@ -1,10 +1,10 @@
-import fastify, { FastifyInstance, FastifyPlugin } from 'fastify'
+import fastify, { FastifyInstance, FastifyPluginCallback } from 'fastify'
 import { expectType } from 'tsd'
-import * as fastifyAutoloadStar from "../../../"
-import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from "../../../"
+import * as fastifyAutoloadStar from '../../../'
+import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '../../../'
 
-import fastifyAutoloadCjsImport = require("../../../")
-const fastifyAutoloadCjs = require("../../../")
+import fastifyAutoloadCjsImport = require('../../../')
+const fastifyAutoloadCjs = require('../../../')
 
 const app: FastifyInstance = fastify();
 app.register(fastifyAutoloadNamed);
@@ -15,12 +15,12 @@ app.register(fastifyAutoloadCjsImport.fastifyAutoload);
 app.register(fastifyAutoloadStar.default);
 app.register(fastifyAutoloadStar.fastifyAutoload);
 
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadNamed);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadDefault);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadStar.default);
-expectType<FastifyPlugin<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadNamed);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadDefault);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.default);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload);
 expectType<any>(fastifyAutoloadCjs);
 
 let opt1: AutoloadPluginOptions = {

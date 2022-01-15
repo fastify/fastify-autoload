@@ -1,8 +1,8 @@
-import { FastifyPlugin } from 'fastify'
+import { FastifyPluginCallback } from 'fastify'
 import { join } from 'path'
-const fastifyAutoLoad = require('../../../')
+const fastifyAutoLoad = require('../../../index')
 
-const app: FastifyPlugin = function (fastify, opts, next): void {
+const app: FastifyPluginCallback = function (fastify, opts, next): void {
   fastify.register(fastifyAutoLoad, {
     dir: join(__dirname, 'foo'),
   })
