@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(98)
+t.plan(101)
 
 const app = Fastify()
 
@@ -261,5 +261,13 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { works: true, id1: 'abc', id2: '2' })
+  })
+
+  app.inject({
+    url: '/encapsulate'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { works: true })
   })
 })

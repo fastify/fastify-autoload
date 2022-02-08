@@ -12,6 +12,7 @@ export interface AutoloadPluginOptions {
   options?: FastifyPluginOptions
   maxDepth?: number
   forceESM?: boolean
+  encapsulate?: boolean
   autoHooks?: boolean
   autoHooksPattern?: RegExp
   cascadeHooks?: boolean

@@ -146,6 +146,14 @@ Autoload can be customised using the following options:
     forceESM: true
   })
   ```
+- `encapsulate` (optional) - Defaults to 'true', if set to 'false' each plugin loaded is wrapped with [fastify-plugin](https://github.com/fastify/fastify-plugin). This allows you to share contexts between plugins and the parent context if needed. For example, if you need to share decorators. Read [this](https://github.com/fastify/fastify/blob/main/docs/Reference/Encapsulation.md#sharing-between-contexts) for more details.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    encapsulate: false
+  })
+  ```
 
 - `options` (optional) - Global options object used for all registered plugins
 
@@ -192,7 +200,7 @@ Autoload can be customised using the following options:
   })
   ```
 
-  If `autoHooks` is set, all plugins in the folder will be [encapsulated](https://github.com/fastify/fastify/blob/master/docs/Encapsulation.md)
+  If `autoHooks` is set, all plugins in the folder will be [encapsulated](https://github.com/fastify/fastify/blob/main/docs/Reference/Encapsulation.md)
   and decorated values _will not be exported_ outside the folder.
 
 - `autoHooksPattern` (optional) - Regex to override the `autohooks` naming convention

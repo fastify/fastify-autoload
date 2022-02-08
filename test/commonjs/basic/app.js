@@ -56,6 +56,11 @@ module.exports = function (fastify, opts, next) {
     routeParams: true
   })
 
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'encapsulate'),
+    encapsulate: false
+  })
+
   const skipDir = path.join(__dirname, 'skip')
   fs.mkdir(path.join(skipDir, 'empty'), () => {
     fastify.register(autoLoad, {
