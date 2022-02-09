@@ -57,6 +57,10 @@ const opt7: AutoloadPluginOptions = {
   cascadeHooks: true,
   overwriteHooks: true,
 }
+const opt8: AutoloadPluginOptions = {
+  dir: 'test',
+  encapsulate: false,
+}
 app.register(fastifyAutoloadDefault, opt1)
 app.register(fastifyAutoloadDefault, opt2)
 app.register(fastifyAutoloadDefault, opt3)
@@ -64,3 +68,4 @@ app.register(fastifyAutoloadDefault, opt4)
 app.register(fastifyAutoloadDefault, opt5)
 app.register(fastifyAutoloadDefault, opt6)
 app.register(fastifyAutoloadDefault, opt7)
+app.register(fastifyAutoloadDefault, opt8)

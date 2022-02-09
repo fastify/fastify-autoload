@@ -6,6 +6,7 @@
   "types": "fastify-autoload.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
+    "lint:fix": "standard --fix | snazzy",
     "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc && npm run typescript:tsm",
     "typescript": "tsd",
     "typescript:jest": "jest",

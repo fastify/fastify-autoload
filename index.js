@@ -19,7 +19,8 @@ const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
   indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
   autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i,
-  dirNameRoutePrefix: true
+  dirNameRoutePrefix: true,
+  encapsulate: true
 }
 
 const fastifyAutoload = async function autoload (fastify, options) {
@@ -217,7 +218,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 }
 
 async function loadPlugin (file, type, directoryPrefix, options) {
-  const { options: overrideConfig, forceESM } = options
+  const { options: overrideConfig, forceESM, encapsulate } = options
   let content
   if (forceESM || type === 'module') {
     content = await import(url.pathToFileURL(file).href)
@@ -229,6 +230,10 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
   const pluginOptions = Object.assign({}, pluginConfig, overrideConfig)
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
+
+  if (!encapsulate) {
+    plugin[Symbol.for('skip-override')] = true
+  }
 
   if (plugin.autoload === false || content.autoload === false) {
     return
