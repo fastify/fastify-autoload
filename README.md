@@ -285,7 +285,7 @@ Each plugin can be individually configured using the following module properties
 
   export default async function myPlugin (app, options) {
     app.get('/', async (request, reply) => {
-      retrun { hello: options.name }
+      return { hello: options.name }
     })
   }
   export const autoConfig = { name: 'y' }
