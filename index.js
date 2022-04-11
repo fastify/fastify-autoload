@@ -14,7 +14,7 @@ const isTsm = process._preload_modules && process._preload_modules.includes('tsm
 const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode || isTsm
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 const routeParamPattern = /\/_/ig
-const routeMixedParamPattern = /\/.*__.*/ig
+const routeMixedParamPattern = /__/g
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
@@ -57,7 +57,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
     const isMixedRouteParam = pattern.match(routeMixedParamPattern)
 
     if (isMixedRouteParam) {
-      return pattern.replaceAll('__', ':')
+      return pattern.replace(routeMixedParamPattern, ':')
     } else if (isRegularRouteParam) {
       return pattern.replace(routeParamPattern, '/:')
     } else {
