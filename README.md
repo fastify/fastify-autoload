@@ -221,7 +221,7 @@ Autoload can be customised using the following options:
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
     autoHooks: true, // apply hooks to routes in this level,
-    cascadeHooks: true // continue applying hooks to children, starting at this level    
+    cascadeHooks: true // continue applying hooks to children, starting at this level
   })
   ```
 
@@ -240,11 +240,17 @@ Autoload can be customised using the following options:
 
 - `routeParams` (optional) - Folders prefixed with `_` will be turned into route parameters.
 
+  If you want to use mixed route parameters use a double underscore `__`.
+
   ```js
   /*
   ├── routes
+  ├── __country-__language
+  │   │  └── actions.js
   │   └── users
   │       ├── _id
+  │       │   └── actions.js
+  │       ├── __country-__language
   │       │   └── actions.js
   │       └── index.js
   └── app.js
@@ -252,8 +258,10 @@ Autoload can be customised using the following options:
 
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'routes'),
-    routeParams: true // routes/users/_id/actions.js will be loaded with prefix /users/:id
-  })  
+    routeParams: true
+    // routes/users/_id/actions.js will be loaded with prefix /users/:id
+    // routes/__country-__language/actions.js will be loaded with prefix /:country-:language
+  })
 
   // curl http://localhost:3000/users/index
   // { userIndex: [ { id: 7, username: 'example' } ] }
@@ -261,6 +269,8 @@ Autoload can be customised using the following options:
   // curl http://localhost:3000/users/7/details
   // { user: { id: 7, username: 'example' } }
 
+  // curl http://localhost:3000/be-nl
+  // { country: 'be', language: 'nl' }
   ```
 
 ## Plugin Configuration
@@ -414,7 +424,7 @@ Each plugin can be individually configured using the following module properties
   ## Autohooks:
 
   The autohooks functionality provides several options for automatically embedding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.
-  
+
   The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
 
   Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `fastify-autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Encapsulation/
@@ -470,7 +480,7 @@ Each plugin can be individually configured using the following module properties
     $ curl http://localhost:3000/hooked-plugin/children/new
     {}
 
-    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/
     { hookTwo: 'yes' }
     ```
 
@@ -486,7 +496,7 @@ Each plugin can be individually configured using the following module properties
     $ curl http://localhost:3000/hooked-plugin/children/new
     { hookOne: 'yes' }
 
-    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/
     { hookOne: 'yes', hookTwo: 'yes' } # hooks are accumulated and applied in ascending order
     ```
 
@@ -502,7 +512,7 @@ Each plugin can be individually configured using the following module properties
     $ curl http://localhost:3000/hooked-plugin/children/new
     { hookOne: 'yes' }
 
-    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/ 
+    $ curl http://localhost:3000/hooked-plugin/children/grandchildren/
     { hookTwo: 'yes' } # new autohooks.js takes over
     ```
 

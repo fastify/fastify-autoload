@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(10)
+t.plan(13)
 
 const app = Fastify()
 
@@ -37,5 +37,14 @@ app.ready(function (err) {
 
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { user: { id: '_id', username: 'example' } })
+  })
+
+  app.inject({
+    url: '/be-nl'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { country: 'be', language: 'nl' })
   })
 })
