@@ -1,7 +1,7 @@
 'use strict'
 
 const path = require('path')
-const fastifyUrlData = require('fastify-url-data')
+const fastifyUrlData = require('@fastify/url-data')
 
 const AutoLoad = require('../../../')
 

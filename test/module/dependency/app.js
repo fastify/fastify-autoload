@@ -1,5 +1,5 @@
 import path, { dirname } from 'path'
-import fastifyUrlData from 'fastify-url-data'
+import fastifyUrlData from '@fastify/url-data'
 import autoLoad from '../../../index.js'
 import { fileURLToPath } from 'url'
 
