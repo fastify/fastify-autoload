@@ -163,10 +163,10 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
     if (type === 'typescript' && !typescriptSupport) {
-      throw new Error(`fastify-autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+      throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
     if (type === 'module' && !moduleSupport) {
-      throw new Error(`fastify-autoload cannot import hooks plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
+      throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
     }
 
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
@@ -180,7 +180,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   // Contains package.json but no index.js file?
   const packageDirent = list.find((dirent) => dirent.name === 'package.json')
   if (packageDirent && !indexDirent) {
-    throw new Error(`fastify-autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
+    throw new Error(`@fastify/autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
   }
 
   // Otherwise treat each script file as a plugin
@@ -219,10 +219,10 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
       const type = getScriptType(file, options.packageType)
       if (type === 'typescript' && !typescriptSupport) {
-        throw new Error(`fastify-autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+        throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
       }
       if (type === 'module' && !moduleSupport) {
-        throw new Error(`fastify-autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
+        throw new Error(`@fastify/autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
       }
 
       // Don't place hook in plugin queue

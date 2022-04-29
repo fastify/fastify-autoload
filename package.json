@@ -39,6 +39,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
   "devDependencies": {
+    "@fastify/url-data": "^4.0.0",
     "@swc/core": "^1.2.129",
     "@swc/register": "^0.1.9",
     "@types/jest": "^27.4.0",
@@ -46,7 +47,6 @@
     "@types/tap": "^15.0.5",
     "fastify": "^3.25.3",
     "fastify-plugin": "^3.0.0",
-    "fastify-url-data": "^3.0.3",
     "jest": "^27.4.7",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
