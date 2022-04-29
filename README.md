@@ -1,7 +1,7 @@
-# fastify-autoload
+# @fastify/autoload
 
 ![CI workflow](https://github.com/fastify/fastify-autoload/workflows/ci/badge.svg)
-[![NPM version](https://img.shields.io/npm/v/fastify-autoload.svg?style=flat)](https://www.npmjs.com/package/fastify-autoload)
+[![NPM version](https://img.shields.io/npm/v/@fastify/autoload.svg?style=flat)](https://www.npmjs.com/package/@fastify/autoload)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-autoload/badge.svg)](https://snyk.io/test/github/fastify/fastify-autoload)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
@@ -10,7 +10,7 @@ Convenience plugin for Fastify that loads all plugins found in a directory and a
 ## Installation
 
 ```
-npm i fastify-autoload
+npm i @fastify/autoload
 ```
 
 ## Example
@@ -19,7 +19,7 @@ Fastify server that automatically loads in all plugins from the `plugins` direct
 
 ```js
 const fastify = require('fastify')
-const autoload = require('fastify-autoload')
+const autoload = require('@fastify/autoload')
 
 const app = fastify()
 
@@ -33,7 +33,7 @@ app.listen(3000)
 or with ESM syntax:
 
 ```js
-import autoLoad from 'fastify-autoload'
+import autoLoad from '@fastify/autoload'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import fastify from 'fastify'
@@ -427,7 +427,7 @@ Each plugin can be individually configured using the following module properties
 
   The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
 
-  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `fastify-autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Encapsulation/
+  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Encapsulation/
 
     ### Example:
 
