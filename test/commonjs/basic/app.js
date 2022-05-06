@@ -30,7 +30,7 @@ module.exports = function (fastify, opts, next) {
         case 'empty':
           return folderName
         default:
-          throw new Error('rewrite called too much times')
+          throw new Error('unexpected folderName: ' + folderName)
       }
     }
   })
