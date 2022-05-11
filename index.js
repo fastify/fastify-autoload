@@ -4,7 +4,6 @@ const path = require('path')
 const url = require('url')
 const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
-const semver = require('semver')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
@@ -12,7 +11,6 @@ const isSWCRegister = process._preload_modules && process._preload_modules.inclu
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode || isTsm
-const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
 
@@ -165,9 +163,6 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     if (type === 'typescript' && !typescriptSupport) {
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
-    if (type === 'module' && !moduleSupport) {
-      throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
-    }
 
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
@@ -220,9 +215,6 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
       const type = getScriptType(file, options.packageType)
       if (type === 'typescript' && !typescriptSupport) {
         throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
-      }
-      if (type === 'module' && !moduleSupport) {
-        throw new Error(`@fastify/autoload cannot import plugin at '${file}'. Your version of node does not support ES modules. To fix this error upgrade to Node 14 or use CommonJS syntax.`)
       }
 
       // Don't place hook in plugin queue
