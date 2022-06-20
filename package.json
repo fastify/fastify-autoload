@@ -43,7 +43,7 @@
     "@swc/core": "^1.2.129",
     "@swc/register": "^0.1.9",
     "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.8",
+    "@types/node": "^18.0.0",
     "@types/tap": "^15.0.5",
     "fastify": "^4.0.0-rc.2",
     "fastify-plugin": "^3.0.0",
