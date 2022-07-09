@@ -12,5 +12,5 @@ function plugin (f, opts, next) {
 
 export default fp(plugin, {
   name: 'plugin-g',
-  dependencies: ['fastify-url-data']
+  dependencies: ['@fastify/url-data']
 })
