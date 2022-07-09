@@ -14,5 +14,5 @@ function plugin (f, opts, next) {
 
 module.exports = fp(plugin, {
   name: 'plugin-g',
-  dependencies: ['fastify-url-data']
+  dependencies: ['@fastify/url-data']
 })
