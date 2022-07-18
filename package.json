@@ -47,7 +47,7 @@
     "@types/node": "^18.0.0",
     "@types/tap": "^15.0.5",
     "fastify": "^4.0.0-rc.2",
-    "fastify-plugin": "^3.0.0",
+    "fastify-plugin": "^4.0.0",
     "jest": "^27.4.7",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
