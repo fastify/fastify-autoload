@@ -1,6 +1,6 @@
 # @fastify/autoload
 
-![CI workflow](https://github.com/fastify/fastify-autoload/workflows/ci/badge.svg)
+![CI](https://github.com/fastify/fastify-autoload/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/@fastify/autoload.svg?style=flat)](https://www.npmjs.com/package/@fastify/autoload)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
