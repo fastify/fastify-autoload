@@ -26,7 +26,7 @@ app.register(autoload, {
   dir: path.join(__dirname, 'plugins')
 })
 
-app.listen(3000)
+app.listen({ port: 3000 })
 ```
 
 or with ESM syntax:
@@ -46,7 +46,7 @@ app.register(autoLoad, {
   dir: join(__dirname, 'plugins')
 })
 
-app.listen(3000)
+app.listen({ port: 3000 })
 ```
 
 Folder structure:
