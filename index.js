@@ -8,10 +8,11 @@ const pkgUp = require('pkg-up')
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
+const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNode || isTsm || isTsx
+const typescriptSupport = isTsNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
 
