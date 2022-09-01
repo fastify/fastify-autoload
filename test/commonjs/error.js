@@ -3,7 +3,6 @@
 const t = require('tap')
 const fastify = require('fastify')
 const semver = require('semver')
-const { join } = require('path')
 
 const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 
@@ -29,21 +28,11 @@ t.test('independent of module support', function (t) {
 
   const app3 = fastify()
 
-  const mockedAutoLoad = t.mock('../../', {
-    'ts-node': {
-      register: function () {
-        throw new Error('ts-node doesn\'t exist because it is mocked')
-      }
-    }
-  })
-
-  app3.register(mockedAutoLoad, {
-    dir: join(__dirname, 'ts-node/routes')
-  })
+  app3.register(require('./ts-error/app'))
 
   app3.ready(function (err) {
     t.type(err, Error)
-    t.match(err.message, /cannot import plugin.*typescript/i, 't.match error.message for app 3')
+    t.match(err.message, /cannot import plugin.*typescript/i)
   })
 
   const app4 = fastify()
