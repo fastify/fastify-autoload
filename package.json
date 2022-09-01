@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "standard | snazzy",
     "lint:fix": "standard --fix | snazzy",
-    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx",
+    "test": "npm run lint && npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx && npm run vitest",
     "typescript": "tsd",
     "typescript:jest": "jest",
     "typescript:esm": "node scripts/unit-typescript-esm.js",
@@ -17,7 +17,8 @@
     "typescript:tsx": "node scripts/unit-typescript-tsx.js",
     "unit": "node scripts/unit.js",
     "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts",
-    "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts"
+    "unit:without-modules": "tap test/commonjs/*.js test/typescript/*.ts",
+    "vitest": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -62,7 +63,9 @@
     "tsd": "^0.23.0",
     "tsm": "^2.2.1",
     "tsx": "^3.7.1",
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.4",
+    "vite": "^3.0.9",
+    "vitest": "^0.22.1"
   },
   "dependencies": {
     "pkg-up": "^3.1.0"
