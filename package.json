@@ -46,7 +46,7 @@
     "@swc-node/register": "^1.5.1",
     "@swc/core": "^1.2.129",
     "@swc/register": "^0.1.9",
-    "@types/jest": "^28.1.6",
+    "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
     "@types/tap": "^15.0.5",
     "fastify": "^4.0.0-rc.2",
