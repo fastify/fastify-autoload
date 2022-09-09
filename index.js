@@ -35,7 +35,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
   const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
 
   await Promise.all(pluginArray.map(({ file, type, prefix }) => {
-    return loadPlugin(file, type, prefix, opts)
+    return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
       .then((plugin) => {
         if (plugin) {
           // create route parameters from prefixed folders
@@ -230,13 +230,21 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   return hookedAccumulator
 }
 
-async function loadPlugin (file, type, directoryPrefix, options) {
+async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
   if (forceESM || type === 'module') {
     content = await import(url.pathToFileURL(file).href)
   } else {
     content = require(file)
+  }
+
+  if (isPluginOrModule(content) === false) {
+    // We must have something that resembles a Fastify plugin function, or that
+    // can be converted into one, that can eventually be passed to `avvio`. If
+    // it is anything else, skip automatic loading of this item.
+    log.debug({ file }, 'skipping autoloading of file because it does not export a Fastify plugin compatible shape')
+    return
   }
 
   const plugin = wrapRoutes(content.default || content)
@@ -249,6 +257,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   }
 
   if (plugin.autoload === false || content.autoload === false) {
+    log.debug({ file }, 'skipping autoload due to `autoload: false` being set')
     return
   }
 
@@ -301,10 +310,51 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   meta.registered = true
 }
 
+/**
+ * Used to determine if the contents of a required autoloaded file matches
+ * the shape of a Fastify route configuration object.
+ *
+ * @param {*} input The data to check.
+ *
+ * @returns {boolean} True if the data represents a route configuration object.
+ * False otherwise.
+ */
+function isRouteObject (input) {
+  if (input &&
+    Object.prototype.toString.call(input) === '[object Object]' &&
+    Object.prototype.hasOwnProperty.call(input, 'method')) {
+    return true
+  }
+  return false
+}
+
+/**
+ * Used to determine if the contents of a required autoloaded file is a valid
+ * plugin or route configuration object. In the case of a route configuraton
+ * object, it will later be wrapped into a plugin.
+ *
+ * @param {*} input The data to check.
+ *
+ * @returns {boolean} True if the object can be used by the autoload system by
+ * eventually passing it into `avvio`. False otherwise.
+ */
+function isPluginOrModule (input) {
+  let result = false
+
+  const inputType = Object.prototype.toString.call(input)
+  if (/\[object (AsyncFunction|Function|Module)\]/.test(inputType) === true) {
+    result = true
+  } else if (Object.prototype.hasOwnProperty.call(input, 'default')) {
+    result = isPluginOrModule(input.default)
+  } else {
+    result = isRouteObject(input)
+  }
+
+  return result
+}
+
 function wrapRoutes (content) {
-  if (content &&
-    Object.prototype.toString.call(content) === '[object Object]' &&
-    Object.prototype.hasOwnProperty.call(content, 'method')) {
+  if (isRouteObject(content) === true) {
     return async function (fastify, opts) {
       fastify.route(content)
     }
