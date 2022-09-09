@@ -35,7 +35,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
   const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
 
   await Promise.all(pluginArray.map(({ file, type, prefix }) => {
-    return loadPlugin(file, type, prefix, opts)
+    return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
       .then((plugin) => {
         if (plugin) {
           // create route parameters from prefixed folders
@@ -230,7 +230,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   return hookedAccumulator
 }
 
-async function loadPlugin (file, type, directoryPrefix, options) {
+async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
   if (forceESM || type === 'module') {
@@ -243,6 +243,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
     // We must have something that resembles a Fastify plugin function, or that
     // can be converted into one, that can eventually be passed to `avvio`. If
     // it is anything else, skip automatic loading of this item.
+    log.debug({ file }, 'skipping autoloading of file because it does not export a Fastify plugin compatible shape')
     return
   }
 
@@ -256,6 +257,7 @@ async function loadPlugin (file, type, directoryPrefix, options) {
   }
 
   if (plugin.autoload === false || content.autoload === false) {
+    log.debug({ file }, 'skipping autoload due to `autoload: false` being set')
     return
   }
 
