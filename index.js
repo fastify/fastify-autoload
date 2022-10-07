@@ -6,7 +6,8 @@ const { readdir } = require('fs').promises
 const pkgUp = require('pkg-up')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
-const isBabelNode = process?.execArgv.some((arg) => arg.indexOf('babel-node') >= 0)
+const isBabelNode = (process?.execArgv || []).concat(process?.argv || []).some((arg) => arg.indexOf('babel-node') >= 0)
+
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
 const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
