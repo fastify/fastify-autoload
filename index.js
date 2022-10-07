@@ -162,13 +162,11 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
-    if (type === 'typescript') {
-      if (!typescriptSupport) {
-        try {
-          require('ts-node').register()
-        } catch (e) {
-          throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
-        }
+    if (type === 'typescript' && !typescriptSupport) {
+      try {
+        require('ts-node').register()
+      } catch (e) {
+        throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
       }
     }
 
@@ -221,13 +219,11 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
       const type = getScriptType(file, options.packageType)
-      if (type === 'typescript') {
-        if (!typescriptSupport) {
-          try {
-            require('ts-node').register()
-          } catch (e) {
-            throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
-          }
+      if (type === 'typescript' && !typescriptSupport) {
+        try {
+          require('ts-node').register()
+        } catch (e) {
+          throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
         }
       }
 
