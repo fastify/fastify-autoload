@@ -8,13 +8,15 @@ const pkgUp = require('pkg-up')
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isBabelNode = (process?.execArgv || []).concat(process?.argv || []).some((arg) => arg.indexOf('babel-node') >= 0)
 
+const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
 const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isTsNode || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx
+const typescriptSupport = isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx
+const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
 
@@ -235,7 +237,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
-  if (forceESM || type === 'module') {
+  if (forceESM || type === 'module' || forceESMEnvironment) {
     content = await import(url.pathToFileURL(file).href)
   } else {
     content = require(file)
@@ -367,7 +369,7 @@ function wrapRoutes (content) {
 async function loadHook (hook, options) {
   if (!hook) return null
   let hookContent
-  if (options.forceESM || hook.type === 'module') {
+  if (options.forceESM || hook.type === 'module' || forceESMEnvironment) {
     hookContent = await import(url.pathToFileURL(hook.file).href)
   } else {
     hookContent = require(hook.file)
