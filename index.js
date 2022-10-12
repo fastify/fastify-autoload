@@ -8,15 +8,22 @@ const pkgUp = require('pkg-up')
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isBabelNode = (process?.execArgv || []).concat(process?.argv || []).some((arg) => arg.indexOf('babel-node') >= 0)
 
+const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
 const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isTsNode || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx
+const shouldLoadTsNode = isVitestEnvironment || false
+const typescriptSupport = isTsNode || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || false
+
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
+
+function hasTypescriptSupport () {
+  return (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV || typescriptSupport
+}
 
 const defaults = {
   scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
@@ -164,8 +171,8 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   if (indexDirent) {
     const file = path.join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
-    if (type === 'typescript' && !typescriptSupport) {
-      throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+    if (type === 'typescript' && hasTypescriptSupport() === false) {
+      registerTsNode(file)
     }
 
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
@@ -217,8 +224,8 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
       const type = getScriptType(file, options.packageType)
-      if (type === 'typescript' && !typescriptSupport) {
-        throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+      if (type === 'typescript' && hasTypescriptSupport() === false) {
+        registerTsNode(file)
       }
 
       // Don't place hook in plugin queue
@@ -393,6 +400,18 @@ function enrichError (err) {
     err.message += ' at ' + err.stack.split('\n')[0]
   }
   return err
+}
+
+function registerTsNode (file) {
+  if (shouldLoadTsNode) {
+    try {
+      require('ts-node').register()
+    } catch {
+      throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+    }
+  } else {
+    throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
+  }
 }
 
 // do not create a new context, do not encapsulate
