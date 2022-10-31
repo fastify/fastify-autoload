@@ -1,0 +1,5 @@
+.github
+scripts
+test
+.taprc
+vitest.config.ts
