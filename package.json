@@ -3,7 +3,7 @@
   "version": "5.4.1",
   "description": "Require all plugins in a directory",
   "main": "index.js",
-  "types": "fastify-autoload.d.ts",
+  "types": "index.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
     "lint:fix": "standard --fix | snazzy",
