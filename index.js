@@ -14,8 +14,9 @@ const isSWCRegister = process._preload_modules && process._preload_modules.inclu
 const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
+const isEsbuildRegister = process._preload_modules && process._preload_modules.includes('esbuild-register')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx
+const typescriptSupport = isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
 const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
