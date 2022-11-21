@@ -1,10 +1,10 @@
 import fastify, { FastifyInstance, FastifyPluginCallback } from 'fastify'
 import { expectType } from 'tsd'
-import * as fastifyAutoloadStar from '../../../'
-import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '../../../'
+import * as fastifyAutoloadStar from '..'
+import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '..'
 
-import fastifyAutoloadCjsImport = require('../../../')
-const fastifyAutoloadCjs = require('../../../')
+import fastifyAutoloadCjsImport = require('..')
+const fastifyAutoloadCjs = require('..')
 
 const app: FastifyInstance = fastify();
 app.register(fastifyAutoloadNamed);
