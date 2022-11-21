@@ -2,9 +2,6 @@
 
 const t = require('tap')
 const fastify = require('fastify')
-const semver = require('semver')
-
-const moduleSupport = semver.satisfies(process.version, '>= 14 || >= 12.17.0 < 13.0.0')
 
 t.test('independent of module support', function (t) {
   t.plan(8)
@@ -44,17 +41,3 @@ t.test('independent of module support', function (t) {
     t.equal(err.message, 'Cyclic dependency')
   })
 })
-
-if (!moduleSupport) {
-  t.test('without moduleSupport', function (t) {
-    t.plan(2)
-    const app = fastify()
-
-    app.register(require('./module-error/app'))
-
-    app.ready(function (err) {
-      t.type(err, Error)
-      t.match(err.message, /cannot import plugin at .*mjs/i)
-    })
-  })
-}
