@@ -1,10 +1,10 @@
 import { FastifyPluginCallback, FastifyPluginOptions } from 'fastify'
 
-type RewritePrefix = (folderParent: string, folderName: string) => string | boolean
-
 type FastifyAutoloadPlugin = FastifyPluginCallback<NonNullable<fastifyAutoload.AutoloadPluginOptions>>
 
 declare namespace fastifyAutoload {
+  type RewritePrefix = (folderParent: string, folderName: string) => string | boolean
+
   export interface AutoloadPluginOptions {
     dir: string
     dirNameRoutePrefix?: boolean | RewritePrefix
