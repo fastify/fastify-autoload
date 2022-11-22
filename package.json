@@ -3,7 +3,7 @@
   "version": "5.5.0",
   "description": "Require all plugins in a directory",
   "main": "index.js",
-  "types": "fastify-autoload.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
     "lint:fix": "standard --fix | snazzy",
@@ -75,9 +75,6 @@
     "ignore": [
       "test/*/*-error/lib/a.js"
     ]
-  },
-  "tsd": {
-    "directory": "test/typescript/definitions"
   },
   "jest": {
     "preset": "ts-jest",
