@@ -66,7 +66,7 @@
     "esbuild": "^0.16.4",
     "esbuild-register": "^3.4.1",
     "vite": "^4.0.0",
-    "vitest": "^0.25.2"
+    "vitest": "^0.26.2"
   },
   "dependencies": {
     "pkg-up": "^3.1.0"
