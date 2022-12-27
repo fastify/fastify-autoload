@@ -109,17 +109,27 @@ Autoload can be customised using the following options:
   })
   ```
 
-- `matchPattern` (optional) - Filter matching any file that should be loaded. Can be a RegExp, a string or a function returning a boolean.
+- `matchFilter` (optional) - Filter matching any path that should be loaded. Can be a RegExp, a string or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
-    matchPattern: (path) => path.endsWith('-handler.js')
+    matchFilter: (path) => path.split("/").at(-2) === "handlers"
   })
   ```
 
 
-- `ignorePattern` (optional) - Filter matching any file that should not be loaded. Can be a RegExp, a string or a function returning a boolean.
+- `ignoreFilter` (optional) - Filter matching any path that should not be loaded. Can be a RegExp, a string or a function returning a boolean.
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    ignoreFilter: (path) => path.endsWith('.spec.js')
+  })
+  ```
+
+
+- `ignorePattern` (optional) - RegExp matching any file or folder that should not be loaded.
 
   ```js
   fastify.register(autoLoad, {

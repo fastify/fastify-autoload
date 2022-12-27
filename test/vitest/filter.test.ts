@@ -9,7 +9,7 @@ describe.concurrent("Vitest ignore filters test suite", function () {
   const app = Fastify()
     app.register(AutoLoad, {
       dir: join(__dirname, '../commonjs/ts-node/routes'),
-      ignorePattern: "foo"
+      ignoreFilter: "foo"
     })
 
   test("Test the root route", async function () {
@@ -20,28 +20,36 @@ describe.concurrent("Vitest ignore filters test suite", function () {
     expect(response.statusCode).toEqual(200)
   })
 
-    test("Test /foo route", async function () {
-      const response = await app.inject({
-        method: 'GET',
-        url: '/foo'
-      })
-      expect(response.statusCode).toBe(404)
+  test("Test /foo route", async function () {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/foo'
     })
+    expect(response.statusCode).toBe(404)
+  })
 
-    test("Test /bar route", async function () {
-      const response = await app.inject({
-        method: 'GET',
-        url: '/bar'
-      })
-      expect(response.statusCode).toBe(200)
+  test("Test /bar route", async function () {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/bar'
     })
+    expect(response.statusCode).toBe(200)
+  })
+
+  test("Test /baz route", async function () {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/foo/baz'
+    })
+    expect(response.statusCode).toBe(404)
+  })
 })
 
 describe.concurrent("Vitest match filters test suite", function () {
   const app = Fastify()
   app.register(AutoLoad, {
     dir: join(__dirname, '../commonjs/ts-node/routes'),
-    matchPattern: "foo"
+    matchFilter: "/foo"
   })
 
   test("Test the root route", async function () {
@@ -66,5 +74,13 @@ describe.concurrent("Vitest match filters test suite", function () {
       url: '/bar'
     })
     expect(response.statusCode).toBe(404)
+  })
+
+  test("Test /baz route", async function () {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/foo/baz'
+    })
+    expect(response.statusCode).toBe(200)
   })
 })

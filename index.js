@@ -129,7 +129,7 @@ function getScriptType (fname, packageType) {
 
 // eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
-  const { indexPattern, ignorePattern, matchPattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
+  const { indexPattern, ignorePattern, ignoreFilter, matchFilter, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
   const list = await readdir(dir, { withFileTypes: true })
   let currentHooks = []
 
@@ -171,7 +171,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
 
-    hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+    accumulatePlugin({ file, type }, indexDirent.name)
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
     if (!hasDirectory) {
@@ -188,11 +188,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   // Otherwise treat each script file as a plugin
   const directoryPromises = []
   for (const dirent of list) {
-    if (matchPattern && !filterPath(dirent.name, matchPattern)) {
-      continue
-    }
-
-    if (ignorePattern && filterPath(dirent.name, ignorePattern)) {
+    if (ignorePattern && dirent.name.match(ignorePattern)) {
       continue
     }
 
@@ -230,13 +226,31 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
       // Don't place hook in plugin queue
       if (!autoHooksPattern.test(dirent.name)) {
-        hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+        accumulatePlugin({ file, type }, dirent.name)
       }
     }
   }
   await Promise.all(directoryPromises)
 
   return hookedAccumulator
+
+  function accumulatePlugin ({ file, type }, direntName = 'index.ts') {
+    const routePath = `${prefix ?? ''}/${direntName}`
+
+    if (matchFilter && !filterPath(routePath, matchFilter)) {
+      console.log('skip ' + routePath)
+      return
+    }
+
+    if (ignoreFilter && filterPath(routePath, ignoreFilter)) {
+      console.log('skip ' + routePath)
+      return
+    }
+
+    console.log('register ' + routePath)
+
+    hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+  }
 }
 
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
