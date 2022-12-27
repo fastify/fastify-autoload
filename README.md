@@ -109,8 +109,17 @@ Autoload can be customised using the following options:
   })
   ```
 
+- `matchPattern` (optional) - Filter matching any file that should be loaded. Can be a RegExp, a string or a function returning a boolean.
 
-- `ignorePattern` (optional) - Regex matching any file that should not be loaded
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    matchPattern: (path) => path.endsWith('-handler.js')
+  })
+  ```
+
+
+- `ignorePattern` (optional) - Filter matching any file that should not be loaded. Can be a RegExp, a string or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
@@ -118,6 +127,7 @@ Autoload can be customised using the following options:
     ignorePattern: /.*(test|spec).js/
   })
   ```
+
 
 - `indexPattern` (optional) - Regex to override the `index.js` naming convention
 

@@ -129,7 +129,7 @@ function getScriptType (fname, packageType) {
 
 // eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
-  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
+  const { indexPattern, ignorePattern, matchPattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
   const list = await readdir(dir, { withFileTypes: true })
   let currentHooks = []
 
@@ -188,7 +188,11 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   // Otherwise treat each script file as a plugin
   const directoryPromises = []
   for (const dirent of list) {
-    if (ignorePattern && dirent.name.match(ignorePattern)) {
+    if (matchPattern && !filterPath(dirent.name, matchPattern)) {
+      continue
+    }
+
+    if (ignorePattern && filterPath(dirent.name, ignorePattern)) {
       continue
     }
 
@@ -313,6 +317,18 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   fastify.register(plugin, options)
 
   meta.registered = true
+}
+
+function filterPath (path, filter) {
+  if (typeof filter === 'string') {
+    return path.includes(filter)
+  }
+
+  if (filter instanceof RegExp) {
+    return filter.test(path)
+  }
+
+  return filter(path)
 }
 
 /**

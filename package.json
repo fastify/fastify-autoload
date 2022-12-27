@@ -17,6 +17,7 @@
     "typescript:tsx": "node scripts/unit-typescript-tsx.js",
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
     "typescript:vitest": "vitest run",
+    "typescript:vitest:dev": "vitest",
     "unit": "node scripts/unit.js",
     "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts"
   },
