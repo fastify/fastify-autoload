@@ -238,16 +238,12 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     const routePath = `${prefix ?? ''}/${direntName}`
 
     if (matchFilter && !filterPath(routePath, matchFilter)) {
-      console.log('skip ' + routePath)
       return
     }
 
     if (ignoreFilter && filterPath(routePath, ignoreFilter)) {
-      console.log('skip ' + routePath)
       return
     }
-
-    console.log('register ' + routePath)
 
     hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
   }
