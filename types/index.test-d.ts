@@ -61,6 +61,21 @@ const opt8: AutoloadPluginOptions = {
   dir: 'test',
   encapsulate: false,
 }
+const opt9: AutoloadPluginOptions = {
+  dir: 'test',
+  ignoreFilter: /test/,
+  matchFilter: /handler/
+}
+const opt10: AutoloadPluginOptions = {
+  dir: 'test',
+  ignoreFilter: 'test',
+  matchFilter: 'handler'
+}
+const opt11: AutoloadPluginOptions = {
+  dir: 'test',
+  ignoreFilter: ({file}) => file.endsWith('.spec.ts'),
+  matchFilter: ({path}) => path.split("/").at(-2) === 'handlers'
+}
 app.register(fastifyAutoloadDefault, opt1)
 app.register(fastifyAutoloadDefault, opt2)
 app.register(fastifyAutoloadDefault, opt3)
@@ -69,3 +84,6 @@ app.register(fastifyAutoloadDefault, opt5)
 app.register(fastifyAutoloadDefault, opt6)
 app.register(fastifyAutoloadDefault, opt7)
 app.register(fastifyAutoloadDefault, opt8)
+app.register(fastifyAutoloadDefault, opt9)
+app.register(fastifyAutoloadDefault, opt10)
+app.register(fastifyAutoloadDefault, opt11)
