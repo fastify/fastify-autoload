@@ -129,7 +129,7 @@ function getScriptType (fname, packageType) {
 
 // eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
-  const { indexPattern, ignorePattern, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
+  const { indexPattern, ignorePattern, ignoreFilter, matchFilter, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
   const list = await readdir(dir, { withFileTypes: true })
   let currentHooks = []
 
@@ -171,7 +171,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
 
-    hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+    accumulatePlugin({ file, type }, indexDirent.name)
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
     if (!hasDirectory) {
@@ -226,13 +226,27 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
       // Don't place hook in plugin queue
       if (!autoHooksPattern.test(dirent.name)) {
-        hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+        accumulatePlugin({ file, type }, dirent.name)
       }
     }
   }
   await Promise.all(directoryPromises)
 
   return hookedAccumulator
+
+  function accumulatePlugin ({ file, type }, direntName = 'index.ts') {
+    const routePath = `${prefix ?? ''}/${direntName}`
+
+    if (matchFilter && !filterPath(routePath, matchFilter)) {
+      return
+    }
+
+    if (ignoreFilter && filterPath(routePath, ignoreFilter)) {
+      return
+    }
+
+    hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
+  }
 }
 
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
@@ -313,6 +327,18 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   fastify.register(plugin, options)
 
   meta.registered = true
+}
+
+function filterPath (path, filter) {
+  if (typeof filter === 'string') {
+    return path.includes(filter)
+  }
+
+  if (filter instanceof RegExp) {
+    return filter.test(path)
+  }
+
+  return filter(path)
 }
 
 /**

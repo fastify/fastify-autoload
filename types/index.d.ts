@@ -4,10 +4,13 @@ type FastifyAutoloadPlugin = FastifyPluginCallback<NonNullable<fastifyAutoload.A
 
 declare namespace fastifyAutoload {
   type RewritePrefix = (folderParent: string, folderName: string) => string | boolean
+  type Filter = string | RegExp | ((value: {file: string; path: string}) => boolean)
 
   export interface AutoloadPluginOptions {
     dir: string
     dirNameRoutePrefix?: boolean | RewritePrefix
+    ignoreFilter?: Filter
+    matchFilter?: Filter
     ignorePattern?: RegExp
     scriptPattern?: RegExp
     indexPattern?: RegExp
