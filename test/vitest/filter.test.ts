@@ -49,7 +49,7 @@ describe.concurrent("Vitest match filters test suite", function () {
   const app = Fastify()
   app.register(AutoLoad, {
     dir: join(__dirname, '../commonjs/ts-node/routes'),
-    matchFilter: "/foo"
+    matchFilter: (path) => path.startsWith("/foo")
   })
 
   test("Test the root route", async function () {
