@@ -1,5 +1,5 @@
 module.exports.default = async (fastify: any) => {
-  fastify.get("/", function () {
-    return { foo: "bar" };
+  fastify.get("/customPath", function () {
+    return { baz: "baz" };
   })
 };
