@@ -236,7 +236,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
   function accumulatePlugin ({ file, type }) {
     // Replace backward slash to forward slash for consistent behavior between windows and posix.
-    const filePath = '/' + path.relative(options.dir, file).replaceAll('\\', '/')
+    const filePath = '/' + path.relative(options.dir, file).replace(/\\/g, '/')
 
     if (matchFilter && !filterPath(filePath, matchFilter)) {
       return
