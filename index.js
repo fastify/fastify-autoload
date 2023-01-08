@@ -171,7 +171,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
 
-    accumulatePlugin({ file, type }, indexDirent.name)
+    accumulatePlugin({ file, type })
     const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
     if (!hasDirectory) {
@@ -226,7 +226,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
       // Don't place hook in plugin queue
       if (!autoHooksPattern.test(dirent.name)) {
-        accumulatePlugin({ file, type }, dirent.name)
+        accumulatePlugin({ file, type })
       }
     }
   }
@@ -234,14 +234,15 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
   return hookedAccumulator
 
-  function accumulatePlugin ({ file, type }, direntName = 'index.ts') {
-    const routePath = `${prefix ?? ''}/${direntName}`
+  function accumulatePlugin ({ file, type }) {
+    // Replace backward slash to forward slash for consistent behavior between windows and posix.
+    const filePath = '/' + path.relative(options.dir, file).replace(/\\/g, '/')
 
-    if (matchFilter && !filterPath(routePath, matchFilter)) {
+    if (matchFilter && !filterPath(filePath, matchFilter)) {
       return
     }
 
-    if (ignoreFilter && filterPath(routePath, ignoreFilter)) {
+    if (ignoreFilter && filterPath(filePath, ignoreFilter)) {
       return
     }
 

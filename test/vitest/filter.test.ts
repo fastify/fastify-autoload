@@ -79,7 +79,24 @@ describe.concurrent("Vitest match filters test suite", function () {
   test("Test /baz route", async function () {
     const response = await app.inject({
       method: 'GET',
-      url: '/foo/baz'
+      url: '/foo/baz/customPath'
+    })
+    expect(response.statusCode).toBe(200)
+  })
+})
+
+describe.concurrent("Vitest match filters without prefix test suite", function () {
+  const app = Fastify()
+  app.register(AutoLoad, {
+    dir: join(__dirname, '../commonjs/ts-node/routes'),
+    dirNameRoutePrefix: false,
+    matchFilter: (path) => path.startsWith("/foo/baz")
+  })
+
+  test("Test /baz route", async function () {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/customPath'
     })
     expect(response.statusCode).toBe(200)
   })

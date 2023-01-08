@@ -26,6 +26,6 @@ describe.concurrent("Vitest test suite", function () {
       url: '/foo'
     })
     expect(response.statusCode).toBe(200)
-    expect(JSON.parse(response.payload)).toEqual({ foo: 'bar' })
+    expect(JSON.parse(response.payload)).toEqual({ foo: 'foo' })
   })
 })
