@@ -134,7 +134,7 @@ Autoload can be customised using the following options:
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
-    ignorePattern: /.*(test|spec).js/
+    ignorePattern: /^.*(?:test|spec).js$/
   })
   ```
 
@@ -144,7 +144,7 @@ Autoload can be customised using the following options:
   ```js
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
-    indexPattern: /.*routes(\.ts|\.js|\.cjs|\.mjs)$/
+    indexPattern: /^.*routes(?:\.ts|\.js|\.cjs|\.mjs)$/
   })
   ```
 
@@ -228,7 +228,7 @@ Autoload can be customised using the following options:
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'plugins'),
     autoHooks: true,
-    autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i
+    autoHooksPattern: /^[_.]?auto_?hooks(?:\.js|\.cjs|\.mjs)$/i
   })
   ```
 
