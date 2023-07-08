@@ -53,7 +53,7 @@ const opt7: AutoloadPluginOptions = {
   dir: 'test',
   forceESM: true,
   autoHooks: true,
-  autoHooksPattern: /^[_.]?auto_?hooks(\.js|\.cjs|\.mjs)$/i,
+  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs)$/i,
   cascadeHooks: true,
   overwriteHooks: true,
 }
