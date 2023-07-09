@@ -22,9 +22,9 @@ const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
 
 const defaults = {
-  scriptPattern: /((^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
-  indexPattern: /^index(\.ts|\.js|\.cjs|\.mjs)$/i,
-  autoHooksPattern: /^[_.]?auto_?hooks(\.ts|\.js|\.cjs|\.mjs)$/i,
+  scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
+  indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs)$/i,
+  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs)$/i,
   dirNameRoutePrefix: true,
   encapsulate: true
 }
