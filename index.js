@@ -1,8 +1,8 @@
 'use strict'
 
-const path = require('path')
-const url = require('url')
-const { readdir } = require('fs').promises
+const path = require('node:path')
+const url = require('node:url')
+const { readdir } = require('node:fs').promises
 const pkgUp = require('pkg-up')
 
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV

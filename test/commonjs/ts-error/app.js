@@ -1,6 +1,6 @@
 'use strict'
 
-const path = require('path')
+const path = require('node:path')
 const AutoLoad = require('../../../')
 
 module.exports = function (fastify, opts, next) {
