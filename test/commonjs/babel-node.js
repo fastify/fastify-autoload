@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 const AutoLoad = require('../../')
-const { join } = require('path')
+const { join } = require('node:path')
 
 t.plan(7)
 
