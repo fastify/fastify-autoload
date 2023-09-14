@@ -5,6 +5,7 @@ const url = require('node:url')
 const { readdir } = require('node:fs').promises
 const pkgUp = require('pkg-up')
 
+const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
 const isBabelNode = (process?.execArgv || []).concat(process?.argv || []).some((arg) => arg.indexOf('babel-node') >= 0)
 
@@ -16,7 +17,8 @@ const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const isEsbuildRegister = process._preload_modules && process._preload_modules.includes('esbuild-register')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
+const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
+
 const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/ig
 const routeMixedParamPattern = /__/g
