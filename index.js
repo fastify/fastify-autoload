@@ -20,13 +20,13 @@ const isTsx = process._preload_modules && process._preload_modules.toString().in
 const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
 
 const forceESMEnvironment = isVitestEnvironment || false
-const routeParamPattern = /\/_/ig
-const routeMixedParamPattern = /__/g
+const routeParamPattern = /\/_/gu
+const routeMixedParamPattern = /__/gu
 
 const defaults = {
-  scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/i,
-  indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs)$/i,
-  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs)$/i,
+  scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/iu,
+  indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs)$/iu,
+  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs)$/iu,
   dirNameRoutePrefix: true,
   encapsulate: true
 }
@@ -122,9 +122,9 @@ async function getPackageType (cwd) {
   }
 }
 
-const typescriptPattern = /\.ts$/i
-const modulePattern = /\.mjs$/i
-const commonjsPattern = /\.cjs$/i
+const typescriptPattern = /\.ts$/iu
+const modulePattern = /\.mjs$/iu
+const commonjsPattern = /\.cjs$/iu
 function getScriptType (fname, packageType) {
   return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
 }
@@ -238,7 +238,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
   function accumulatePlugin ({ file, type }) {
     // Replace backward slash to forward slash for consistent behavior between windows and posix.
-    const filePath = '/' + path.relative(options.dir, file).replace(/\\/g, '/')
+    const filePath = '/' + path.relative(options.dir, file).replace(/\\/gu, '/')
 
     if (matchFilter && !filterPath(filePath, matchFilter)) {
       return
@@ -294,7 +294,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   if (prefixOverride !== undefined) {
     pluginOptions.prefix = prefixOverride
   } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/g, '/')
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
   }
 
   return {
@@ -376,7 +376,7 @@ function isPluginOrModule (input) {
   let result = false
 
   const inputType = Object.prototype.toString.call(input)
-  if (/\[object (AsyncFunction|Function|Module)\]/.test(inputType) === true) {
+  if (/\[object (?:AsyncFunction|Function|Module)\]/u.test(inputType) === true) {
     result = true
   } else if (Object.prototype.hasOwnProperty.call(input, 'default')) {
     result = isPluginOrModule(input.default)
