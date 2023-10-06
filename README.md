@@ -294,9 +294,9 @@ Autoload can be customised using the following options:
 
 ## Override TypeScript detection using an environment variable
 
-It is possible to override the automatic detection of a Typescript-capable runtime using the `FASTIFY_AUTOLOAD_TYPESCRIPT` environment variable. If set to a truthy value Autoload will load `.ts` files, expecting that node has a TypeScript-capable loader.
+It is possible to override the automatic detection of a TypeScript-capable runtime using the `FASTIFY_AUTOLOAD_TYPESCRIPT` environment variable. If set to a truthy value Autoload will load `.ts` files, expecting that node has a TypeScript-capable loader.
 
-This is useful for cases where you want to use Autoload for loading typescript files but detecting the typescript loader fails because, for example, you are using a custom loader.
+This is useful for cases where you want to use Autoload for loading TypeScript files but detecting the TypeScript loader fails because, for example, you are using a custom loader.
 
 It can be used like this:
 
