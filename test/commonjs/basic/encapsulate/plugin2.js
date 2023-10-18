@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = async (fastify, opts, next) => {
   fastify.get('/encapsulate', {
     handler: async (request, reply) => {

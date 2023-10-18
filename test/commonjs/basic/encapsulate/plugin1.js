@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = (fastify, opts, done) => {
   fastify.decorateRequest('sharedVar', '')
 

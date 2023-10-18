@@ -1,3 +1,5 @@
+'use strict'
+
 // This module should be ignored because an index.js file is present in the same directory
 
 module.exports = async (server, opts, next) => {
