@@ -1,9 +1,8 @@
 'use strict'
 
+const fs = require('node:fs/promises')
 const path = require('node:path')
 const url = require('node:url')
-const { readdir } = require('node:fs').promises
-const pkgUp = require('pkg-up')
 
 const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
@@ -116,9 +115,23 @@ const fastifyAutoload = async function autoload (fastify, options) {
 }
 
 async function getPackageType (cwd) {
-  const nearestPackage = await pkgUp({ cwd })
-  if (nearestPackage) {
-    return require(nearestPackage).type
+  const directories = cwd.split(path.sep)
+
+  // required for paths that begin with the sep
+  directories[0] ||= path.sep
+
+  while (directories.length > 0) {
+    const file = path.join(...directories, 'package.json')
+
+    const fileExists = await fs.access(file, fs.constants.F_OK)
+      .then(() => true)
+      .catch(() => false)
+
+    if (fileExists) {
+      return require(file).type
+    }
+
+    directories.pop()
   }
 }
 
@@ -132,7 +145,7 @@ function getScriptType (fname, packageType) {
 // eslint-disable-next-line default-param-last
 async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
   const { indexPattern, ignorePattern, ignoreFilter, matchFilter, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
-  const list = await readdir(dir, { withFileTypes: true })
+  const list = await fs.readdir(dir, { withFileTypes: true })
   let currentHooks = []
 
   // check to see if hooks or plugins have been added to this prefix, initialize if not
