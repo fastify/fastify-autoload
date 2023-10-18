@@ -117,13 +117,13 @@ const fastifyAutoload = async function autoload (fastify, options) {
 async function getPackageType (cwd) {
   const directories = cwd.split(path.sep)
 
-  // required for paths that begin with the sep
-  directories[0] ||= path.sep
+  // required for paths that begin with the sep, such as linux root
+  directories[0] = directories[0] !== '' ? directories[0] : path.sep
 
   while (directories.length > 0) {
     const file = path.join(...directories, 'package.json')
 
-    const fileExists = await fs.access(file, fs.constants.F_OK)
+    const fileExists = await fs.stat(file)
       .then(() => true)
       .catch(() => false)
 
