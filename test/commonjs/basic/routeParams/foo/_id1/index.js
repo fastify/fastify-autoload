@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = async (server, opts, next) => {
   server.get('/', async (request, reply) => {
     const params = request.params
