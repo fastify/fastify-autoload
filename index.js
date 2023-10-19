@@ -1,9 +1,8 @@
 'use strict'
 
-const path = require('node:path')
-const url = require('node:url')
-const { readdir } = require('node:fs').promises
-const pkgUp = require('pkg-up')
+const { promises: { readdir, readFile } } = require('node:fs')
+const { join, relative, sep } = require('node:path')
+const { pathToFileURL } = require('node:url')
 
 const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
@@ -116,9 +115,22 @@ const fastifyAutoload = async function autoload (fastify, options) {
 }
 
 async function getPackageType (cwd) {
-  const nearestPackage = await pkgUp({ cwd })
-  if (nearestPackage) {
-    return require(nearestPackage).type
+  const directories = cwd.split(sep)
+
+  // required for paths that begin with the sep, such as linux root
+  directories[0] = directories[0] !== '' ? directories[0] : sep
+
+  while (directories.length > 0) {
+    const filePath = join(...directories, 'package.json')
+
+    const fileContents = await readFile(filePath, 'utf-8')
+      .catch(() => null)
+
+    if (fileContents) {
+      return JSON.parse(fileContents).type
+    }
+
+    directories.pop()
   }
 }
 
@@ -149,7 +161,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     // Contains autohooks file?
     const autoHooks = list.find((dirent) => autoHooksPattern.test(dirent.name))
     if (autoHooks) {
-      const autoHooksFile = path.join(dir, autoHooks.name)
+      const autoHooksFile = join(dir, autoHooks.name)
       const autoHooksType = getScriptType(autoHooksFile, options.packageType)
 
       // Overwrite current hooks?
@@ -167,7 +179,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   // Contains index file?
   const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
   if (indexDirent) {
-    const file = path.join(dir, indexDirent.name)
+    const file = join(dir, indexDirent.name)
     const type = getScriptType(file, options.packageType)
     if (type === 'typescript' && !typescriptSupport) {
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
@@ -195,7 +207,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     }
 
     const atMaxDepth = Number.isFinite(maxDepth) && maxDepth <= depth
-    const file = path.join(dir, dirent.name)
+    const file = join(dir, dirent.name)
     if (dirent.isDirectory() && !atMaxDepth) {
       let prefixBreadCrumb = (prefix ? `${prefix}/` : '/')
       if (dirNameRoutePrefix === true) {
@@ -238,7 +250,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 
   function accumulatePlugin ({ file, type }) {
     // Replace backward slash to forward slash for consistent behavior between windows and posix.
-    const filePath = '/' + path.relative(options.dir, file).replace(/\\/gu, '/')
+    const filePath = '/' + relative(options.dir, file).replace(/\\/gu, '/')
 
     if (matchFilter && !filterPath(filePath, matchFilter)) {
       return
@@ -256,7 +268,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
   if (forceESM || type === 'module' || forceESMEnvironment) {
-    content = await import(url.pathToFileURL(file).href)
+    content = await import(pathToFileURL(file).href)
   } else {
     content = require(file)
   }
@@ -400,7 +412,7 @@ async function loadHook (hook, options) {
   if (!hook) return null
   let hookContent
   if (options.forceESM || hook.type === 'module' || forceESMEnvironment) {
-    hookContent = await import(url.pathToFileURL(hook.file).href)
+    hookContent = await import(pathToFileURL(hook.file).href)
   } else {
     hookContent = require(hook.file)
   }
