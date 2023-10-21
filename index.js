@@ -434,7 +434,7 @@ function enrichError (err) {
   // the line number to the user, otherwise they
   // will be left in the cold.
   if (err instanceof SyntaxError) {
-    err.message += ' at ' + err.stack.split('\n')[0]
+    err.message += ' at ' + err.stack.split('\n', 1)[0]
   }
   return err
 }
