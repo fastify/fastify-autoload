@@ -3,6 +3,7 @@
   "version": "5.8.0",
   "description": "Require all plugins in a directory",
   "main": "index.js",
+  "type": "commonjs",
   "types": "types/index.d.ts",
   "scripts": {
     "lint": "standard | snazzy",
