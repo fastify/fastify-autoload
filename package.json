@@ -67,7 +67,7 @@
     "typescript": "^5.0.2",
     "esbuild": "^0.19.2",
     "esbuild-register": "^3.4.1",
-    "vite": "^4.0.0",
+    "vite": "^5.0.0",
     "vitest": "^0.34.1"
   },
   "dependencies": {},
