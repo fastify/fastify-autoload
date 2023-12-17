@@ -1,7 +1,7 @@
 'use strict'
 
 const { promises: { readdir, readFile } } = require('node:fs')
-const { join, relative, sep } = require('node:path')
+const { basename, join, relative, sep } = require('node:path')
 const { pathToFileURL } = require('node:url')
 
 const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
@@ -16,7 +16,11 @@ const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.
 const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
 const isEsbuildRegister = process._preload_modules && process._preload_modules.includes('esbuild-register')
 const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
-const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
+// @see: https://github.com/vitejs/vite/blob/bin/packages/vite/package.json#L8
+const isVite = basename(process.argv[1], '.js') === 'vite'
+// @see https://github.com/vitest-dev/vitest/blob/main/packages/vite-node/package.json#L68C1-L68C1
+const isViteNode = basename(process.argv[1], '.mjs') === 'vite-node'
+const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister || isVite || isViteNode
 
 const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/gu
