@@ -68,7 +68,7 @@
     "esbuild": "^0.19.2",
     "esbuild-register": "^3.4.1",
     "vite": "^5.0.0",
-    "vitest": "^0.34.1"
+    "vitest": "^1.1.0"
   },
   "dependencies": {},
   "standard": {
