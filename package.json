@@ -52,6 +52,8 @@
     "@types/jest": "^29.0.0",
     "@types/node": "^20.1.0",
     "@types/tap": "^15.0.5",
+    "esbuild": "^0.19.2",
+    "esbuild-register": "^3.4.1",
     "fastify": "^4.0.0-rc.2",
     "fastify-plugin": "^4.0.0",
     "jest": "^28.1.3",
@@ -65,12 +67,9 @@
     "tsm": "^2.2.1",
     "tsx": "^3.7.1",
     "typescript": "^5.0.2",
-    "esbuild": "^0.19.2",
-    "esbuild-register": "^3.4.1",
     "vite": "^5.0.0",
     "vitest": "^0.34.1"
   },
-  "dependencies": {},
   "standard": {
     "ignore": [
       "test/*/*-error/lib/a.js"
