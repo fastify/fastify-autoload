@@ -458,7 +458,7 @@ Each plugin can be individually configured using the following module properties
 
   The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
 
-  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://www.fastify.io/docs/latest/Reference/Encapsulation/#encapsulation
+  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://fastify.dev/docs/latest/Reference/Encapsulation/#encapsulation
 
     ### Example:
 
