@@ -22,7 +22,7 @@ const isVite = basename(process.argv[1], '.js') === 'vite'
 const isViteNode = basename(process.argv[1], '.mjs') === 'vite-node'
 const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister || isVite || isViteNode
 
-const forceESMEnvironment = isVitestEnvironment || false
+const forceESMEnvironment = isVite || isViteNode || isVitestEnvironment || false
 const routeParamPattern = /\/_/gu
 const routeMixedParamPattern = /__/gu
 
