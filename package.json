@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "standard | snazzy",
     "lint:fix": "standard --fix | snazzy",
-    "test": "npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx && npm run typescript:vitest && npm run typescript:esbuild && npm run typescript:vite-node",
+    "test": "npm run unit && npm run typescript && npm run typescript:jest && npm run typescript:esm && npm run typescript:swc && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx && npm run typescript:vitest && npm run typescript:esbuild && npm run typescript:vite && npm run typescript:vite-node",
     "typescript": "tsd",
     "typescript:jest": "jest",
     "typescript:esm": "node scripts/unit-typescript-esm.js",
@@ -17,6 +17,7 @@
     "typescript:tsm": "node scripts/unit-typescript-tsm.js",
     "typescript:tsx": "node scripts/unit-typescript-tsx.js",
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
+    "typescript:vite": "node scripts/unit-typescript-vite.js",
     "typescript:vite-node": "node scripts/unit-typescript-vite-node.js",
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@fastify/pre-commit": "^2.0.2",
     "@fastify/url-data": "^5.0.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@swc-node/register": "^1.5.1",
     "@swc/core": "^1.2.129",
     "@swc/register": "^0.1.9",
@@ -69,6 +71,7 @@
     "esbuild": "^0.19.2",
     "esbuild-register": "^3.4.1",
     "vite": "^5.0.0",
+    "vite-plugin-node": "^3.1.0",
     "vitest": "^0.34.1"
   },
   "dependencies": {},
