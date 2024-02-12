@@ -63,7 +63,7 @@
     "ts-node-dev": "^2.0.0",
     "tsd": "^0.29.0",
     "tsm": "^2.2.1",
-    "tsx": "^3.7.1",
+    "tsx": "^4.7.1",
     "typescript": "^5.0.2",
     "esbuild": "^0.19.2",
     "esbuild-register": "^3.4.1",
