@@ -302,11 +302,17 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
 
   pluginOptions.prefix = (pluginOptions.prefix && pluginOptions.prefix.endsWith('/')) ? pluginOptions.prefix.slice(0, -1) : pluginOptions.prefix
   const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
-  const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
+  const autoPrefix = plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined
+
   if (prefixOverride !== undefined) {
     pluginOptions.prefix = prefixOverride
-  } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
+  } else {
+    if (directoryPrefix !== undefined) {
+      pluginOptions.prefix = (pluginOptions.prefix || '') + directoryPrefix.replace(/\/+/gu, '/')
+    }
+    if (autoPrefix !== undefined) {
+      pluginOptions.prefix = (pluginOptions.prefix || '') + autoPrefix.replace(/\/+/gu, '/')
+    }
   }
 
   return {

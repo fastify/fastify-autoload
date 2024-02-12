@@ -2,7 +2,7 @@ import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(74)
+t.plan(88)
 
 const app = fastify()
 
@@ -57,7 +57,7 @@ app.ready(function (err) {
   })
 
   app.inject({
-    url: '/semiautomatic/items/1'
+    url: '/manualprefix/semiautomatic/items/1'
   }, function (err, res) {
     t.error(err)
 
@@ -66,7 +66,7 @@ app.ready(function (err) {
   })
 
   app.inject({
-    url: '/semiautomatic/items'
+    url: '/manualprefix/semiautomatic/items'
   }, function (err, res) {
     t.error(err)
 
@@ -153,6 +153,29 @@ app.ready(function (err) {
   })
 
   app.inject({
+    url: '/defaultPrefix/nested'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { indexNested: true })
+  })
+
+  app.inject({
+    url: '/defaultPrefix/nested/prefixedNested'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { prefixedNested: true })
+  })
+
+  app.inject({
+    url: '/defaultPrefix/nested/overriddenPrefix'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 404)
+  })
+
+  app.inject({
     url: '/overriddenPrefix'
   }, function (err, res) {
     t.error(err)
@@ -161,11 +184,27 @@ app.ready(function (err) {
   })
 
   app.inject({
+    url: '/overriddenPrefixNested'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { overide: 'prefixNested' })
+  })
+
+  app.inject({
     url: '/noPrefix'
   }, function (err, res) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { no: 'prefix' })
+  })
+
+  app.inject({
+    url: '/noPrefixNested'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { no: 'prefixNested' })
   })
 
   app.inject({
