@@ -5,6 +5,7 @@ const { exec } = require('node:child_process')
 const args = [
   'tap',
   '--node-arg=--require=@swc/register',
+  '--',
   '--no-coverage',
   'test/typescript/*.ts'
 ]
