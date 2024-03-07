@@ -4,8 +4,10 @@ const { exec } = require('node:child_process')
 
 const args = [
   'tap',
+  '--',
   '--no-ts',
   '--node-arg=--require=tsm',
+  '--',
   '--no-coverage',
   'test/typescript/*.ts'
 ]
