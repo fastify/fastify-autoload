@@ -73,7 +73,6 @@ app.ready(function (err) {
     url: '/custom-prefix/not-exists'
   }, function (err, res) {
     t.error(err)
-
     t.equal(res.headers.from, 'routes-b')
 
     t.equal(res.statusCode, 404)
