@@ -1,9 +1,7 @@
 'use strict'
 
-module.exports = function (app, opts, next) {
+module.exports = async function (app) {
   app.get('/', async function (req, reply) {
-    reply.status(200).send({ hooked: req.hooked })
+    reply.send()
   })
-
-  next()
 }

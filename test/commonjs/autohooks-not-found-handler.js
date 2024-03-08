@@ -3,6 +3,8 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
+t.plan(19)
+
 const app = Fastify()
 
 app.register(require('./autohooks/not-found-handler'))
@@ -37,7 +39,24 @@ app.ready(function (err) {
     url: '/child/not-exists'
   }, function (err, res) {
     t.error(err)
-    t.equal(res.headers.from, 'routes-a')
+    t.equal(res.headers.from, 'routes-a/child')
+
+    t.equal(res.statusCode, 404)
+  })
+
+  app.inject({
+    url: '/sibling'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+  })
+
+  app.inject({
+    url: '/sibling/not-exists'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.headers.from, 'routes-a/sibling')
 
     t.equal(res.statusCode, 404)
   })

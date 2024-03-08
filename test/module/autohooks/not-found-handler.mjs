@@ -1,9 +1,12 @@
-'use strict'
+import path from 'path'
+import autoLoad from '../../../index.js'
+import { fileURLToPath } from 'url'
 
-const path = require('node:path')
-const autoLoad = require('../../..')
+const { dirname } = path
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-module.exports = async function (fastify) {
+export default async function (fastify) {
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'not-found-handler/routes-a'),
     autoHooks: true,
