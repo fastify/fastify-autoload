@@ -7,14 +7,13 @@ module.exports = async function (fastify) {
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'not-found-handler/routes-a'),
     autoHooks: true,
-    cascadeHooks: true,
-    options: { foo: 'bar' }
+    cascadeHooks: true
   })
 
   fastify.register(autoLoad, {
     dir: path.join(__dirname, 'not-found-handler/routes-b'),
     autoHooks: true,
     cascadeHooks: true,
-    options: { foo: 'bar', prefix: 'custom-prefix' }
+    options: { prefix: 'custom-prefix' }
   })
 }

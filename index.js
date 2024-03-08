@@ -101,12 +101,9 @@ const fastifyAutoload = async function autoload (fastify, options) {
         registerAllPlugins(app, pluginFiles, true)
       }
 
-      const composedOpts = { ...options.options }
-      if (!composedOpts.prefix) {
-        composedOpts.prefix = prefix
-      }
+      const composedPrefix = options.options?.prefix ?? prefix
 
-      fastify.register(composedPlugin, composedOpts)
+      fastify.register(composedPlugin, { prefix: composedPrefix })
     }
   }
 
