@@ -20,7 +20,7 @@
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
     "unit": "node scripts/unit.js",
-    "unit:with-modules": "tap test/commonjs/*.js test/module/*.js test/typescript/*.ts"
+    "unit:with-modules": "tap test/issues/*/test.js test/commonjs/*.js test/module/*.js test/typescript/*.ts"
   },
   "repository": {
     "type": "git",
