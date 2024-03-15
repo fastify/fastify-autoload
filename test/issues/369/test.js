@@ -59,7 +59,7 @@ test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t)
   t.equal(res2.statusCode, 404)
 })
 
-test('Should be able to filter paths using string', async (t) => {
+test('Should be able to filter paths using a string', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
@@ -80,6 +80,38 @@ test('Should be able to filter paths using string', async (t) => {
   app2.register(autoload, {
     dir: path.join(__dirname, 'routes-c'),
     matchFilter: 'invalid-path'
+  })
+
+  await app2.ready()
+
+  const res2 = await app2.inject({
+    url: '/'
+  })
+
+  t.equal(res2.statusCode, 404)
+})
+
+test('Should be able to filter paths using a function', async (t) => {
+  const app = Fastify()
+
+  app.register(autoload, {
+    dir: path.join(__dirname, 'routes-c'),
+    matchFilter: (path) => path.includes('routes.js')
+  })
+
+  await app.ready()
+
+  const res = await app.inject({
+    url: '/'
+  })
+
+  t.equal(res.statusCode, 200)
+
+  const app2 = Fastify()
+
+  app2.register(autoload, {
+    dir: path.join(__dirname, 'routes-c'),
+    matchFilter: (path) => path.includes('invalid-path')
   })
 
   await app2.ready()
