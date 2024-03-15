@@ -72,12 +72,9 @@ const fastifyAutoload = async function autoload (fastify, options) {
   }
 
   await Promise.all(hookArray.map((h) => {
-    if (hooksMeta[h.file]) return null // hook plugin already loaded, skip this instance
     return loadHook(h, opts)
       .then((hookPlugin) => {
-        if (hookPlugin) {
           hooksMeta[h.file] = hookPlugin
-        }
       })
       .catch((err) => {
         throw enrichError(err)
@@ -96,7 +93,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
         for (const hookFile of hookFiles) {
           const hookPlugin = hooksMeta[hookFile.file]
           // encapsulate hooks at plugin level
-          if (hookPlugin) app.register(hookPlugin)
+          app.register(hookPlugin)
         }
         registerAllPlugins(app, pluginFiles)
       }
@@ -409,7 +406,6 @@ function wrapRoutes (content) {
 }
 
 async function loadHook (hook, options) {
-  if (!hook) return null
   let hookContent
   if (options.forceESM || hook.type === 'module' || forceESMEnvironment) {
     hookContent = await import(pathToFileURL(hook.file).href)
