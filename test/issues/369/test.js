@@ -27,3 +27,34 @@ test('Should throw an error when trying to import hooks plugin using index.ts if
 
   await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'routes-b/index.ts')}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`))
 })
+
+test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t) => {
+  const app = Fastify()
+
+  app.register(autoload, {
+    dir: path.join(__dirname, 'routes-c')
+  })
+
+  await app.ready()
+
+  const res = await app.inject({
+    url: '/'
+  })
+
+  t.equal(res.statusCode, 200)
+
+  const app2 = Fastify()
+
+  app2.register(autoload, {
+    dir: path.join(__dirname, 'routes-c'),
+    matchFilter: /invalid/
+  })
+
+  await app2.ready()
+
+  const res2 = await app2.inject({
+    url: '/'
+  })
+
+  t.equal(res2.statusCode, 404)
+})
