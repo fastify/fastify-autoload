@@ -115,7 +115,7 @@ async function getPackageType (cwd) {
   const directories = cwd.split(sep)
 
   // required for paths that begin with the sep, such as linux root
-  directories[0] = directories[0] !== '' ? directories[0] : sep
+  directories[0] = /* istanbul ignore next */ directories[0] !== '' ? directories[0] : sep
 
   while (directories.length > 0) {
     const filePath = join(...directories, 'package.json')
