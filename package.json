@@ -20,7 +20,7 @@
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
     "unit": "node scripts/unit.js",
-    "unit:with-modules": "tap -J test/issues/*/test.js test/commonjs/*.js test/module/*.js test/typescript/*.ts"
+    "unit:with-modules": "tap test/issues/*/test.js test/commonjs/*.js test/module/*.js test/typescript/*.ts"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,7 @@
     "url": "https://github.com/fastify/fastify-autoload/issues"
   },
   "homepage": "https://github.com/fastify/fastify-autoload#readme",
+  "dependencies": {},
   "devDependencies": {
     "@fastify/pre-commit": "^2.0.2",
     "@fastify/url-data": "^5.0.0",
@@ -60,7 +61,6 @@
     "snazzy": "^9.0.0",
     "standard": "^17.0.0",
     "tap": "^16.0.0",
-    "tap-mocha-reporter": "^5.0.4",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.4.0",
     "ts-node-dev": "^2.0.0",
