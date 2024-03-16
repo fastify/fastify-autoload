@@ -74,7 +74,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
   await Promise.all(hookArray.map((h) => {
     return loadHook(h, opts)
       .then((hookPlugin) => {
-          hooksMeta[h.file] = hookPlugin
+        hooksMeta[h.file] = hookPlugin
       })
       .catch((err) => {
         throw enrichError(err)
@@ -432,6 +432,7 @@ function enrichError (err) {
   if (err instanceof SyntaxError) {
     err.message += ' at ' + err.stack.split('\n', 1)[0]
   }
+
   return err
 }
 

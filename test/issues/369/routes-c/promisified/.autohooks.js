@@ -8,12 +8,3 @@ module.exports = new Promise((res) => {
           })
     })
 })
-
-// module.exports = new Promise((res) => {
-//     res(async function (app, opts) {
-//         app.decorate('foo', true)
-//         app.get('/a', async function (req, reply) {
-//           reply.send()
-//         })
-//     })
-// })

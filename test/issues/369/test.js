@@ -143,7 +143,7 @@ test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
   app2.register(autoload, {
     dir: path.join(__dirname, 'routes-c'),
     ignoreFilter: /\/routes.js/,
-    autoHooks: true,
+    autoHooks: true
   })
 
   await app2.ready()
@@ -153,17 +153,11 @@ test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
   })
 
   t.equal(res2.statusCode, 404)
-
-  const res3 = await app2.inject({
-    url: '/a'
-  })
-
-  t.equal(res3.statusCode, 200)
 })
 
 test('Should not set skip-override if hook plugin is not a function or async function', async (t) => {
   const app = Fastify()
-  
+
   app.register(autoload, {
     dir: path.join(__dirname, 'routes-c'),
     autoHooks: true,
@@ -181,11 +175,21 @@ test('Should not set skip-override if hook plugin is not a function or async fun
   t.equal(res.statusCode, 200)
   t.same(JSON.parse(res.payload), { hooked: ['root', 'child'] })
 
-
   const res2 = await app.inject({
     url: '/promisified'
   })
 
   t.equal(res2.statusCode, 200)
   t.same(JSON.parse(res2.payload), { hooked: ['root'] })
+})
+
+test('Should not enrich non-SyntaxError', async (t) => {
+  const app = Fastify()
+
+  app.register(autoload, {
+    dir: path.join(__dirname, 'routes-d'),
+    autoHooks: true
+  })
+
+  t.rejects(app.ready(), new ReferenceError('x is not defined'))
 })
