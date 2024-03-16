@@ -26,30 +26,29 @@ test('Should throw an error when trying to load invalid hooks', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-a'),
+    dir: path.join(__dirname, 'invalid-autohooks'),
     autoHooks: true,
-    autoHooksPattern: /^.invalid-autohooks.js$/iu
   })
 
-  await t.rejects(app.ready(), new SyntaxError(`Unexpected identifier at ${path.join(__dirname, 'routes-a/.invalid-autohooks.js')}:1`))
+  await t.rejects(app.ready(), new SyntaxError(`Unexpected identifier at ${path.join(__dirname, 'invalid-autohooks/.autohooks.js')}:1`))
 })
 
 test('Should throw an error when trying to import hooks plugin using index.ts if typescriptSupport is not enabled', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-b'),
+    dir: path.join(__dirname, 'invalid-index-type'),
     autoHooks: true
   })
 
-  await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'routes-b/index.ts')}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`))
+  await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'invalid-index-type/index.ts')}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`))
 })
 
 test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-c')
+    dir: path.join(__dirname, 'routes')
   })
 
   await app.ready()
@@ -63,7 +62,7 @@ test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t)
   const app2 = Fastify()
 
   app2.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     matchFilter: /invalid/
   })
 
@@ -80,7 +79,7 @@ test('Should be able to filter paths using a string', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     matchFilter: 'routes.js'
   })
 
@@ -95,7 +94,7 @@ test('Should be able to filter paths using a string', async (t) => {
   const app2 = Fastify()
 
   app2.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     matchFilter: 'invalid-path'
   })
 
@@ -112,7 +111,7 @@ test('Should be able to filter paths using a function', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     matchFilter: (path) => path.includes('routes.js')
   })
 
@@ -127,7 +126,7 @@ test('Should be able to filter paths using a function', async (t) => {
   const app2 = Fastify()
 
   app2.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     matchFilter: (path) => path.includes('invalid-path')
   })
 
@@ -144,7 +143,7 @@ test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     ignoreFilter: /\/not-exists.js/
   })
 
@@ -158,7 +157,7 @@ test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
 
   const app2 = Fastify()
   app2.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     ignoreFilter: /\/routes.js/,
     autoHooks: true
   })
@@ -176,7 +175,7 @@ test('Should not set skip-override if hook plugin is not a function or async fun
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-c'),
+    dir: path.join(__dirname, 'routes'),
     autoHooks: true,
     cascadeHooks: true
   })
@@ -204,7 +203,7 @@ test('Should not enrich non-SyntaxError', async (t) => {
   const app = Fastify()
 
   app.register(autoload, {
-    dir: path.join(__dirname, 'routes-d'),
+    dir: path.join(__dirname, 'non-SyntaxError'),
     autoHooks: true
   })
 
