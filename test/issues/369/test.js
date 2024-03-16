@@ -24,10 +24,9 @@ const autoload = requireAutoload()
 
 test('Should throw an error when trying to load invalid hooks', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'invalid-autohooks'),
-    autoHooks: true,
+    autoHooks: true
   })
 
   await t.rejects(app.ready(), new SyntaxError(`Unexpected identifier at ${path.join(__dirname, 'invalid-autohooks/.autohooks.js')}:1`))
@@ -35,7 +34,6 @@ test('Should throw an error when trying to load invalid hooks', async (t) => {
 
 test('Should throw an error when trying to import hooks plugin using index.ts if typescriptSupport is not enabled', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'invalid-index-type'),
     autoHooks: true
@@ -46,7 +44,6 @@ test('Should throw an error when trying to import hooks plugin using index.ts if
 
 test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'routes')
   })
@@ -60,7 +57,6 @@ test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t)
   t.equal(res.statusCode, 200)
 
   const app2 = Fastify()
-
   app2.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     matchFilter: /invalid/
@@ -77,7 +73,6 @@ test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t)
 
 test('Should be able to filter paths using a string', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     matchFilter: 'routes.js'
@@ -92,7 +87,6 @@ test('Should be able to filter paths using a string', async (t) => {
   t.equal(res.statusCode, 200)
 
   const app2 = Fastify()
-
   app2.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     matchFilter: 'invalid-path'
@@ -109,7 +103,6 @@ test('Should be able to filter paths using a string', async (t) => {
 
 test('Should be able to filter paths using a function', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     matchFilter: (path) => path.includes('routes.js')
@@ -124,7 +117,6 @@ test('Should be able to filter paths using a function', async (t) => {
   t.equal(res.statusCode, 200)
 
   const app2 = Fastify()
-
   app2.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     matchFilter: (path) => path.includes('invalid-path')
@@ -141,7 +133,6 @@ test('Should be able to filter paths using a function', async (t) => {
 
 test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     ignoreFilter: /\/not-exists.js/
@@ -173,7 +164,6 @@ test('Should not accumulate plugin if ignoreFilter is matched', async (t) => {
 
 test('Should not set skip-override if hook plugin is not a function or async function', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     autoHooks: true,
@@ -201,7 +191,6 @@ test('Should not set skip-override if hook plugin is not a function or async fun
 
 test('Should not enrich non-SyntaxError', async (t) => {
   const app = Fastify()
-
   app.register(autoload, {
     dir: path.join(__dirname, 'non-SyntaxError'),
     autoHooks: true
