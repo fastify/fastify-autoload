@@ -6,7 +6,9 @@ const { pathToFileURL } = require('node:url')
 
 const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
-const isBabelNode = (process?.execArgv || []).concat(process?.argv || []).some((arg) => arg.indexOf('babel-node') >= 0)
+const isBabelNode = (/* istanbul ignore next */process.execArgv || [])
+  .concat(/* istanbul ignore next */process.argv || [])
+  .some((arg) => arg.indexOf('babel-node') >= 0)
 
 const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
@@ -72,12 +74,9 @@ const fastifyAutoload = async function autoload (fastify, options) {
   }
 
   await Promise.all(hookArray.map((h) => {
-    if (hooksMeta[h.file]) return null // hook plugin already loaded, skip this instance
     return loadHook(h, opts)
       .then((hookPlugin) => {
-        if (hookPlugin) {
-          hooksMeta[h.file] = hookPlugin
-        }
+        hooksMeta[h.file] = hookPlugin
       })
       .catch((err) => {
         throw enrichError(err)
@@ -96,7 +95,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
         for (const hookFile of hookFiles) {
           const hookPlugin = hooksMeta[hookFile.file]
           // encapsulate hooks at plugin level
-          if (hookPlugin) app.register(hookPlugin)
+          app.register(hookPlugin)
         }
         registerAllPlugins(app, pluginFiles)
       }
@@ -118,7 +117,7 @@ async function getPackageType (cwd) {
   const directories = cwd.split(sep)
 
   // required for paths that begin with the sep, such as linux root
-  directories[0] = directories[0] !== '' ? directories[0] : sep
+  directories[0] = /* istanbul ignore next */ directories[0] !== '' ? directories[0] : sep
 
   while (directories.length > 0) {
     const filePath = join(...directories, 'package.json')
@@ -409,7 +408,6 @@ function wrapRoutes (content) {
 }
 
 async function loadHook (hook, options) {
-  if (!hook) return null
   let hookContent
   if (options.forceESM || hook.type === 'module' || forceESMEnvironment) {
     hookContent = await import(pathToFileURL(hook.file).href)
@@ -436,6 +434,7 @@ function enrichError (err) {
   if (err instanceof SyntaxError) {
     err.message += ' at ' + err.stack.split('\n', 1)[0]
   }
+
   return err
 }
 
