@@ -1,5 +1,5 @@
-ts: true
-jsx: false
-flow: false
-coverage: true
-check-coverage: false
+disable-coverage: true
+files:
+  - test/commonjs/*.js
+  - test/module/*.js
+  - test/typescript/*.ts
