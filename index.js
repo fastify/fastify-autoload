@@ -6,9 +6,7 @@ const { pathToFileURL } = require('node:url')
 
 const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
 const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
-const isBabelNode = (/* istanbul ignore next */process.execArgv || [])
-  .concat(/* istanbul ignore next */process.argv || [])
-  .some((arg) => arg.indexOf('babel-node') >= 0)
+const isBabelNode = process.execArgv.concat(process.argv).some((arg) => arg.indexOf('babel-node') >= 0)
 
 const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
