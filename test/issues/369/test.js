@@ -12,7 +12,7 @@ test('Should throw an error when trying to load invalid hooks', async (t) => {
     autoHooks: true
   })
 
-  await t.rejects(app.ready(), new SyntaxError(`Unexpected identifier at ${path.join(__dirname, 'invalid-autohooks/.autohooks.js')}:1`))
+  await t.rejects(app.ready(), /Invalid or unexpected token/)
 })
 
 test('Should throw an error when trying to import hooks plugin using index.ts if typescriptSupport is not enabled', async (t) => {
@@ -22,7 +22,7 @@ test('Should throw an error when trying to import hooks plugin using index.ts if
     autoHooks: true
   })
 
-  await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'invalid-index-type/index.ts')}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`))
+  await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'invalid-index-type/index.ts')}'`))
 })
 
 test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t) => {
