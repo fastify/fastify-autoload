@@ -2,7 +2,7 @@
 
 const { exec } = require('node:child_process')
 
-const version = Number(process.version.split('.')[0].slice(1));
+const version = Number(process.version.split('.')[0].slice(1))
 
 const args = [
   'npx',
