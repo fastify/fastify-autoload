@@ -10,12 +10,13 @@ const isBabelNode = process.execArgv.concat(process.argv).some((arg) => arg.inde
 
 const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
-const isSWCRegister = process._preload_modules && process._preload_modules.includes('@swc/register')
-const isSWCNodeRegister = process._preload_modules && process._preload_modules.includes('@swc-node/register')
+const isSWCRegister = process._preload_modules?.includes('@swc/register')
+const isSWCNodeRegister = process._preload_modules?.includes('@swc-node/register')
+/* istanbul ignore next - OS specific */
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
-const isTsm = process._preload_modules && process._preload_modules.includes('tsm')
-const isEsbuildRegister = process._preload_modules && process._preload_modules.includes('esbuild-register')
-const isTsx = process._preload_modules && process._preload_modules.toString().includes('tsx')
+const isTsm = process._preload_modules?.includes('tsm')
+const isEsbuildRegister = process._preload_modules?.includes('esbuild-register')
+const isTsx = process._preload_modules?.toString()?.includes('tsx')
 const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
 
 const forceESMEnvironment = isVitestEnvironment || false
@@ -115,7 +116,7 @@ async function getPackageType (cwd) {
   const directories = cwd.split(sep)
 
   // required for paths that begin with the sep, such as linux root
-  directories[0] = /* istanbul ignore next */ directories[0] !== '' ? directories[0] : sep
+  directories[0] = /* istanbul ignore next - OS specific */ directories[0] !== '' ? directories[0] : sep
 
   while (directories.length > 0) {
     const filePath = join(...directories, 'package.json')
