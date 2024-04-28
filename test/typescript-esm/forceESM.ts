@@ -18,7 +18,7 @@ app.ready(function (err): void {
     {
       url: '/installed'
     },
-    function (err, res): void {
+    function (err, res: any): void {
       t.error(err)
       t.equal(res.statusCode, 200)
       t.same(JSON.parse(res.payload), { result: 'ok' })
