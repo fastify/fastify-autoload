@@ -96,16 +96,22 @@ const fastifyAutoload = async function autoload (fastify, options) {
           // encapsulate hooks at plugin level
           app.register(hookPlugin)
         }
-        registerAllPlugins(app, pluginFiles)
+        registerAllPlugins(app, pluginFiles, true)
       }
-      fastify.register(composedPlugin)
+
+      fastify.register(composedPlugin, { prefix: options.options?.prefix ?? prefix })
     }
   }
 
-  function registerAllPlugins (app, pluginFiles) {
+  function registerAllPlugins (app, pluginFiles, composed = false) {
     for (const pluginFile of pluginFiles) {
       // find plugins for this prefix, based on filename stored in registerPlugins()
       const plugin = metas.find((i) => i.filename === pluginFile.file)
+
+      if (composed) {
+        plugin.options.prefix = undefined
+      }
+
       // register plugins at fastify level
       if (plugin) registerPlugin(app, plugin, pluginsMeta)
     }
