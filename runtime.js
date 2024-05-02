@@ -5,14 +5,14 @@ const cache = {}
 
 let processArgv
 function checkProcessArgv (moduleName) {
+  /* istanbul ignore next - nullish needed for non Node.js runtime */
   processArgv ??= (process.execArgv ?? []).concat(process.argv ?? [])
   return processArgv.some((arg) => arg.indexOf(moduleName) >= 0)
 }
 
 let preloadModules
 function checkPreloadModules (moduleName) {
-  // since _preload_modules is internal property
-  // it may not exist in different runtime
+  /* istanbul ignore next - nullish needed for non Node.js runtime */
   preloadModules ??= (process._preload_modules ?? [])
   return preloadModules.includes(moduleName)
 }
