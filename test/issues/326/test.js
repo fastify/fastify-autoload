@@ -7,7 +7,7 @@ t.plan(19)
 
 const app = Fastify()
 
-app.register(require('./autohooks/not-found-handler'))
+app.register(require('./autohooks'))
 
 app.setNotFoundHandler((request, reply) => {
   reply.code(404)

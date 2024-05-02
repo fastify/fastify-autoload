@@ -4,7 +4,6 @@ import autoHooksBasic from './autohooks/basic.mjs'
 import autoHooksCascade from './autohooks/cascade.mjs'
 import autoHooksOverwrite from './autohooks/overwrite.mjs'
 import autoHooksDisabled from './autohooks/disabled.mjs'
-import autoHooksNotFoundHandler from './autohooks/not-found-handler.mjs'
 
 const { test } = t
 
@@ -110,79 +109,4 @@ test('autohooks: Disabled behaviour', async () => {
   res = await app.inject('/sibling')
   t.equal(res.statusCode, 200)
   t.same(res.json(), { hooked: 'disabled' })
-})
-
-test('autohooks: Not found handler', async () => {
-  const app = fastify()
-  app.register(autoHooksNotFoundHandler)
-
-  app.setNotFoundHandler((request, reply) => {
-    reply.code(404)
-      .header('from', 'root')
-      .send()
-  })
-
-  app.ready(function (err) {
-    t.error(err)
-
-    app.inject({
-      url: '/not-exists'
-    }, function (err, res) {
-      t.error(err)
-      t.equal(res.headers.from, 'root')
-
-      t.equal(res.statusCode, 404)
-    })
-
-    app.inject({
-      url: '/child'
-    }, function (err, res) {
-      t.error(err)
-
-      t.equal(res.statusCode, 200)
-    })
-
-    app.inject({
-      url: '/child/not-exists'
-    }, function (err, res) {
-      t.error(err)
-      t.equal(res.headers.from, 'routes-a/child')
-
-      t.equal(res.statusCode, 404)
-    })
-
-    app.inject({
-      url: '/sibling'
-    }, function (err, res) {
-      t.error(err)
-
-      t.equal(res.statusCode, 200)
-    })
-
-    app.inject({
-      url: '/sibling/not-exists'
-    }, function (err, res) {
-      t.error(err)
-      t.equal(res.headers.from, 'routes-a/sibling')
-
-      t.equal(res.statusCode, 404)
-    })
-
-    app.inject({
-      url: '/custom-prefix'
-    }, function (err, res) {
-      t.error(err)
-
-      t.equal(res.statusCode, 200)
-    })
-
-    app.inject({
-      url: '/custom-prefix/not-exists'
-    }, function (err, res) {
-      t.error(err)
-      t.equal(res.headers.from, 'routes-b')
-
-      t.equal(res.statusCode, 404)
-    })
-  })
 })
