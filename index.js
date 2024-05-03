@@ -12,13 +12,15 @@ const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_
 const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
 const isSWCRegister = process._preload_modules?.includes('@swc/register')
 const isSWCNodeRegister = process._preload_modules?.includes('@swc-node/register')
-/* istanbul ignore next - OS specific */
+/* c8 ignore start */
+// ignore because OS specific evaluation
 const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
+/* c8 ignore end */
 const isTsm = process._preload_modules?.includes('tsm')
 const isEsbuildRegister = process._preload_modules?.includes('esbuild-register')
 const isTsx = process._preload_modules?.toString()?.includes('tsx')
-const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
 
+const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
 const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/gu
 const routeMixedParamPattern = /__/gu
@@ -121,9 +123,11 @@ const fastifyAutoload = async function autoload (fastify, options) {
 async function getPackageType (cwd) {
   const directories = cwd.split(sep)
 
+  /* c8 ignore start */
   // required for paths that begin with the sep, such as linux root
-  directories[0] = /* istanbul ignore next - OS specific */ directories[0] !== '' ? directories[0] : sep
-
+  // ignore because OS specific evaluation
+  directories[0] = directories[0] !== '' ? directories[0] : sep
+  /* c8 ignore stop */
   while (directories.length > 0) {
     const filePath = join(...directories, 'package.json')
 
