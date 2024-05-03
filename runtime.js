@@ -7,7 +7,7 @@ let processArgv
 function checkProcessArgv (moduleName) {
   /* c8 ignore start */
   // nullish needed for non Node.js runtime
-  processArgv ??= process.execArgv.concat(process.argv)
+  processArgv ??= (process.execArgv ?? []).concat(process.argv ?? [])
   /* c8 ignore stop */
   return processArgv.some((arg) => arg.indexOf(moduleName) >= 0)
 }
