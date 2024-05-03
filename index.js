@@ -3,32 +3,15 @@
 const { promises: { readdir, readFile } } = require('node:fs')
 const { join, relative, sep } = require('node:path')
 const { pathToFileURL } = require('node:url')
+const runtime = require('./runtime')
 
-const isFastifyAutoloadTypescriptOverride = !!process.env.FASTIFY_AUTOLOAD_TYPESCRIPT
-const isTsNode = (Symbol.for('ts-node.register.instance') in process) || !!process.env.TS_NODE_DEV
-const isBabelNode = process.execArgv.concat(process.argv).some((arg) => arg.indexOf('babel-node') >= 0)
-
-const isVitestEnvironment = process.env.VITEST === 'true' || process.env.VITEST_WORKER_ID !== undefined
-const isJestEnvironment = process.env.JEST_WORKER_ID !== undefined
-const isSWCRegister = process._preload_modules?.includes('@swc/register')
-const isSWCNodeRegister = process._preload_modules?.includes('@swc-node/register')
-/* c8 ignore start */
-// ignore because OS specific evaluation
-const isSWCNode = typeof process.env._ === 'string' && process.env._.includes('.bin/swc-node')
-/* c8 ignore end */
-const isTsm = process._preload_modules?.includes('tsm')
-const isEsbuildRegister = process._preload_modules?.includes('esbuild-register')
-const isTsx = process._preload_modules?.toString()?.includes('tsx')
-
-const typescriptSupport = isFastifyAutoloadTypescriptOverride || isTsNode || isVitestEnvironment || isBabelNode || isJestEnvironment || isSWCRegister || isSWCNodeRegister || isSWCNode || isTsm || isTsx || isEsbuildRegister
-const forceESMEnvironment = isVitestEnvironment || false
 const routeParamPattern = /\/_/gu
 const routeMixedParamPattern = /__/gu
 
 const defaults = {
-  scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs)$/iu,
-  indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs)$/iu,
-  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs)$/iu,
+  scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
+  indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
+  autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
   dirNameRoutePrefix: true,
   encapsulate: true
 }
@@ -142,11 +125,14 @@ async function getPackageType (cwd) {
   }
 }
 
-const typescriptPattern = /\.ts$/iu
-const modulePattern = /\.mjs$/iu
-const commonjsPattern = /\.cjs$/iu
+const typescriptPattern = /\.(ts|mts|cts)$/iu
+const modulePattern = /\.(mjs|mts)$/iu
+const commonjsPattern = /\.(cjs|cts)$/iu
 function getScriptType (fname, packageType) {
-  return (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : typescriptPattern.test(fname) ? 'typescript' : packageType) || 'commonjs'
+  return {
+    language: typescriptPattern.test(fname) ? 'typescript' : 'javascript',
+    type: (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : packageType) || 'commonjs'
+  }
 }
 
 // eslint-disable-next-line default-param-last
@@ -170,7 +156,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     const autoHooks = list.find((dirent) => autoHooksPattern.test(dirent.name))
     if (autoHooks) {
       const autoHooksFile = join(dir, autoHooks.name)
-      const autoHooksType = getScriptType(autoHooksFile, options.packageType)
+      const { type: autoHooksType } = getScriptType(autoHooksFile, options.packageType)
 
       // Overwrite current hooks?
       if (options.overwriteHooks && currentHooks.length > 0) {
@@ -188,8 +174,8 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
   if (indexDirent) {
     const file = join(dir, indexDirent.name)
-    const type = getScriptType(file, options.packageType)
-    if (type === 'typescript' && !typescriptSupport) {
+    const { language, type } = getScriptType(file, options.packageType)
+    if (language === 'typescript' && !runtime.supportTypeScript) {
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
 
@@ -241,8 +227,8 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
     }
 
     if (dirent.isFile() && scriptPattern.test(dirent.name)) {
-      const type = getScriptType(file, options.packageType)
-      if (type === 'typescript' && !typescriptSupport) {
+      const { language, type } = getScriptType(file, options.packageType)
+      if (language === 'typescript' && !runtime.supportTypeScript) {
         throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
       }
 
@@ -275,7 +261,7 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
-  if (forceESM || type === 'module' || forceESMEnvironment) {
+  if (forceESM || type === 'module' || runtime.forceESM) {
     content = await import(pathToFileURL(file).href)
   } else {
     content = require(file)
@@ -418,7 +404,7 @@ function wrapRoutes (content) {
 
 async function loadHook (hook, options) {
   let hookContent
-  if (options.forceESM || hook.type === 'module' || forceESMEnvironment) {
+  if (options.forceESM || hook.type === 'module' || runtime.forceESM) {
     hookContent = await import(pathToFileURL(hook.file).href)
   } else {
     hookContent = require(hook.file)
