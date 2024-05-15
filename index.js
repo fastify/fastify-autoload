@@ -84,7 +84,9 @@ const fastifyAutoload = async function autoload (fastify, options) {
         registerAllPlugins(app, pluginFiles, true)
       }
 
-      fastify.register(composedPlugin, { prefix: options.options?.prefix ?? prefix })
+      fastify.register(composedPlugin, {
+        prefix: options.options?.prefix ?? replaceRouteParamPattern(prefix)
+      })
     }
   }
 
