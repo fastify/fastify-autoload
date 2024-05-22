@@ -1,0 +1,3 @@
+# vim: set filetype=yaml :
+timeout: 60
+plugin: []
