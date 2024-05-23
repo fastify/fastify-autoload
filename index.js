@@ -26,6 +26,11 @@ const fastifyAutoload = async function autoload (fastify, options) {
   const pluginArray = [].concat.apply([], Object.values(pluginTree).map(o => o.plugins))
   const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
 
+  let rootPrefix = options.options?.prefix ?? ''
+  // when prefix is provided /prefix/ format
+  // it is not good for concat, since most folder prefix start with /
+  if (rootPrefix[rootPrefix.length - 1] === '/') rootPrefix = rootPrefix.slice(0, -1)
+
   await Promise.all(pluginArray.map(({ file, type, prefix }) => {
     return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
       .then((plugin) => {
@@ -85,7 +90,7 @@ const fastifyAutoload = async function autoload (fastify, options) {
       }
 
       fastify.register(composedPlugin, {
-        prefix: options.options?.prefix ?? replaceRouteParamPattern(prefix)
+        prefix: rootPrefix + replaceRouteParamPattern(prefix)
       })
     }
   }
