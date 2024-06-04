@@ -194,7 +194,32 @@ Autoload can be customised using the following options:
 
   module.exports.autoPrefix = '/something'
 
+
   // /plugins/something.mjs
+  export default function (f, opts, next) {
+    f.get('/', (request, reply) => {
+      reply.send({ something: 'else' })
+    })
+
+    next()
+  }
+
+  export const autoPrefix = '/something'
+
+  // routes can now be added to /defaultPrefix/something
+  ```
+
+  When `options.dirNameRoutePrefix` is also set, `autoPrefix` will be concatenated *after* the directory prefix.
+
+  ```js
+  // /plugins/someDir/something.js
+  module.exports = function (fastify, opts, next) {
+    // your plugin
+  }
+  module.exports.autoPrefix = '/prefixed'
+
+
+  // /plugins/someDir/something.mjs
   export default function (f, opts, next) {
     f.get('/', (request, reply) => {
       reply.send({ something: 'else' })
@@ -205,7 +230,7 @@ Autoload can be customised using the following options:
 
   export const autoPrefix = '/prefixed'
 
-  // routes can now be added to /defaultPrefix/something
+  // routes are now added to /defaultPrefix/someDir/prefixed
   ```
 
 - `autoHooks` (optional) - Apply hooks from `autohooks.js` file(s) to plugins found in folder
@@ -357,7 +382,7 @@ Each plugin can be individually configured using the following module properties
     })
   }
 
-  export const autoPrefix = '/prefixed'
+  export const autoPrefix = '/something'
   ```
 
 
