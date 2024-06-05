@@ -3,8 +3,10 @@
 const { exec } = require('node:child_process')
 
 const args = [
-  'node',
-  '--require=tsm',
+  'tap',
+  '--node-arg=--require=tsm',
+  '--disable-coverage',
+  '--allow-empty-coverage',
   'test/typescript/*.ts'
 ]
 
