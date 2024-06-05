@@ -19,7 +19,7 @@
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
     "unit": "node scripts/unit.js",
-    "unit:with-modules": "tap test/issues/*/test.js test/commonjs/*.js test/module/*.js"
+    "unit:with-modules": "tap plugin rm @tapjs/typescript && npm remove @tapjs/typescript && tap test/issues/*/test.js test/commonjs/*.js test/module/*.js"
   },
   "repository": {
     "type": "git",
