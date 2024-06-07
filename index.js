@@ -113,9 +113,11 @@ const fastifyAutoload = async function autoload (fastify, options) {
 async function getPackageType (cwd) {
   const directories = cwd.split(sep)
 
+  /* c8 ignore start */
   // required for paths that begin with the sep, such as linux root
-  directories[0] = /* istanbul ignore next - OS specific */ directories[0] !== '' ? directories[0] : sep
-
+  // ignore because OS specific evaluation
+  directories[0] = directories[0] !== '' ? directories[0] : sep
+  /* c8 ignore stop */
   while (directories.length > 0) {
     const filePath = join(...directories, 'package.json')
 

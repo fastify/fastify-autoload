@@ -1,3 +1,4 @@
-ts: true
-jsx: false
-flow: false
+# vim: set filetype=yaml :
+timeout: 60
+plugin:
+  - "!@tapjs/typescript"
