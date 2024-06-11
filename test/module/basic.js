@@ -2,7 +2,7 @@ import t from 'tap'
 import fastify from 'fastify'
 import basicApp from './basic/app.js'
 
-t.plan(74)
+t.plan(80)
 
 const app = fastify()
 
@@ -226,5 +226,23 @@ app.ready(function (err) {
       error: 'Not Found',
       statusCode: 404
     })
+  })
+
+  app.inject({
+    url: '/configPrefix'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { configPrefix: true })
+  })
+
+  app.inject({
+    url: '/configPrefixCallback'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { configPrefixCallback: true })
   })
 })

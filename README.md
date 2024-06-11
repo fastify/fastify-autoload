@@ -339,6 +339,15 @@ Each plugin can be individually configured using the following module properties
   }
   ```
 
+  However, note that the `prefix` option should be set directly on `autoConfig` for autoloading to work as expected:
+  ```js
+  export const autoConfig = (fastify) => {
+    return { name: 'y ' + fastify.rootName }
+  }
+
+  autoConfig.prefix = '/hello'
+  ```
+
 - `plugin.autoPrefix` - Set routing prefix for plugin
 
   ```js
