@@ -282,7 +282,17 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
 
   const plugin = wrapRoutes(content.default || content)
   const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
-  const pluginOptions = typeof pluginConfig === 'function' ? pluginConfig : Object.assign({}, pluginConfig, overrideConfig)
+  let pluginOptions
+  if (typeof pluginConfig === 'function') {
+    pluginOptions = function (fastify) {
+      return { ...pluginConfig(fastify), ...overrideConfig }
+    }
+
+    pluginOptions.prefix = pluginConfig.prefix
+  } else {
+    pluginOptions = { ...pluginConfig, ...overrideConfig }
+  }
+
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
 
   if (!encapsulate) {
