@@ -288,7 +288,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
       return { ...pluginConfig(fastify), ...overrideConfig }
     }
 
-    pluginOptions.prefix = pluginConfig.prefix
+    pluginOptions.prefix = overrideConfig.prefix ?? pluginConfig.prefix
   } else {
     pluginOptions = { ...pluginConfig, ...overrideConfig }
   }
