@@ -2,9 +2,11 @@ import t from 'tap'
 import fastify from 'fastify'
 import optionsApp from './options/app.js'
 
-t.plan(19)
+t.plan(22)
 
 const app = fastify()
+
+app.decorate('root', 'root')
 
 app.register(optionsApp)
 
@@ -50,6 +52,14 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { data: 'test-3' })
+  })
+
+  app.inject({
+    url: '/plugin-e'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { data: 'test-4-root' })
   })
 
   app.inject({
