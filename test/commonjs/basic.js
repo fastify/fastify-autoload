@@ -3,7 +3,7 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(101)
+t.plan(107)
 
 const app = Fastify()
 
@@ -269,5 +269,23 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { works: true })
+  })
+
+  app.inject({
+    url: '/configPrefix'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { configPrefix: true })
+  })
+
+  app.inject({
+    url: '/configPrefixCallback'
+  }, function (err, res) {
+    t.error(err)
+
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { configPrefixCallback: true })
   })
 })
