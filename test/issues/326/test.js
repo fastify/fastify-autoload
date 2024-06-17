@@ -62,7 +62,7 @@ app.ready(function (err) {
   })
 
   app.inject({
-    url: '/custom-prefix/child'
+    url: '/custom-prefix'
   }, function (err, res) {
     t.error(err)
 
@@ -70,7 +70,7 @@ app.ready(function (err) {
   })
 
   app.inject({
-    url: '/custom-prefix/child/not-exists'
+    url: '/custom-prefix/not-exists'
   }, function (err, res) {
     t.error(err)
     t.equal(res.headers.from, 'routes-b')
