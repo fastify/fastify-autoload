@@ -370,9 +370,10 @@ function isRouteObject (input) {
   return false
 }
 
+const pluginOrModulePattern = /\[object (?:AsyncFunction|Function|Module)\]/u
 /**
  * Used to determine if the contents of a required autoloaded file is a valid
- * plugin or route configuration object. In the case of a route configuraton
+ * plugin or route configuration object. In the case of a route configuration
  * object, it will later be wrapped into a plugin.
  *
  * @param {*} input The data to check.
@@ -384,7 +385,7 @@ function isPluginOrModule (input) {
   let result = false
 
   const inputType = Object.prototype.toString.call(input)
-  if (/\[object (?:AsyncFunction|Function|Module)\]/u.test(inputType) === true) {
+  if (pluginOrModulePattern.test(inputType) === true) {
     result = true
   } else if (Object.prototype.hasOwnProperty.call(input, 'default')) {
     result = isPluginOrModule(input.default)
