@@ -139,6 +139,14 @@ Autoload can be customised using the following options:
   ```
 
 
+- `scriptPattern` (optional) - Regex to override the script files accepted by default
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    scriptPattern: /(?<!\.d)\.(ts|tsx)$/
+  })
+
+
 - `indexPattern` (optional) - Regex to override the `index.js` naming convention
 
   ```js
