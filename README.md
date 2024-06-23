@@ -145,7 +145,7 @@ Autoload can be customised using the following options:
     dir: path.join(__dirname, 'plugins'),
     scriptPattern: /(?<!\.d)\.(ts|tsx)$/
   })
-
+```
 
 - `indexPattern` (optional) - Regex to override the `index.js` naming convention
 
