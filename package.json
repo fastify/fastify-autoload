@@ -69,7 +69,7 @@
     "tsx": "^4.15.7",
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
-    "vitest": "^0.34.1"
+    "vitest": "^1.6.0"
   },
   "standard": {
     "ignore": [
