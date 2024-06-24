@@ -140,8 +140,8 @@ Autoload can be customised using the following options:
 
 
 - `scriptPattern` (optional) - Regex to override the script files accepted by default. You should only use this option
-with [customization hooks](https://nodejs.org/docs/latest/api/module.html#customization-hooks) 
-provider, for example `ts-node`. Otherwise, widening the acceptance extension here will result in error.
+with a [customization hooks](https://nodejs.org/docs/latest/api/module.html#customization-hooks) 
+provider, such as `ts-node`. Otherwise, widening the acceptance extension here will result in error.
 
 
   ```js
