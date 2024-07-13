@@ -26,11 +26,6 @@ const fastifyAutoload = async function autoload (fastify, options) {
   const pluginArray = [].concat.apply([], Object.values(pluginTree).map(o => o.plugins))
   const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
 
-  let rootPrefix = options.options?.prefix ?? ''
-  // when prefix is provided /prefix/ format
-  // it is not good for concat, since most folder prefix start with /
-  if (rootPrefix[rootPrefix.length - 1] === '/') rootPrefix = rootPrefix.slice(0, -1)
-
   await Promise.all(pluginArray.map(({ file, type, prefix }) => {
     return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
       .then((plugin) => {
@@ -86,24 +81,16 @@ const fastifyAutoload = async function autoload (fastify, options) {
           // encapsulate hooks at plugin level
           app.register(hookPlugin)
         }
-        registerAllPlugins(app, pluginFiles, true)
+        registerAllPlugins(app, pluginFiles)
       }
-
-      fastify.register(composedPlugin, {
-        prefix: rootPrefix + replaceRouteParamPattern(prefix)
-      })
+      fastify.register(composedPlugin)
     }
   }
 
-  function registerAllPlugins (app, pluginFiles, composed = false) {
+  function registerAllPlugins (app, pluginFiles) {
     for (const pluginFile of pluginFiles) {
       // find plugins for this prefix, based on filename stored in registerPlugins()
       const plugin = metas.find((i) => i.filename === pluginFile.file)
-
-      if (composed) {
-        plugin.options.prefix = undefined
-      }
-
       // register plugins at fastify level
       if (plugin) registerPlugin(app, plugin, pluginsMeta)
     }
@@ -284,7 +271,17 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
 
   const plugin = wrapRoutes(content.default || content)
   const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
-  const pluginOptions = Object.assign({}, pluginConfig, overrideConfig)
+  let pluginOptions
+  if (typeof pluginConfig === 'function') {
+    pluginOptions = function (fastify) {
+      return { ...pluginConfig(fastify), ...overrideConfig }
+    }
+
+    pluginOptions.prefix = overrideConfig.prefix ?? pluginConfig.prefix
+  } else {
+    pluginOptions = { ...pluginConfig, ...overrideConfig }
+  }
+
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
 
   if (!encapsulate) {
@@ -375,9 +372,10 @@ function isRouteObject (input) {
   return false
 }
 
+const pluginOrModulePattern = /\[object (?:AsyncFunction|Function|Module)\]/u
 /**
  * Used to determine if the contents of a required autoloaded file is a valid
- * plugin or route configuration object. In the case of a route configuraton
+ * plugin or route configuration object. In the case of a route configuration
  * object, it will later be wrapped into a plugin.
  *
  * @param {*} input The data to check.
@@ -389,7 +387,7 @@ function isPluginOrModule (input) {
   let result = false
 
   const inputType = Object.prototype.toString.call(input)
-  if (/\[object (?:AsyncFunction|Function|Module)\]/u.test(inputType) === true) {
+  if (pluginOrModulePattern.test(inputType) === true) {
     result = true
   } else if (Object.prototype.hasOwnProperty.call(input, 'default')) {
     result = isPluginOrModule(input.default)

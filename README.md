@@ -139,6 +139,18 @@ Autoload can be customised using the following options:
   ```
 
 
+- `scriptPattern` (optional) - Regex to override the script files accepted by default. You should only use this option
+with a [customization hooks](https://nodejs.org/docs/latest/api/module.html#customization-hooks) 
+provider, such as `ts-node`. Otherwise, widening the acceptance extension here will result in error.
+
+
+  ```js
+  fastify.register(autoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    scriptPattern: /(?<!\.d)\.(ts|tsx)$/
+  })
+```
+
 - `indexPattern` (optional) - Regex to override the `index.js` naming convention
 
   ```js
@@ -308,7 +320,7 @@ FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --loader=my-custom-loader index.ts
 
 Each plugin can be individually configured using the following module properties:
 
-- `plugin.autoConfig` - Configuration object which will be used as `opts` parameter
+- `plugin.autoConfig` - Specifies the options to be used as the `opts` parameter.
 
   ```js
   module.exports = function (fastify, opts, next) {
@@ -330,6 +342,22 @@ Each plugin can be individually configured using the following module properties
     })
   }
   export const autoConfig = { name: 'y' }
+  ```
+
+  You can also use a callback function if you need to access the parent instance:
+  ```js
+  export const autoConfig = (fastify) => {
+    return { name: 'y ' + fastify.rootName }
+  }
+  ```
+
+  However, note that the `prefix` option should be set directly on `autoConfig` for autoloading to work as expected:
+  ```js
+  export const autoConfig = (fastify) => {
+    return { name: 'y ' + fastify.rootName }
+  }
+
+  autoConfig.prefix = '/hello'
   ```
 
 - `plugin.autoPrefix` - Set routing prefix for plugin

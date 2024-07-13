@@ -3,9 +3,11 @@
 const t = require('tap')
 const Fastify = require('fastify')
 
-t.plan(19)
+t.plan(22)
 
 const app = Fastify()
+
+app.decorate('root', 'root')
 
 app.register(require('./options/app'))
 
@@ -51,6 +53,14 @@ app.ready(function (err) {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.same(JSON.parse(res.payload), { data: 'test-3' })
+  })
+
+  app.inject({
+    url: '/plugin-e'
+  }, function (err, res) {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { data: 'test-4-root' })
   })
 
   app.inject({

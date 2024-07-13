@@ -12,7 +12,8 @@ const app = Fastify()
 app.register(autoLoad, {
   dir: path.join(__dirname, 'routes'),
   autoHooks: true,
-  cascadeHooks: true
+  cascadeHooks: true,
+  routeParams: true
 })
 
 app.ready(function (err) {
