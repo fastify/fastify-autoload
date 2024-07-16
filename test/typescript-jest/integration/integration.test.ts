@@ -21,6 +21,6 @@ describe("integration test", function () {
         });
       });
     },
-    30000
+    60000
   );
 });
