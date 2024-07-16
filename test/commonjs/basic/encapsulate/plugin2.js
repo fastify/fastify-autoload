@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = async (fastify, opts, next) => {
+module.exports = async (fastify, opts) => {
   fastify.get('/encapsulate', {
     handler: async (request, reply) => {
       reply.status(200).send({ works: fastify.sharedVar })
