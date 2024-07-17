@@ -4,7 +4,7 @@ const { exec } = require('node:child_process')
 
 const args = [
   'node',
-  '-r esbuild-register',
+  '--require=esbuild-register',
   'test/typescript/basic.ts'
 ]
 const child = exec(args.join(' '), {
