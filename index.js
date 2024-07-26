@@ -216,16 +216,13 @@ function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
 const routeParamPattern = /\/_/gu
 const routeMixedParamPattern = /__/gu
 function replaceRouteParamPattern (pattern) {
-  const isRegularRouteParam = pattern.match(routeParamPattern)
-  const isMixedRouteParam = pattern.match(routeMixedParamPattern)
-
-  if (isMixedRouteParam) {
+  if (pattern.match(routeMixedParamPattern)) {
     return pattern.replace(routeMixedParamPattern, ':')
-  } else if (isRegularRouteParam) {
+  } else if (pattern.match(routeParamPattern)) {
     return pattern.replace(routeParamPattern, '/:')
-  } else {
-    return pattern
   }
+
+  return pattern
 }
 
 /**
