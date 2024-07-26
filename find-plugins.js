@@ -64,10 +64,9 @@ function processIndexDirentIfExists ({ opts, list, dir, hookedAccumulator, prefi
   const file = join(dir, indexDirent.name)
   const { language, type } = getScriptType(file, opts.packageType)
   handleTypeScriptSupport(file, language, true)
-
   accumulatePlugin({ file, type, opts, hookedAccumulator, prefix })
-  const hasDirectory = list.find((dirent) => dirent.isDirectory())
 
+  const hasDirectory = list.find((dirent) => dirent.isDirectory())
   if (!hasDirectory) {
     return hookedAccumulator
   }
@@ -85,7 +84,7 @@ async function processList ({ list, opts, indexDirent, prefix, dir, depth, curre
     const atMaxDepth = Number.isFinite(opts.maxDepth) && opts.maxDepth <= depth
     const file = join(dir, dirent.name)
     if (dirent.isDirectory() && !atMaxDepth) {
-      processDir({ prefix, opts, dirent, dir, file, directoryPromises, hookedAccumulator, depth, currentHooks })
+      processDirectory({ prefix, opts, dirent, dir, file, directoryPromises, hookedAccumulator, depth, currentHooks })
     } else if (indexDirent) {
       // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)
     } else if (dirent.isFile() && opts.scriptPattern.test(dirent.name)) {
@@ -96,7 +95,7 @@ async function processList ({ list, opts, indexDirent, prefix, dir, depth, curre
   await Promise.all(directoryPromises)
 }
 
-function processDir ({ prefix, opts, dirent, dir, file, directoryPromises, hookedAccumulator, depth, currentHooks }) {
+function processDirectory ({ prefix, opts, dirent, dir, file, directoryPromises, hookedAccumulator, depth, currentHooks }) {
   let prefixBreadCrumb = (prefix ? `${prefix}/` : '/')
   if (opts.dirNameRoutePrefix === true) {
     prefixBreadCrumb += dirent.name
