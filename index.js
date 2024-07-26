@@ -78,18 +78,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   }
 
   const plugin = wrapRoutes(content.default || content)
-  const pluginConfig = (content.default?.autoConfig) || content.autoConfig || {}
-  let pluginOptions
-  if (typeof pluginConfig === 'function') {
-    pluginOptions = function (fastify) {
-      return { ...pluginConfig(fastify), ...overrideConfig }
-    }
-
-    pluginOptions.prefix = overrideConfig.prefix ?? pluginConfig.prefix
-  } else {
-    pluginOptions = { ...pluginConfig, ...overrideConfig }
-  }
-
+  const pluginOptions = loadPluginOptions(content, overrideConfig)
   const pluginMeta = plugin[Symbol.for('plugin-meta')] || {}
 
   if (!encapsulate) {
@@ -187,6 +176,18 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   fastify.register(plugin, options)
 
   meta.registered = true
+}
+
+function loadPluginOptions (content, overrideConfig) {
+  const pluginConfig = (content.default?.autoConfig) || content.autoConfig || {}
+  if (typeof pluginConfig === 'function') {
+    const pluginOptions = (fastify) => ({ ...pluginConfig(fastify), ...overrideConfig })
+    pluginOptions.prefix = overrideConfig.prefix ?? pluginConfig.prefix
+
+    return pluginOptions
+  }
+
+  return { ...pluginConfig, ...overrideConfig }
 }
 
 function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
