@@ -1,9 +1,10 @@
 'use strict'
 
-const { promises: { readdir, readFile } } = require('node:fs')
-const { join, relative, sep } = require('node:path')
+const { readFile } = require('node:fs/promises')
+const { join, sep } = require('node:path')
 const { pathToFileURL } = require('node:url')
 const runtime = require('./runtime')
+const findPlugins = require('./find-plugins')
 
 const routeParamPattern = /\/_/gu
 const routeMixedParamPattern = /__/gu
@@ -127,138 +128,6 @@ async function getPackageType (cwd) {
   }
 }
 
-async function findPlugins (dir, options) {
-  const { opts, hookedAccumulator = {}, prefix, depth = 0, hooks = [] } = options
-  const list = await readdir(dir, { withFileTypes: true })
-
-  // check to see if hooks or plugins have been added to this prefix, initialize if not
-  if (!hookedAccumulator[prefix || '/']) {
-    hookedAccumulator[prefix || '/'] = { hooks: [], plugins: [] }
-  }
-
-  const currentHooks = getCurrentHooks()
-
-  // Contains index file?
-  const indexDirent = list.find((dirent) => opts.indexPattern.test(dirent.name))
-  if (indexDirent) {
-    const file = join(dir, indexDirent.name)
-    const { language, type } = getScriptType(file, opts.packageType)
-    if (language === 'typescript' && !runtime.supportTypeScript) {
-      throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
-    }
-
-    accumulatePlugin({ file, type })
-    const hasDirectory = list.find((dirent) => dirent.isDirectory())
-
-    if (!hasDirectory) {
-      return hookedAccumulator
-    }
-  }
-
-  // Contains package.json but no index.js file?
-  const packageDirent = list.find((dirent) => dirent.name === 'package.json')
-  if (packageDirent && !indexDirent) {
-    throw new Error(`@fastify/autoload cannot import plugin at '${dir}'. To fix this error rename the main entry file to 'index.js' (or .cjs, .mjs, .ts).`)
-  }
-
-  // Otherwise treat each script file as a plugin
-  const directoryPromises = []
-  for (const dirent of list) {
-    if (opts.ignorePattern && dirent.name.match(opts.ignorePattern)) {
-      continue
-    }
-
-    const atMaxDepth = Number.isFinite(opts.maxDepth) && opts.maxDepth <= depth
-    const file = join(dir, dirent.name)
-    if (dirent.isDirectory() && !atMaxDepth) {
-      let prefixBreadCrumb = (prefix ? `${prefix}/` : '/')
-      if (opts.dirNameRoutePrefix === true) {
-        prefixBreadCrumb += dirent.name
-      } else if (typeof opts.dirNameRoutePrefix === 'function') {
-        const prefixReplacer = opts.dirNameRoutePrefix(dir, dirent.name)
-        if (prefixReplacer) {
-          prefixBreadCrumb += prefixReplacer
-        }
-      }
-
-      // Pass hooks forward to next level
-      if (opts.autoHooks && opts.cascadeHooks) {
-        directoryPromises.push(findPlugins(file, { opts, hookedAccumulator, prefix: prefixBreadCrumb, depth: depth + 1, hooks: currentHooks }))
-      } else {
-        directoryPromises.push(findPlugins(file, { opts, hookedAccumulator, prefix: prefixBreadCrumb, depth: depth + 1 }))
-      }
-
-      continue
-    } else if (indexDirent) {
-      // An index.js file is present in the directory so we ignore the others modules (but not the subdirectories)
-      continue
-    }
-
-    if (dirent.isFile() && opts.scriptPattern.test(dirent.name)) {
-      const { language, type } = getScriptType(file, opts.packageType)
-      if (language === 'typescript' && !runtime.supportTypeScript) {
-        throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
-      }
-
-      // Don't place hook in plugin queue
-      if (!opts.autoHooksPattern.test(dirent.name)) {
-        accumulatePlugin({ file, type })
-      }
-    }
-  }
-
-  await Promise.all(directoryPromises)
-
-  return hookedAccumulator
-
-  function getCurrentHooks () {
-    let currentHooks = []
-
-    if (opts.autoHooks) {
-      // Hooks were passed in, create new array specific to this plugin item
-      if (hooks && hooks.length > 0) {
-        for (const hook of hooks) {
-          currentHooks.push(hook)
-        }
-      }
-
-      // Contains autohooks file?
-      const autoHooks = list.find((dirent) => opts.autoHooksPattern.test(dirent.name))
-      if (autoHooks) {
-        const autoHooksFile = join(dir, autoHooks.name)
-        const { type: autoHooksType } = getScriptType(autoHooksFile, opts.packageType)
-
-        // Overwrite current hooks?
-        if (opts.overwriteHooks && currentHooks.length > 0) {
-          currentHooks = []
-        }
-
-        // Add hook to current chain
-        currentHooks.push({ file: autoHooksFile, type: autoHooksType })
-      }
-
-      hookedAccumulator[prefix || '/'].hooks = currentHooks
-    }
-
-    return currentHooks
-  }
-
-  function accumulatePlugin ({ file, type }) {
-    // Replace backward slash to forward slash for consistent behavior between windows and posix.
-    const filePath = '/' + relative(opts.dir, file).replace(/\\/gu, '/')
-
-    if (opts.matchFilter && !filterPath(filePath, opts.matchFilter)) {
-      return
-    }
-
-    if (opts.ignoreFilter && filterPath(filePath, opts.ignoreFilter)) {
-      return
-    }
-
-    hookedAccumulator[prefix || '/'].plugins.push({ file, type, prefix })
-  }
-}
-
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
@@ -277,7 +146,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   }
 
   const plugin = wrapRoutes(content.default || content)
-  const pluginConfig = (content.default && content.default.autoConfig) || content.autoConfig || {}
+  const pluginConfig = (content.default?.autoConfig) || content.autoConfig || {}
   let pluginOptions
   if (typeof pluginConfig === 'function') {
     pluginOptions = function (fastify) {
@@ -305,14 +174,32 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
     plugin.autoConfig = undefined
   }
 
-  pluginOptions.prefix = (pluginOptions.prefix && pluginOptions.prefix.endsWith('/')) ? pluginOptions.prefix.slice(0, -1) : pluginOptions.prefix
-  const prefixOverride = plugin.prefixOverride !== undefined ? plugin.prefixOverride : content.prefixOverride !== undefined ? content.prefixOverride : undefined
-  const prefix = (plugin.autoPrefix !== undefined ? plugin.autoPrefix : content.autoPrefix !== undefined ? content.autoPrefix : undefined) || directoryPrefix
-  if (prefixOverride !== undefined) {
-    pluginOptions.prefix = prefixOverride
-  } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
+  function handlePrefix () {
+    pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
+      ? pluginOptions.prefix.slice(0, -1)
+      : pluginOptions.prefix
+
+    const prefixOverride = plugin.prefixOverride !== undefined
+      ? plugin.prefixOverride
+      : content.prefixOverride
+
+    let prefix
+    if (plugin.autoPrefix !== undefined) {
+      prefix = plugin.autoPrefix
+    } else if (content.autoPrefix !== undefined) {
+      prefix = content.autoPrefix
+    } else {
+      prefix = directoryPrefix
+    }
+
+    if (prefixOverride !== undefined) {
+      pluginOptions.prefix = prefixOverride
+    } else if (prefix) {
+      pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
+    }
   }
+
+  handlePrefix()
 
   return {
     plugin,
@@ -334,10 +221,8 @@ async function loadHook (hook, options) {
 
   hookContent = hookContent.default || hookContent
 
-  if (
-    Object.prototype.toString.call(hookContent) === '[object AsyncFunction]' ||
-    Object.prototype.toString.call(hookContent) === '[object Function]'
-  ) {
+  const type = Object.prototype.toString.call(hookContent)
+  if (type === '[object AsyncFunction]' || type === '[object Function]') {
     hookContent[Symbol.for('skip-override')] = true
   }
 
@@ -379,12 +264,9 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
  * False otherwise.
  */
 function isRouteObject (input) {
-  if (input &&
+  return !!(input &&
     Object.prototype.toString.call(input) === '[object Object]' &&
-    Object.prototype.hasOwnProperty.call(input, 'method')) {
-    return true
-  }
-  return false
+    Object.hasOwn(input, 'method'))
 }
 
 const pluginOrModulePattern = /\[object (?:AsyncFunction|Function|Module)\]/u
@@ -404,7 +286,7 @@ function isPluginOrModule (input) {
   const inputType = Object.prototype.toString.call(input)
   if (pluginOrModulePattern.test(inputType) === true) {
     result = true
-  } else if (Object.prototype.hasOwnProperty.call(input, 'default')) {
+  } else if (Object.hasOwn(input, 'default')) {
     result = isPluginOrModule(input.default)
   } else {
     result = isRouteObject(input)
@@ -420,38 +302,6 @@ function wrapRoutes (content) {
     }
   }
   return content
-}
-
-function filterPath (path, filter) {
-  if (typeof filter === 'string') {
-    return path.includes(filter)
-  }
-
-  if (filter instanceof RegExp) {
-    return filter.test(path)
-  }
-
-  return filter(path)
-}
-
-const typescriptPattern = /\.(ts|mts|cts)$/iu
-const modulePattern = /\.(mjs|mts)$/iu
-const commonjsPattern = /\.(cjs|cts)$/iu
-function getScriptType (fname, packageType) {
-  return {
-    language: typescriptPattern.test(fname) ? 'typescript' : 'javascript',
-    type: determineModuleType(fname, packageType)
-  }
-}
-
-function determineModuleType (fname, defaultType) {
-  if (modulePattern.test(fname)) {
-    return 'module'
-  } else if (commonjsPattern.test(fname)) {
-    return 'commonjs'
-  }
-
-  return defaultType || 'commonjs'
 }
 
 function enrichError (err) {
