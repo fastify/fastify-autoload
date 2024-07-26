@@ -62,21 +62,6 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
   }
 }
 
-const routeParamPattern = /\/_/gu
-const routeMixedParamPattern = /__/gu
-function replaceRouteParamPattern (pattern) {
-  const isRegularRouteParam = pattern.match(routeParamPattern)
-  const isMixedRouteParam = pattern.match(routeMixedParamPattern)
-
-  if (isMixedRouteParam) {
-    return pattern.replace(routeMixedParamPattern, ':')
-  } else if (isRegularRouteParam) {
-    return pattern.replace(routeParamPattern, '/:')
-  } else {
-    return pattern
-  }
-}
-
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
   let content
@@ -153,31 +138,6 @@ async function loadHook (hook, options) {
   return hookContent
 }
 
-function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
-  pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
-    ? pluginOptions.prefix.slice(0, -1)
-    : pluginOptions.prefix
-
-  const prefixOverride = plugin.prefixOverride !== undefined
-    ? plugin.prefixOverride
-    : content.prefixOverride
-
-  let prefix
-  if (plugin.autoPrefix !== undefined) {
-    prefix = plugin.autoPrefix
-  } else if (content.autoPrefix !== undefined) {
-    prefix = content.autoPrefix
-  } else {
-    prefix = directoryPrefix
-  }
-
-  if (prefixOverride !== undefined) {
-    pluginOptions.prefix = prefixOverride
-  } else if (prefix) {
-    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
-  }
-}
-
 function registerNode (node, fastify) {
   if (node.hooks.length === 0) {
     registerAllPlugins(fastify, node)
@@ -229,6 +189,46 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   fastify.register(plugin, options)
 
   meta.registered = true
+}
+
+function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
+  pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
+    ? pluginOptions.prefix.slice(0, -1)
+    : pluginOptions.prefix
+
+  const prefixOverride = plugin.prefixOverride !== undefined
+    ? plugin.prefixOverride
+    : content.prefixOverride
+
+  let prefix
+  if (plugin.autoPrefix !== undefined) {
+    prefix = plugin.autoPrefix
+  } else if (content.autoPrefix !== undefined) {
+    prefix = content.autoPrefix
+  } else {
+    prefix = directoryPrefix
+  }
+
+  if (prefixOverride !== undefined) {
+    pluginOptions.prefix = prefixOverride
+  } else if (prefix) {
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
+  }
+}
+
+const routeParamPattern = /\/_/gu
+const routeMixedParamPattern = /__/gu
+function replaceRouteParamPattern (pattern) {
+  const isRegularRouteParam = pattern.match(routeParamPattern)
+  const isMixedRouteParam = pattern.match(routeMixedParamPattern)
+
+  if (isMixedRouteParam) {
+    return pattern.replace(routeMixedParamPattern, ':')
+  } else if (isRegularRouteParam) {
+    return pattern.replace(routeParamPattern, '/:')
+  } else {
+    return pattern
+  }
 }
 
 /**
