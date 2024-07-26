@@ -192,13 +192,9 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
 }
 
 function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
-  pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
-    ? pluginOptions.prefix.slice(0, -1)
-    : pluginOptions.prefix
-
-  const prefixOverride = plugin.prefixOverride !== undefined
-    ? plugin.prefixOverride
-    : content.prefixOverride
+  if (pluginOptions.prefix?.endsWith('/')) {
+    pluginOptions.prefix = pluginOptions.prefix.slice(0, -1)
+  }
 
   let prefix
   if (plugin.autoPrefix !== undefined) {
@@ -209,6 +205,7 @@ function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
     prefix = directoryPrefix
   }
 
+  const prefixOverride = plugin.prefixOverride ?? content.prefixOverride
   if (prefixOverride !== undefined) {
     pluginOptions.prefix = prefixOverride
   } else if (prefix) {
