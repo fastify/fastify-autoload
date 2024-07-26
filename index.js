@@ -19,30 +19,67 @@ const defaults = {
 const fastifyAutoload = async function autoload (fastify, options) {
   const packageType = await getPackageType(options.dir)
   const opts = { ...defaults, packageType, ...options }
-  const pluginTree = await findPlugins(opts.dir, opts)
-  const pluginsMeta = {}
-  const hooksMeta = {}
+  const pluginTree = await findPlugins(opts.dir, { opts })
 
-  const pluginArray = [].concat.apply([], Object.values(pluginTree).map(o => o.plugins))
-  const hookArray = [].concat.apply([], Object.values(pluginTree).map(o => o.hooks))
+  await loadPlugins()
 
-  await Promise.all(pluginArray.map(({ file, type, prefix }) => {
-    return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
-      .then((plugin) => {
-        if (plugin) {
-          // create route parameters from prefixed folders
-          if (options.routeParams) {
-            plugin.options.prefix = plugin.options.prefix
-              ? replaceRouteParamPattern(plugin.options.prefix)
-              : plugin.options.prefix
-          }
-          pluginsMeta[plugin.name] = plugin
+  async function loadPlugins () {
+    for (const key in pluginTree) {
+      const node = {
+        ...pluginTree[key],
+        pluginsMeta: {},
+        hooksMeta: {}
+      }
+
+      await Promise.all(node.plugins.map(({ file, type, prefix }) => {
+        return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
+          .then((plugin) => {
+            if (plugin) {
+              // create route parameters from prefixed folders
+              if (options.routeParams) {
+                plugin.options.prefix = plugin.options.prefix
+                  ? replaceRouteParamPattern(plugin.options.prefix)
+                  : plugin.options.prefix
+              }
+              node.pluginsMeta[plugin.name] = plugin
+            }
+          })
+          .catch((err) => {
+            throw enrichError(err)
+          })
+      }))
+
+      await Promise.all(node.hooks.map((h) => {
+        return loadHook(h, opts)
+          .then((hookPlugin) => {
+            node.hooksMeta[h.file] = hookPlugin
+          })
+          .catch((err) => {
+            throw enrichError(err)
+          })
+      }))
+
+      registerNode(node)
+    }
+  }
+
+  function registerNode (node) {
+    if (node.hooks.length === 0) {
+      registerAllPlugins(fastify, node)
+    } else {
+      const composedPlugin = async function (app) {
+        // find hook functions for this prefix
+        for (const hookFile of node.hooks) {
+          const hookPlugin = node.hooksMeta[hookFile.file]
+          // encapsulate hooks at plugin level
+          app.register(hookPlugin)
         }
-      })
-      .catch((err) => {
-        throw enrichError(err)
-      })
-  }))
+
+        registerAllPlugins(app, node)
+      }
+      fastify.register(composedPlugin)
+    }
+  }
 
   function replaceRouteParamPattern (pattern) {
     const isRegularRouteParam = pattern.match(routeParamPattern)
@@ -57,42 +94,13 @@ const fastifyAutoload = async function autoload (fastify, options) {
     }
   }
 
-  await Promise.all(hookArray.map((h) => {
-    return loadHook(h, opts)
-      .then((hookPlugin) => {
-        hooksMeta[h.file] = hookPlugin
-      })
-      .catch((err) => {
-        throw enrichError(err)
-      })
-  }))
-
-  const metas = Object.values(pluginsMeta)
-  for (const prefix in pluginTree) {
-    const hookFiles = pluginTree[prefix].hooks
-    const pluginFiles = pluginTree[prefix].plugins
-    if (hookFiles.length === 0) {
-      registerAllPlugins(fastify, pluginFiles)
-    } else {
-      const composedPlugin = async function (app) {
-        // find hook functions for this prefix
-        for (const hookFile of hookFiles) {
-          const hookPlugin = hooksMeta[hookFile.file]
-          // encapsulate hooks at plugin level
-          app.register(hookPlugin)
-        }
-        registerAllPlugins(app, pluginFiles)
-      }
-      fastify.register(composedPlugin)
-    }
-  }
-
-  function registerAllPlugins (app, pluginFiles) {
-    for (const pluginFile of pluginFiles) {
+  function registerAllPlugins (app, node) {
+    const metas = Object.values(node.pluginsMeta)
+    for (const pluginFile of node.plugins) {
       // find plugins for this prefix, based on filename stored in registerPlugins()
       const plugin = metas.find((i) => i.filename === pluginFile.file)
       // register plugins at fastify level
-      if (plugin) registerPlugin(app, plugin, pluginsMeta)
+      if (plugin) registerPlugin(app, plugin, node.pluginsMeta)
     }
   }
 }
@@ -119,56 +127,22 @@ async function getPackageType (cwd) {
   }
 }
 
-const typescriptPattern = /\.(ts|mts|cts)$/iu
-const modulePattern = /\.(mjs|mts)$/iu
-const commonjsPattern = /\.(cjs|cts)$/iu
-function getScriptType (fname, packageType) {
-  return {
-    language: typescriptPattern.test(fname) ? 'typescript' : 'javascript',
-    type: (modulePattern.test(fname) ? 'module' : commonjsPattern.test(fname) ? 'commonjs' : packageType) || 'commonjs'
-  }
-}
-
-// eslint-disable-next-line default-param-last
-async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth = 0, hooks = []) {
-  const { indexPattern, ignorePattern, ignoreFilter, matchFilter, scriptPattern, dirNameRoutePrefix, maxDepth, autoHooksPattern } = options
+async function findPlugins (dir, options) {
+  const { opts, hookedAccumulator = {}, prefix, depth = 0, hooks = [] } = options
   const list = await readdir(dir, { withFileTypes: true })
-  let currentHooks = []
 
   // check to see if hooks or plugins have been added to this prefix, initialize if not
-  if (!hookedAccumulator[prefix || '/']) hookedAccumulator[prefix || '/'] = { hooks: [], plugins: [] }
-
-  if (options.autoHooks) {
-    // Hooks were passed in, create new array specific to this plugin item
-    if (hooks && hooks.length > 0) {
-      for (const hook of hooks) {
-        currentHooks.push(hook)
-      }
-    }
-
-    // Contains autohooks file?
-    const autoHooks = list.find((dirent) => autoHooksPattern.test(dirent.name))
-    if (autoHooks) {
-      const autoHooksFile = join(dir, autoHooks.name)
-      const { type: autoHooksType } = getScriptType(autoHooksFile, options.packageType)
-
-      // Overwrite current hooks?
-      if (options.overwriteHooks && currentHooks.length > 0) {
-        currentHooks = []
-      }
-
-      // Add hook to current chain
-      currentHooks.push({ file: autoHooksFile, type: autoHooksType })
-    }
-
-    hookedAccumulator[prefix || '/'].hooks = currentHooks
+  if (!hookedAccumulator[prefix || '/']) {
+    hookedAccumulator[prefix || '/'] = { hooks: [], plugins: [] }
   }
 
+  const currentHooks = getCurrentHooks()
+
   // Contains index file?
-  const indexDirent = list.find((dirent) => indexPattern.test(dirent.name))
+  const indexDirent = list.find((dirent) => opts.indexPattern.test(dirent.name))
   if (indexDirent) {
     const file = join(dir, indexDirent.name)
-    const { language, type } = getScriptType(file, options.packageType)
+    const { language, type } = getScriptType(file, opts.packageType)
     if (language === 'typescript' && !runtime.supportTypeScript) {
       throw new Error(`@fastify/autoload cannot import hooks plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
     }
@@ -190,28 +164,28 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
   // Otherwise treat each script file as a plugin
   const directoryPromises = []
   for (const dirent of list) {
-    if (ignorePattern && dirent.name.match(ignorePattern)) {
+    if (opts.ignorePattern && dirent.name.match(opts.ignorePattern)) {
       continue
     }
 
-    const atMaxDepth = Number.isFinite(maxDepth) && maxDepth <= depth
+    const atMaxDepth = Number.isFinite(opts.maxDepth) && opts.maxDepth <= depth
     const file = join(dir, dirent.name)
     if (dirent.isDirectory() && !atMaxDepth) {
       let prefixBreadCrumb = (prefix ? `${prefix}/` : '/')
-      if (dirNameRoutePrefix === true) {
+      if (opts.dirNameRoutePrefix === true) {
         prefixBreadCrumb += dirent.name
-      } else if (typeof dirNameRoutePrefix === 'function') {
-        const prefixReplacer = dirNameRoutePrefix(dir, dirent.name)
+      } else if (typeof opts.dirNameRoutePrefix === 'function') {
+        const prefixReplacer = opts.dirNameRoutePrefix(dir, dirent.name)
         if (prefixReplacer) {
           prefixBreadCrumb += prefixReplacer
         }
       }
 
       // Pass hooks forward to next level
-      if (options.autoHooks && options.cascadeHooks) {
-        directoryPromises.push(findPlugins(file, options, hookedAccumulator, prefixBreadCrumb, depth + 1, currentHooks))
+      if (opts.autoHooks && opts.cascadeHooks) {
+        directoryPromises.push(findPlugins(file, { opts, hookedAccumulator, prefix: prefixBreadCrumb, depth: depth + 1, hooks: currentHooks }))
       } else {
-        directoryPromises.push(findPlugins(file, options, hookedAccumulator, prefixBreadCrumb, depth + 1))
+        directoryPromises.push(findPlugins(file, { opts, hookedAccumulator, prefix: prefixBreadCrumb, depth: depth + 1 }))
       }
 
       continue
@@ -220,31 +194,64 @@ async function findPlugins (dir, options, hookedAccumulator = {}, prefix, depth 
       continue
     }
 
-    if (dirent.isFile() && scriptPattern.test(dirent.name)) {
-      const { language, type } = getScriptType(file, options.packageType)
+    if (dirent.isFile() && opts.scriptPattern.test(dirent.name)) {
+      const { language, type } = getScriptType(file, opts.packageType)
       if (language === 'typescript' && !runtime.supportTypeScript) {
         throw new Error(`@fastify/autoload cannot import plugin at '${file}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`)
       }
 
       // Don't place hook in plugin queue
-      if (!autoHooksPattern.test(dirent.name)) {
+      if (!opts.autoHooksPattern.test(dirent.name)) {
         accumulatePlugin({ file, type })
       }
     }
   }
+
   await Promise.all(directoryPromises)
 
   return hookedAccumulator
 
+  function getCurrentHooks () {
+    let currentHooks = []
+
+    if (opts.autoHooks) {
+      // Hooks were passed in, create new array specific to this plugin item
+      if (hooks && hooks.length > 0) {
+        for (const hook of hooks) {
+          currentHooks.push(hook)
+        }
+      }
+
+      // Contains autohooks file?
+      const autoHooks = list.find((dirent) => opts.autoHooksPattern.test(dirent.name))
+      if (autoHooks) {
+        const autoHooksFile = join(dir, autoHooks.name)
+        const { type: autoHooksType } = getScriptType(autoHooksFile, opts.packageType)
+
+        // Overwrite current hooks?
+        if (opts.overwriteHooks && currentHooks.length > 0) {
+          currentHooks = []
+        }
+
+        // Add hook to current chain
+        currentHooks.push({ file: autoHooksFile, type: autoHooksType })
+      }
+
+      hookedAccumulator[prefix || '/'].hooks = currentHooks
+    }
+
+    return currentHooks
+  }
+
   function accumulatePlugin ({ file, type }) {
     // Replace backward slash to forward slash for consistent behavior between windows and posix.
-    const filePath = '/' + relative(options.dir, file).replace(/\\/gu, '/')
+    const filePath = '/' + relative(opts.dir, file).replace(/\\/gu, '/')
 
-    if (matchFilter && !filterPath(filePath, matchFilter)) {
+    if (opts.matchFilter && !filterPath(filePath, opts.matchFilter)) {
       return
     }
 
-    if (ignoreFilter && filterPath(filePath, ignoreFilter)) {
+    if (opts.ignoreFilter && filterPath(filePath, opts.ignoreFilter)) {
       return
     }
 
@@ -317,6 +324,26 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   }
 }
 
+async function loadHook (hook, options) {
+  let hookContent
+  if (options.forceESM || hook.type === 'module' || runtime.forceESM) {
+    hookContent = await import(pathToFileURL(hook.file).href)
+  } else {
+    hookContent = require(hook.file)
+  }
+
+  hookContent = hookContent.default || hookContent
+
+  if (
+    Object.prototype.toString.call(hookContent) === '[object AsyncFunction]' ||
+    Object.prototype.toString.call(hookContent) === '[object Function]'
+  ) {
+    hookContent[Symbol.for('skip-override')] = true
+  }
+
+  return hookContent
+}
+
 function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   const { plugin, name, options, dependencies = [] } = meta
 
@@ -340,18 +367,6 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   fastify.register(plugin, options)
 
   meta.registered = true
-}
-
-function filterPath (path, filter) {
-  if (typeof filter === 'string') {
-    return path.includes(filter)
-  }
-
-  if (filter instanceof RegExp) {
-    return filter.test(path)
-  }
-
-  return filter(path)
 }
 
 /**
@@ -407,24 +422,36 @@ function wrapRoutes (content) {
   return content
 }
 
-async function loadHook (hook, options) {
-  let hookContent
-  if (options.forceESM || hook.type === 'module' || runtime.forceESM) {
-    hookContent = await import(pathToFileURL(hook.file).href)
-  } else {
-    hookContent = require(hook.file)
+function filterPath (path, filter) {
+  if (typeof filter === 'string') {
+    return path.includes(filter)
   }
 
-  hookContent = hookContent.default || hookContent
-
-  if (
-    Object.prototype.toString.call(hookContent) === '[object AsyncFunction]' ||
-    Object.prototype.toString.call(hookContent) === '[object Function]'
-  ) {
-    hookContent[Symbol.for('skip-override')] = true
+  if (filter instanceof RegExp) {
+    return filter.test(path)
   }
 
-  return hookContent
+  return filter(path)
+}
+
+const typescriptPattern = /\.(ts|mts|cts)$/iu
+const modulePattern = /\.(mjs|mts)$/iu
+const commonjsPattern = /\.(cjs|cts)$/iu
+function getScriptType (fname, packageType) {
+  return {
+    language: typescriptPattern.test(fname) ? 'typescript' : 'javascript',
+    type: determineModuleType(fname, packageType)
+  }
+}
+
+function determineModuleType (fname, defaultType) {
+  if (modulePattern.test(fname)) {
+    return 'module'
+  } else if (commonjsPattern.test(fname)) {
+    return 'commonjs'
+  }
+
+  return defaultType || 'commonjs'
 }
 
 function enrichError (err) {
