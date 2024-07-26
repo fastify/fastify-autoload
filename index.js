@@ -95,7 +95,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
     plugin.autoConfig = undefined
   }
 
-  handlePrefix({ plugin, pluginOptions, content, directoryPrefix })
+  handlePrefixConfig({ plugin, pluginOptions, content, directoryPrefix })
 
   return {
     plugin,
@@ -190,7 +190,7 @@ function loadPluginOptions (content, overrideConfig) {
   return { ...pluginConfig, ...overrideConfig }
 }
 
-function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
+function handlePrefixConfig ({ plugin, pluginOptions, content, directoryPrefix }) {
   if (pluginOptions.prefix?.endsWith('/')) {
     pluginOptions.prefix = pluginOptions.prefix.slice(0, -1)
   }
