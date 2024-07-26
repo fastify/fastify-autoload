@@ -2,12 +2,9 @@
 
 const { readFile } = require('node:fs/promises')
 const { join, sep } = require('node:path')
-const { pathToFileURL } = require('node:url')
-const runtime = require('./runtime')
 const findPlugins = require('./find-plugins')
-
-const routeParamPattern = /\/_/gu
-const routeMixedParamPattern = /__/gu
+const runtime = require('./runtime')
+const { pathToFileURL } = require('node:url')
 
 const defaults = {
   scriptPattern: /(?:(?:^.?|\.[^d]|[^.]d|[^.][^d])\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
@@ -22,109 +19,61 @@ const fastifyAutoload = async function autoload (fastify, options) {
   const opts = { ...defaults, packageType, ...options }
   const pluginTree = await findPlugins(opts.dir, { opts })
 
-  await loadPlugins()
+  await loadPlugins({ pluginTree, options, opts, fastify })
+}
 
-  async function loadPlugins () {
-    for (const key in pluginTree) {
-      const node = {
-        ...pluginTree[key],
-        pluginsMeta: {},
-        hooksMeta: {}
-      }
+async function loadPlugins ({ pluginTree, options, opts, fastify }) {
+  for (const key in pluginTree) {
+    const node = {
+      ...pluginTree[key],
+      pluginsMeta: {},
+      hooksMeta: {}
+    }
 
-      await Promise.all(node.plugins.map(({ file, type, prefix }) => {
-        return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
-          .then((plugin) => {
-            if (plugin) {
-              // create route parameters from prefixed folders
-              if (options.routeParams) {
-                plugin.options.prefix = plugin.options.prefix
-                  ? replaceRouteParamPattern(plugin.options.prefix)
-                  : plugin.options.prefix
-              }
-              node.pluginsMeta[plugin.name] = plugin
+    await Promise.all(node.plugins.map(({ file, type, prefix }) => {
+      return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
+        .then((plugin) => {
+          if (plugin) {
+            // create route parameters from prefixed folders
+            if (options.routeParams) {
+              plugin.options.prefix = plugin.options.prefix
+                ? replaceRouteParamPattern(plugin.options.prefix)
+                : plugin.options.prefix
             }
-          })
-          .catch((err) => {
-            throw enrichError(err)
-          })
-      }))
+            node.pluginsMeta[plugin.name] = plugin
+          }
+        })
+        .catch((err) => {
+          throw enrichError(err)
+        })
+    }))
 
-      await Promise.all(node.hooks.map((h) => {
-        return loadHook(h, opts)
-          .then((hookPlugin) => {
-            node.hooksMeta[h.file] = hookPlugin
-          })
-          .catch((err) => {
-            throw enrichError(err)
-          })
-      }))
+    await Promise.all(node.hooks.map((h) => {
+      return loadHook(h, opts)
+        .then((hookPlugin) => {
+          node.hooksMeta[h.file] = hookPlugin
+        })
+        .catch((err) => {
+          throw enrichError(err)
+        })
+    }))
 
-      registerNode(node)
-    }
-  }
-
-  function registerNode (node) {
-    if (node.hooks.length === 0) {
-      registerAllPlugins(fastify, node)
-    } else {
-      const composedPlugin = async function (app) {
-        // find hook functions for this prefix
-        for (const hookFile of node.hooks) {
-          const hookPlugin = node.hooksMeta[hookFile.file]
-          // encapsulate hooks at plugin level
-          app.register(hookPlugin)
-        }
-
-        registerAllPlugins(app, node)
-      }
-      fastify.register(composedPlugin)
-    }
-  }
-
-  function replaceRouteParamPattern (pattern) {
-    const isRegularRouteParam = pattern.match(routeParamPattern)
-    const isMixedRouteParam = pattern.match(routeMixedParamPattern)
-
-    if (isMixedRouteParam) {
-      return pattern.replace(routeMixedParamPattern, ':')
-    } else if (isRegularRouteParam) {
-      return pattern.replace(routeParamPattern, '/:')
-    } else {
-      return pattern
-    }
-  }
-
-  function registerAllPlugins (app, node) {
-    const metas = Object.values(node.pluginsMeta)
-    for (const pluginFile of node.plugins) {
-      // find plugins for this prefix, based on filename stored in registerPlugins()
-      const plugin = metas.find((i) => i.filename === pluginFile.file)
-      // register plugins at fastify level
-      if (plugin) registerPlugin(app, plugin, node.pluginsMeta)
-    }
+    registerNode(node, fastify)
   }
 }
 
-async function getPackageType (cwd) {
-  const directories = cwd.split(sep)
+const routeParamPattern = /\/_/gu
+const routeMixedParamPattern = /__/gu
+function replaceRouteParamPattern (pattern) {
+  const isRegularRouteParam = pattern.match(routeParamPattern)
+  const isMixedRouteParam = pattern.match(routeMixedParamPattern)
 
-  /* c8 ignore start */
-  // required for paths that begin with the sep, such as linux root
-  // ignore because OS specific evaluation
-  directories[0] = directories[0] !== '' ? directories[0] : sep
-  /* c8 ignore stop */
-  while (directories.length > 0) {
-    const filePath = join(...directories, 'package.json')
-
-    const fileContents = await readFile(filePath, 'utf-8')
-      .catch(() => null)
-
-    if (fileContents) {
-      return JSON.parse(fileContents).type
-    }
-
-    directories.pop()
+  if (isMixedRouteParam) {
+    return pattern.replace(routeMixedParamPattern, ':')
+  } else if (isRegularRouteParam) {
+    return pattern.replace(routeParamPattern, '/:')
+  } else {
+    return pattern
   }
 }
 
@@ -174,32 +123,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
     plugin.autoConfig = undefined
   }
 
-  function handlePrefix () {
-    pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
-      ? pluginOptions.prefix.slice(0, -1)
-      : pluginOptions.prefix
-
-    const prefixOverride = plugin.prefixOverride !== undefined
-      ? plugin.prefixOverride
-      : content.prefixOverride
-
-    let prefix
-    if (plugin.autoPrefix !== undefined) {
-      prefix = plugin.autoPrefix
-    } else if (content.autoPrefix !== undefined) {
-      prefix = content.autoPrefix
-    } else {
-      prefix = directoryPrefix
-    }
-
-    if (prefixOverride !== undefined) {
-      pluginOptions.prefix = prefixOverride
-    } else if (prefix) {
-      pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
-    }
-  }
-
-  handlePrefix()
+  handlePrefix({ plugin, pluginOptions, content, directoryPrefix })
 
   return {
     plugin,
@@ -227,6 +151,59 @@ async function loadHook (hook, options) {
   }
 
   return hookContent
+}
+
+function handlePrefix ({ plugin, pluginOptions, content, directoryPrefix }) {
+  pluginOptions.prefix = pluginOptions.prefix?.endsWith('/')
+    ? pluginOptions.prefix.slice(0, -1)
+    : pluginOptions.prefix
+
+  const prefixOverride = plugin.prefixOverride !== undefined
+    ? plugin.prefixOverride
+    : content.prefixOverride
+
+  let prefix
+  if (plugin.autoPrefix !== undefined) {
+    prefix = plugin.autoPrefix
+  } else if (content.autoPrefix !== undefined) {
+    prefix = content.autoPrefix
+  } else {
+    prefix = directoryPrefix
+  }
+
+  if (prefixOverride !== undefined) {
+    pluginOptions.prefix = prefixOverride
+  } else if (prefix) {
+    pluginOptions.prefix = (pluginOptions.prefix || '') + prefix.replace(/\/+/gu, '/')
+  }
+}
+
+function registerNode (node, fastify) {
+  if (node.hooks.length === 0) {
+    registerAllPlugins(fastify, node)
+  } else {
+    const composedPlugin = async function (app) {
+      // find hook functions for this prefix
+      for (const hookFile of node.hooks) {
+        const hookPlugin = node.hooksMeta[hookFile.file]
+        // encapsulate hooks at plugin level
+        app.register(hookPlugin)
+      }
+
+      registerAllPlugins(app, node)
+    }
+    fastify.register(composedPlugin)
+  }
+}
+
+function registerAllPlugins (app, node) {
+  const metas = Object.values(node.pluginsMeta)
+  for (const pluginFile of node.plugins) {
+    // find plugins for this prefix, based on filename stored in registerPlugins()
+    const plugin = metas.find((i) => i.filename === pluginFile.file)
+    // register plugins at fastify level
+    if (plugin) registerPlugin(app, plugin, node.pluginsMeta)
+  }
 }
 
 function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
@@ -265,21 +242,21 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
  */
 function isRouteObject (input) {
   return !!(input &&
-    Object.prototype.toString.call(input) === '[object Object]' &&
-    Object.hasOwn(input, 'method'))
+      Object.prototype.toString.call(input) === '[object Object]' &&
+      Object.hasOwn(input, 'method'))
 }
 
 const pluginOrModulePattern = /\[object (?:AsyncFunction|Function|Module)\]/u
 /**
- * Used to determine if the contents of a required autoloaded file is a valid
- * plugin or route configuration object. In the case of a route configuration
- * object, it will later be wrapped into a plugin.
- *
- * @param {*} input The data to check.
- *
- * @returns {boolean} True if the object can be used by the autoload system by
- * eventually passing it into `avvio`. False otherwise.
- */
+   * Used to determine if the contents of a required autoloaded file is a valid
+   * plugin or route configuration object. In the case of a route configuration
+   * object, it will later be wrapped into a plugin.
+   *
+   * @param {*} input The data to check.
+   *
+   * @returns {boolean} True if the object can be used by the autoload system by
+   * eventually passing it into `avvio`. False otherwise.
+   */
 function isPluginOrModule (input) {
   let result = false
 
@@ -313,6 +290,28 @@ function enrichError (err) {
   }
 
   return err
+}
+
+async function getPackageType (cwd) {
+  const directories = cwd.split(sep)
+
+  /* c8 ignore start */
+  // required for paths that begin with the sep, such as linux root
+  // ignore because OS specific evaluation
+  directories[0] = directories[0] !== '' ? directories[0] : sep
+  /* c8 ignore stop */
+  while (directories.length > 0) {
+    const filePath = join(...directories, 'package.json')
+
+    const fileContents = await readFile(filePath, 'utf-8')
+      .catch(() => null)
+
+    if (fileContents) {
+      return JSON.parse(fileContents).type
+    }
+
+    directories.pop()
+  }
 }
 
 // do not create a new context, do not encapsulate
