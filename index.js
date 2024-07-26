@@ -35,10 +35,8 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
         .then((plugin) => {
           if (plugin) {
             // create route parameters from prefixed folders
-            if (options.routeParams) {
-              plugin.options.prefix = plugin.options.prefix
-                ? replaceRouteParamPattern(plugin.options.prefix)
-                : plugin.options.prefix
+            if (options.routeParams && plugin.options.prefix) {
+              plugin.options.prefix = replaceRouteParamPattern(plugin.options.prefix)
             }
             node.pluginsMeta[plugin.name] = plugin
           }
@@ -272,6 +270,7 @@ function wrapRoutes (content) {
       fastify.route(content)
     }
   }
+
   return content
 }
 
