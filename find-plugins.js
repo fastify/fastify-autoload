@@ -28,33 +28,30 @@ async function findPlugins (dir, options) {
 }
 
 function findCurrentHooks ({ dir, list, hooks, opts, hookedAccumulator, prefix }) {
+  if (!opts.autoHooks) return []
+
   let currentHooks = []
-
-  if (opts.autoHooks) {
-    // Hooks were passed in, create new array specific to this plugin item
-    if (hooks && hooks.length > 0) {
-      for (const hook of hooks) {
-        currentHooks.push(hook)
-      }
-    }
-
-    // Contains autohooks file?
-    const autoHooks = list.find((dirent) => opts.autoHooksPattern.test(dirent.name))
-    if (autoHooks) {
-      const autoHooksFile = join(dir, autoHooks.name)
-      const { type: autoHooksType } = getScriptType(autoHooksFile, opts.packageType)
-
-      // Overwrite current hooks?
-      if (opts.overwriteHooks && currentHooks.length > 0) {
-        currentHooks = []
-      }
-
-      // Add hook to current chain
-      currentHooks.push({ file: autoHooksFile, type: autoHooksType })
-    }
-
-    hookedAccumulator[prefix || '/'].hooks = currentHooks
+  // Hooks were passed in, create new array specific to this plugin item
+  for (const hook of hooks) {
+    currentHooks.push(hook)
   }
+
+  // Contains autohooks file?
+  const autoHooks = list.find((dirent) => opts.autoHooksPattern.test(dirent.name))
+  if (autoHooks) {
+    const autoHooksFile = join(dir, autoHooks.name)
+    const { type: autoHooksType } = getScriptType(autoHooksFile, opts.packageType)
+
+    // Overwrite current hooks?
+    if (opts.overwriteHooks && currentHooks.length > 0) {
+      currentHooks = []
+    }
+
+    // Add hook to current chain
+    currentHooks.push({ file: autoHooksFile, type: autoHooksType })
+  }
+
+  hookedAccumulator[prefix || '/'].hooks = currentHooks
 
   return currentHooks
 }
