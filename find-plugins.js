@@ -127,7 +127,6 @@ function processFile ({ file, opts, dirent, hookedAccumulator, prefix }) {
 function accumulatePlugin ({ file, type, opts, hookedAccumulator, prefix }) {
   // Replace backward slash to forward slash for consistent behavior between windows and posix.
   const filePath = '/' + relative(opts.dir, file).replace(/\\/gu, '/')
-
   if (opts.matchFilter && !filterPath(filePath, opts.matchFilter)) {
     return
   }
@@ -158,8 +157,6 @@ function filterPath (path, filter) {
 }
 
 const typescriptPattern = /\.(ts|mts|cts)$/iu
-const modulePattern = /\.(mjs|mts)$/iu
-const commonjsPattern = /\.(cjs|cts)$/iu
 function getScriptType (fname, packageType) {
   return {
     language: typescriptPattern.test(fname) ? 'typescript' : 'javascript',
@@ -167,10 +164,14 @@ function getScriptType (fname, packageType) {
   }
 }
 
+const modulePattern = /\.(mjs|mts)$/iu
+const commonjsPattern = /\.(cjs|cts)$/iu
 function determineModuleType (fname, defaultType) {
   if (modulePattern.test(fname)) {
     return 'module'
-  } else if (commonjsPattern.test(fname)) {
+  }
+
+  if (commonjsPattern.test(fname)) {
     return 'commonjs'
   }
 
