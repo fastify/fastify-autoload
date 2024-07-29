@@ -1,3 +1,5 @@
+'use strict'
+
 const { readdir } = require('node:fs/promises')
 const { relative, join } = require('path')
 const runtime = require('./runtime')
