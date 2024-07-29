@@ -2,8 +2,8 @@
 
 const { readFile } = require('node:fs/promises')
 const { join, sep } = require('node:path')
-const findPlugins = require('./find-plugins')
-const runtime = require('./runtime')
+const findPlugins = require('./lib/find-plugins')
+const runtime = require('./lib/runtime')
 const { pathToFileURL } = require('node:url')
 
 const defaults = {
