@@ -16,8 +16,6 @@ function checkProcessArgv (moduleName) {
 
 let preloadModules
 function checkPreloadModules (moduleName) {
-  const modulePath = path.join(process.cwd(), 'node_modules/', moduleName)
-
   /* c8 ignore start */
   // coverage - nullish needed for non Node.js runtime
   preloadModules ??= (process._preload_modules ?? [])
@@ -27,6 +25,7 @@ function checkPreloadModules (moduleName) {
     return true
   }
 
+  const modulePath = path.join(process.cwd(), 'node_modules/', moduleName)
   if (Object.keys(require.cache).some(k => k.startsWith(modulePath))) {
     preloadModules.push(moduleName)
 
