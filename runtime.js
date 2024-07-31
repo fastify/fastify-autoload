@@ -1,5 +1,7 @@
 'use strict'
 
+const path = require('path')
+
 // runtime cache
 const cache = {}
 
@@ -14,11 +16,16 @@ function checkProcessArgv (moduleName) {
 
 let preloadModules
 function checkPreloadModules (moduleName) {
+  const modulePath = path.join(process.cwd(), 'node_modules/', moduleName)
+
   /* c8 ignore start */
-  // nullish needed for non Node.js runtime
+  // coverage - nullish needed for non Node.js runtime
   preloadModules ??= (process._preload_modules ?? [])
+
+  // coverage - TS specific
+  return preloadModules.includes(moduleName) ||
+    Object.keys(require.cache).some(k => k.startsWith(modulePath) && preloadModules.push(modulePath))
   /* c8 ignore stop */
-  return preloadModules.includes(moduleName)
 }
 
 let preloadModulesString
