@@ -149,7 +149,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
     dir: path.join(__dirname, 'plugins'),
     scriptPattern: /(?<!\.d)\.(ts|tsx)$/
   })
-```
+  ```
 
 - `indexPattern` (optional) - Regex to override the `index.js` naming convention
 
