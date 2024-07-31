@@ -23,9 +23,18 @@ function checkPreloadModules (moduleName) {
   preloadModules ??= (process._preload_modules ?? [])
 
   // coverage - TS specific
-  return preloadModules.includes(moduleName) ||
-    Object.keys(require.cache).some(k => k.startsWith(modulePath) && preloadModules.push(modulePath))
+  if (preloadModules.includes(moduleName)) {
+    return true
+  }
+
+  if (Object.keys(require.cache).some(k => k.startsWith(modulePath))) {
+    preloadModules.push(moduleName)
+
+    return true
+  }
   /* c8 ignore stop */
+
+  return false
 }
 
 let preloadModulesString
