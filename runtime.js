@@ -25,7 +25,7 @@ function checkPreloadModules (moduleName) {
     return true
   }
 
-  const modulePath = path.join(process.cwd(), 'node_modules/', moduleName)
+  const modulePath = path.join(process.cwd(), 'node_modules', moduleName)
   if (Object.keys(require.cache).some(k => k.startsWith(modulePath))) {
     preloadModules.push(moduleName)
 
