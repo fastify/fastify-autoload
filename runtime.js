@@ -1,6 +1,6 @@
 'use strict'
 
-const path = require('path')
+const path = require('node:path')
 
 // runtime cache
 const cache = {}
@@ -18,7 +18,7 @@ let preloadModules
 function checkPreloadModules (moduleName) {
   /* c8 ignore start */
   // coverage - nullish needed for non Node.js runtime
-  preloadModules ??= (process._preload_modules ?? [])
+  preloadModules ??= [...(process._preload_modules ?? [])]
 
   // coverage - TS specific
   if (preloadModules.includes(moduleName)) {
@@ -26,7 +26,7 @@ function checkPreloadModules (moduleName) {
   }
 
   const modulePath = path.join(process.cwd(), 'node_modules', moduleName)
-  if (Object.keys(require.cache).some(k => k.startsWith(modulePath))) {
+  if (Object.keys(require.cache).some((k) => k.startsWith(modulePath))) {
     preloadModules.push(moduleName)
 
     return true
