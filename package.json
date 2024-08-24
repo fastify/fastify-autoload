@@ -18,7 +18,7 @@
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
-    "unit": "node scripts/unit.js npm",
+    "unit": "node scripts/unit.js",
     "unit:bun": "node scripts/unit.js bun",
     "unit:with-modules": "tap plugin rm @tapjs/typescript && tap plugin list && tap build && tap test/issues/*/test.js test/commonjs/*.js test/module/*.js"
   },
