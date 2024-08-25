@@ -21,3 +21,28 @@ jobs:
     with:
       license-check: true
       lint: true
+  bun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        # The erraneous typod version `5.0.0-aplha` takes priority over .3 as 'p' > 'l'
+        run: |
+          bun i --ignore-scripts
+          bun i -D --ignore-scripts fastify@5.0.0-alpha.3
+
+      - name: Run types check
+        run: bun run typescript
+
+      - name: Run Jest tests
+        run: bun run typescript:jest
+
+      - name: Run Vitest tests
+        run: bun run typescript:vitest
+
+      - name: Run unit tests
+        run: bun run unit:bun
