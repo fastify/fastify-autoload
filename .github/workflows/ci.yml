@@ -36,7 +36,7 @@ jobs:
         # The erraneous typod version `5.0.0-aplha` takes priority over .3 as 'p' > 'l'
         run: |
           bun i --ignore-scripts
-          bun i -D --ignore-scripts fastify@5.0.0-alpha.3
+          bun i -D --ignore-scripts fastify@5.0.0-alpha.4
 
       - name: Run types check
         run: bun run typescript
