@@ -23,12 +23,15 @@ const fastifyAutoload = async function autoload (fastify, options) {
 }
 
 async function loadPlugins ({ pluginTree, options, opts, fastify }) {
+  const nodes = []
+  const pluginsMeta = {}
   for (const key in pluginTree) {
     const node = {
       ...pluginTree[key],
-      pluginsMeta: {},
+      pluginsMeta,
       hooksMeta: {}
     }
+    nodes.push(node)
 
     await Promise.all(node.plugins.map(({ file, type, prefix }) => {
       return loadPlugin({ file, type, directoryPrefix: prefix, options: opts, log: fastify.log })
@@ -56,6 +59,9 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
         })
     }))
 
+  }
+
+  for (const node of nodes) {
     registerNode(node, fastify)
   }
 }
