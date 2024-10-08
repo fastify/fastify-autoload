@@ -58,7 +58,6 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
           throw enrichError(err)
         })
     }))
-
   }
 
   for (const node of nodes) {
