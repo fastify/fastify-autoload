@@ -5,13 +5,13 @@ import Fastify from 'fastify'
 import AutoLoad from '../../index'
 import { join } from 'path'
 
-describe.concurrent("Vitest test suite", function () {
+describe.concurrent('Vitest test suite', function () {
   const app = Fastify()
-    app.register(AutoLoad, {
-      dir: join(__dirname, '../commonjs/ts-node/routes')
-    })
+  app.register(AutoLoad, {
+    dir: join(__dirname, '../commonjs/ts-node/routes')
+  })
 
-  test("Test the root route", async function () {
+  test('Test the root route', async function () {
     const response = await app.inject({
       method: 'GET',
       url: '/'
@@ -20,7 +20,7 @@ describe.concurrent("Vitest test suite", function () {
     expect(JSON.parse(response.payload)).toEqual({ hello: 'world' })
   })
 
-  test("Test /foo route", async function () {
+  test('Test /foo route', async function () {
     const response = await app.inject({
       method: 'GET',
       url: '/foo'

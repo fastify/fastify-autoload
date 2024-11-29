@@ -6,24 +6,24 @@ import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fasti
 import fastifyAutoloadCjsImport = require('..')
 const fastifyAutoloadCjs = require('..')
 
-const app: FastifyInstance = fastify();
-app.register(fastifyAutoloadNamed);
-app.register(fastifyAutoloadDefault);
-app.register(fastifyAutoloadCjs);
-app.register(fastifyAutoloadCjsImport.default);
-app.register(fastifyAutoloadCjsImport.fastifyAutoload);
-app.register(fastifyAutoloadStar.default);
-app.register(fastifyAutoloadStar.fastifyAutoload);
+const app: FastifyInstance = fastify()
+app.register(fastifyAutoloadNamed)
+app.register(fastifyAutoloadDefault)
+app.register(fastifyAutoloadCjs)
+app.register(fastifyAutoloadCjsImport.default)
+app.register(fastifyAutoloadCjsImport.fastifyAutoload)
+app.register(fastifyAutoloadStar.default)
+app.register(fastifyAutoloadStar.fastifyAutoload)
 
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadNamed);
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadDefault);
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default);
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload);
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.default);
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload);
-expectType<any>(fastifyAutoloadCjs);
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadNamed)
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadDefault)
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default)
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload)
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.default)
+expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload)
+expectType<any>(fastifyAutoloadCjs)
 
-let opt1: AutoloadPluginOptions = {
+const opt1: AutoloadPluginOptions = {
   dir: 'test'
 }
 const opt2: AutoloadPluginOptions = {

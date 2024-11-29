@@ -10,4 +10,4 @@ const app: FastifyPluginCallback = function (fastify, opts, next): void {
   next()
 }
 
-export default app;
+export default app

@@ -1,5 +1,5 @@
 module.exports.default = async (fastify: any) => {
-  fastify.get("/", function () {
-    return { bar: "bar" };
+  fastify.get('/', function () {
+    return { bar: 'bar' }
   })
-};
+}
