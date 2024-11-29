@@ -26,11 +26,11 @@ declare namespace fastifyAutoload {
   }
 
   export const fastifyAutoload: FastifyAutoloadPlugin
-  export { fastifyAutoload as default };
+  export { fastifyAutoload as default }
 }
 
-declare function fastifyAutoload(
+declare function fastifyAutoload (
   ...params: Parameters<FastifyAutoloadPlugin>
-): ReturnType<FastifyAutoloadPlugin>;
+): ReturnType<FastifyAutoloadPlugin>
 
-export = fastifyAutoload;
+export = fastifyAutoload

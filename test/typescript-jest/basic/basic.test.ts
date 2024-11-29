@@ -5,12 +5,12 @@ const app = fastify()
 
 app.register(basicApp)
 
-describe("load typescript plugin in jest environment", () => {
-  beforeAll( done => {
+describe('load typescript plugin in jest environment', () => {
+  beforeAll(done => {
     app.ready(done)
   })
 
-  it("should response code 200 OK", async () => {
+  it('should response code 200 OK', async () => {
     const { payload, statusCode } = await app.inject({
       url: '/typescript'
     })
