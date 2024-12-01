@@ -12,6 +12,20 @@ Convenience plugin for Fastify that loads all plugins found in a directory and a
 npm i @fastify/autoload
 ```
 
+### Compatibility
+| Plugin version | Fastify version |
+| ---------------|-----------------|
+| `^6.x`         | `^5.x`          |
+| `^5.x`         | `^4.x`          |
+| `^2.x`         | `^3.x`          |
+| `^1.x`         | `^2.x`          |
+| `^1.x`         | `^1.x`          |
+
+
+Please note that if a Fastify version is out of support, then so are the corresponding version(s) of this plugin
+in the table above.
+See [Fastify's LTS policy](https://github.com/fastify/fastify/blob/main/docs/Reference/LTS.md) for more details.
+
 ## Example
 
 Fastify server that automatically loads in all plugins from the `plugins` directory:
@@ -577,4 +591,4 @@ Each plugin can be individually configured using the following module properties
 
 ## License
 
-MIT
+Licensed under [MIT](./LICENSE).
