@@ -40,6 +40,18 @@
   "author": "Matteo Collina <hello@matteocollina.com>",
   "contributors": [
     {
+      "name": "Tomas Della Vedova",
+      "url": "http://delved.org",
+    },
+    {
+      "name": "Manuel Spigolon",
+      "email": "behemoth89@gmail.com"
+    },
+    {
+      "name": "Aras Abbasi",
+      "email": "aras.abbasi@gmail.com"
+    },
+    {
       "name": "Frazer Smith",
       "email": "frazer.dev@icloud.com",
       "url": "https://github.com/fdawgs"
