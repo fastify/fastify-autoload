@@ -2,7 +2,7 @@
 
 const { test } = require('tap')
 const Fastify = require('fastify')
-const path = require('path')
+const path = require('node:path')
 const autoload = require('../../..')
 
 test('Should throw an error when trying to load invalid hooks', async (t) => {
