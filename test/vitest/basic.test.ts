@@ -3,7 +3,7 @@
 import { describe, test, expect } from 'vitest'
 import Fastify from 'fastify'
 import AutoLoad from '../../index'
-import { join } from 'path'
+import { join } from 'node:path'
 
 describe.concurrent('Vitest test suite', function () {
   const app = Fastify()

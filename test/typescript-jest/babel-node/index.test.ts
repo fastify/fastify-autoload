@@ -1,5 +1,5 @@
 import fastify from 'fastify'
-import { join } from 'path'
+import { join } from 'node:path'
 import AutoLoad from '../../../'
 
 describe('load typescript using babel-node', () => {

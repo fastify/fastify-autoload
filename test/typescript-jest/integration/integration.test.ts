@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import { exec } from 'node:child_process'
 
 describe('integration test', function () {
   test.concurrent.each(['ts-node', 'ts-node-dev'])(
