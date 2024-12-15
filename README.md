@@ -47,8 +47,8 @@ or with ESM syntax:
 
 ```js
 import autoLoad from '@fastify/autoload'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import fastify from 'fastify'
 
 const __filename = fileURLToPath(import.meta.url)

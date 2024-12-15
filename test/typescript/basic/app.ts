@@ -1,5 +1,5 @@
 import { FastifyPluginCallback } from 'fastify'
-import { join } from 'path'
+import { join } from 'node:path'
 import fastifyAutoLoad from '../../../'
 
 const app: FastifyPluginCallback = function (fastify, opts, next): void {

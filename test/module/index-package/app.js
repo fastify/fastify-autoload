@@ -1,5 +1,5 @@
-import url from 'url'
-import path from 'path'
+import url from 'node:url'
+import path from 'node:path'
 import fastifyAutoload from '../../../index.js'
 
 export default function (fastify, opts, next) {

@@ -1,5 +1,5 @@
-import url from 'url'
-import process from 'process'
+import url from 'node:url'
+import process from 'node:process'
 
 if (url.fileURLToPath(import.meta.url) === process.argv[1]) {
   // side effects

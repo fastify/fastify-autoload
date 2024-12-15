@@ -1,6 +1,6 @@
-import path from 'path'
+import path from 'node:path'
 import fastifyUrlData from '@fastify/url-data'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 import autoLoad from '../../../index.js'
 
 const { dirname } = path
