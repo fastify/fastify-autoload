@@ -88,7 +88,7 @@ Folder structure:
 
 ## Global Configuration
 
-Autoload can be customised using the following options:
+Autoload can be customized using the following options:
 
 - `dir` (required) - Base directory containing plugins to be loaded
 
@@ -260,7 +260,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
 
 - `cascadeHooks` (optional) - If using `autoHooks`, cascade hooks to all children. Ignored if `autoHooks` is `false`.
 
-  Default behaviour of `autoHooks` is to apply hooks only to the level on which the `autohooks.js` file is found. Setting `cascadeHooks: true` will continue applying the hooks to any children.
+  Default behavior of `autoHooks` is to apply hooks only to the level on which the `autohooks.js` file is found. Setting `cascadeHooks: true` will continue applying the hooks to any children.
 
   ```js
   fastify.register(autoLoad, {
@@ -272,7 +272,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
 
 - `overwriteHooks` (optional) - If using `cascadeHooks`, cascade will be reset when a new `autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
 
-  Default behaviour of `cascadeHooks` is to accumulate hooks as new `autohooks.js` files are discovered and cascade to children. Setting `overwriteHooks: true` will start a new hook cascade when new `autohooks.js` files are encountered.
+  Default behavior of `cascadeHooks` is to accumulate hooks as new `autohooks.js` files are discovered and cascade to children. Setting `overwriteHooks: true` will start a new hook cascade when new `autohooks.js` files are encountered.
 
   ```js
   fastify.register(autoLoad, {
@@ -498,7 +498,7 @@ Each plugin can be individually configured using the following module properties
 
   The autohooks functionality provides several options for automatically embedding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.
 
-  The default behaviour of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
+  The default behavior of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
 
   Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://fastify.dev/docs/latest/Reference/Encapsulation/#encapsulation
 
@@ -542,7 +542,7 @@ Each plugin can be individually configured using the following module properties
     # app.js { autoHooks: true }
 
     $ curl http://localhost:3000/standard-plugin/
-    {} # no hooks in this folder, so behaviour is unchanged
+    {} # no hooks in this folder, so behavior is unchanged
 
     $ curl http://localhost:3000/hooked-plugin/
     { hookOne: 'yes' }
