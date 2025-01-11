@@ -92,7 +92,7 @@ Autoload can be customized using the following options:
 
 - `dir` (required) - Base directory containing plugins to be loaded
 
-  Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In that case only the index file (and the potential sub-directories) will be loaded.
+  Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In which case, only the index file (and the potential sub-directories) will be loaded.
 
   The following script types are supported:
 
@@ -123,7 +123,7 @@ Autoload can be customized using the following options:
   })
   ```
 
-- `matchFilter` (optional) - Filter matching any path that should be loaded. Can be a RegExp, a string or a function returning a boolean.
+- `matchFilter` (optional) - Filter matching any path that should be loaded. Can be a RegExp, a string, or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
@@ -133,7 +133,7 @@ Autoload can be customized using the following options:
   ```
 
 
-- `ignoreFilter` (optional) - Filter matching any path that should not be loaded. Can be a RegExp, a string or a function returning a boolean.
+- `ignoreFilter` (optional) - Filter matching any path that should not be loaded. Can be a RegExp, a string ,or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
@@ -155,7 +155,7 @@ Autoload can be customized using the following options:
 
 - `scriptPattern` (optional) - Regex to override the script files accepted by default. You should only use this option
 with a [customization hooks](https://nodejs.org/docs/latest/api/module.html#customization-hooks)
-provider, such as `ts-node`. Otherwise, widening the acceptance extension here will result in error.
+provider, such as `ts-node`. Otherwise, widening the acceptance extension here will result in an error.
 
 
   ```js
@@ -496,11 +496,11 @@ Each plugin can be individually configured using the following module properties
 
   ## Autohooks:
 
-  The autohooks functionality provides several options for automatically embedding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.
+  The autohooks functionality provides several options for automatically adding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.
 
-  The default behavior of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will re-start the cascade any time an `autohooks.js` file is encountered.
+  The default behavior of `autoHooks: true` is to encapsulate the `autohooks.js` plugin with the contents of the folder containing the file. The `cascadeHooks: true` option encapsulates the hooks with the current folder contents and all subsequent children, with any additional `autohooks.js` files being applied cumulatively. The `overwriteHooks: true` option will restart the cascade any time an `autohooks.js` file is encountered.
 
-  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance which loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://fastify.dev/docs/latest/Reference/Encapsulation/#encapsulation
+  Plugins and hooks are encapsulated together by folder and registered on the `fastify` instance that loaded the `@fastify/autoload` plugin. For more information on how encapsulation works in Fastify, see: https://fastify.dev/docs/latest/Reference/Encapsulation/#encapsulation
 
     ### Example:
 
