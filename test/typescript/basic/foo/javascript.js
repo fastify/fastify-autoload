@@ -1,7 +1,7 @@
 'use strict'
 
-module.exports = function (fastify, opts, next) {
-  fastify.get('/javascript', (request, reply) => {
+module.exports = function (fastify, _opts, next) {
+  fastify.get('/javascript', (_request, reply) => {
     reply.send({ script: 'java' })
   })
 

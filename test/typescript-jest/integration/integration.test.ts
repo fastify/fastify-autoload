@@ -4,7 +4,7 @@ describe('integration test', function () {
   test.concurrent.each(['ts-node', 'ts-node-dev'])(
     'integration with %s',
     async function (instance) {
-      await new Promise(function (resolve, reject) {
+      await new Promise(function (resolve) {
         const child = exec(`${instance} "${process.cwd()}/test/typescript-jest/integration/instance.ts"`)
         let stderr = ''
         child.stderr?.on('data', function (b) {
