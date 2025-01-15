@@ -5,6 +5,7 @@ const { exec } = require('node:child_process')
 const args = [
   'node',
   '--require=tsm',
+  '--test',
   'test/typescript/basic.ts'
 ]
 
