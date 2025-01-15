@@ -1,51 +1,46 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(13)
-
-const app = Fastify()
-
-app.register(require('./autohooks/overwrite'))
-app.decorateRequest('hooked', '')
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { hooked: ['root'] })
+describe('Node test suite for autohooks-overwrite', function () {
+  const app = Fastify()
+  before(async function () {
+    app.register(require('./autohooks/overwrite'))
+    app.decorateRequest('hooked', '')
+    await app.ready()
   })
 
-  app.inject({
-    url: '/child'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { hooked: ['child'] })
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/child/grandchild'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { hooked: ['grandchild'] })
+  it('should respond correctly to /', async function () {
+    const res = await app.inject({ url: '/' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root'] })
   })
 
-  app.inject({
-    url: '/sibling'
-  }, function (err, res) {
-    t.error(err)
+  it('should respond correctly to /child', async function () {
+    const res = await app.inject({ url: '/child' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['child'] })
+  })
 
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { hooked: ['root'] })
+  it('should respond correctly to /child/grandchild', async function () {
+    const res = await app.inject({ url: '/child/grandchild' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['grandchild'] })
+  })
+
+  it('should respond correctly to /sibling', async function () {
+    const res = await app.inject({ url: '/sibling' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root'] })
   })
 })
