@@ -18,28 +18,28 @@ describe('Node test suite for autohooks-cascade', function () {
 
   it('should respond correctly to /', async function () {
     const res = await app.inject({ url: '/' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root'] })
   })
 
   it('should respond correctly to /child', async function () {
     const res = await app.inject({ url: '/child' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root', 'child'] })
   })
 
   it('should respond correctly to /child/grandchild', async function () {
     const res = await app.inject({ url: '/child/grandchild' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root', 'child', 'grandchild'] })
   })
 
   it('should respond correctly to /sibling', async function () {
     const res = await app.inject({ url: '/sibling' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { hooked: ['root'] })
   })

@@ -18,7 +18,7 @@ describe('Node test suite for index package', function () {
 
   it('should respond correctly to /foo/bar', async function () {
     const res = await app.inject({ url: '/foo/bar' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(res.json(), { success: true })
   })

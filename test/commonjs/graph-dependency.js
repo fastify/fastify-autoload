@@ -18,25 +18,25 @@ describe('Node test suite for graph dependency', function () {
 
   it('should respond correctly to /a', async function () {
     const res = await app.inject({ url: '/a' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
   })
 
   it('should respond correctly to /b', async function () {
     const res = await app.inject({ url: '/b' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
   })
 
   it('should respond correctly to /c', async function () {
     const res = await app.inject({ url: '/c' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
   })
 
   it('should respond correctly to /d', async function () {
     const res = await app.inject({ url: '/d' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
   })
 })

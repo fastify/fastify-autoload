@@ -18,20 +18,20 @@ describe('Node test suite for route parameters disabled', function () {
 
   it('should respond correctly to /users', async function () {
     const res = await app.inject({ url: '/users' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { users: [{ id: 7, username: 'example' }] })
   })
 
   it('should respond with 404 to /users/7', async function () {
     const res = await app.inject({ url: '/users/7' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 404)
   })
 
   it('should respond correctly to /users/_id', async function () {
     const res = await app.inject({ url: '/users/_id' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { user: { id: 'null', username: 'example' } })
   })

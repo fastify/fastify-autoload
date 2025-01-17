@@ -24,7 +24,7 @@ describe('Node test suite for babel-node', function () {
     const res = await app.inject({
       url: '/'
     })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { hello: 'world' })
   })
@@ -33,7 +33,7 @@ describe('Node test suite for babel-node', function () {
     const res = await app.inject({
       url: '/foo'
     })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { foo: 'bar' })
   })

@@ -20,7 +20,7 @@ describe('Node test suite for deep routes', function () {
     const res = await app.inject({
       url: '/with-dirs/level-1/level-2/deep-route'
     })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { data: 'deep-route' })
   })
@@ -29,7 +29,7 @@ describe('Node test suite for deep routes', function () {
     const res = await app.inject({
       url: '/without-dirs/deep-route'
     })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.deepStrictEqual(JSON.parse(res.payload), { data: 'deep-route' })
   })

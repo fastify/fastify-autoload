@@ -21,7 +21,7 @@ describe('Node test suite for non-plugin', function () {
 
   it('should respond correctly to /foo', async function () {
     const res = await app.inject({ url: '/foo' })
-    assert.ifError(res.error)
+
     assert.strictEqual(res.statusCode, 200)
     assert.strictEqual(res.payload, 'foo')
   })
