@@ -1,50 +1,46 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(13)
+describe('Node test suite for route parameters basic', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.register(require('./route-parameters/basic'))
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/users'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { users: [{ id: 7, username: 'example' }] })
+  before(async function () {
+    app.register(require('./route-parameters/basic'))
+    await app.ready()
   })
 
-  app.inject({
-    url: '/users/7'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { user: { id: 7, username: 'example' } })
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/users/_id'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { user: { id: '_id', username: 'example' } })
+  it('should respond correctly to /users', async function () {
+    const res = await app.inject({ url: '/users' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { users: [{ id: 7, username: 'example' }] })
   })
 
-  app.inject({
-    url: '/be-nl'
-  }, function (err, res) {
-    t.error(err)
+  it('should respond correctly to /users/7', async function () {
+    const res = await app.inject({ url: '/users/7' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { user: { id: '7', username: 'example' } })
+  })
 
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { country: 'be', language: 'nl' })
+  it('should respond correctly to /users/_id', async function () {
+    const res = await app.inject({ url: '/users/_id' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { user: { id: '_id', username: 'example' } })
+  })
+
+  it('should respond correctly to /be-nl', async function () {
+    const res = await app.inject({ url: '/be-nl' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { country: 'be', language: 'nl' })
   })
 })
