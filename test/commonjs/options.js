@@ -1,73 +1,68 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(22)
+describe('Node test suite for options', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.decorate('root', 'root')
-
-app.register(require('./options/app'))
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/plugin-a'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    // a is overriden by global option:
-    t.same(JSON.parse(res.payload), { data: 'test-1' })
+  before(async function () {
+    app.decorate('root', 'root')
+    app.register(require('./options/app'))
+    await app.ready()
   })
 
-  app.inject({
-    url: '/plugin-b'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'override' })
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/plugin-default'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'default' })
+  it('should respond correctly to /plugin-a with global option override', async function () {
+    const res = await app.inject({ url: '/plugin-a' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'test-1' })
   })
 
-  app.inject({
-    url: '/plugin-c'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'c' })
+  it('should respond correctly to /plugin-b', async function () {
+    const res = await app.inject({ url: '/plugin-b' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'override' })
   })
 
-  app.inject({
-    url: '/plugin-d'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'test-3' })
+  it('should respond correctly to /plugin-default', async function () {
+    const res = await app.inject({ url: '/plugin-default' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'default' })
   })
 
-  app.inject({
-    url: '/plugin-e'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'test-4-root' })
+  it('should respond correctly to /plugin-c', async function () {
+    const res = await app.inject({ url: '/plugin-c' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'c' })
   })
 
-  app.inject({
-    url: '/plugin-y'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'y' })
+  it('should respond correctly to /plugin-d', async function () {
+    const res = await app.inject({ url: '/plugin-d' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'test-3' })
+  })
+
+  it('should respond correctly to /plugin-e', async function () {
+    const res = await app.inject({ url: '/plugin-e' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'test-4-root' })
+  })
+
+  it('should respond correctly to /plugin-y', async function () {
+    const res = await app.inject({ url: '/plugin-y' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'y' })
   })
 })
