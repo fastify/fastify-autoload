@@ -1,31 +1,27 @@
+import test, { describe, before, after } from 'node:test'
+import assert from 'node:assert'
 import fastify from 'fastify'
+
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, it } from 'node:test'
-import assert from 'node:assert'
 import fastifyAutoLoad from '../../'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-describe('Node test suite for ESM', function () {
+describe('typescript/basic test suite', function () {
   const app = fastify()
+  before(async function () {
+    app.register(fastifyAutoLoad, { dir: resolve(__dirname, 'app'), forceESM: true })
+    await app.ready()
+  })
 
-  app.register(fastifyAutoLoad, { dir: resolve(__dirname, 'app'), forceESM: true })
+  after(async function () {
+    await app.close()
+  })
 
-  it('should load routes and respond correctly', function (done) {
-    app.ready(function (err): void {
-      assert.ifError(err)
-
-      app.inject(
-        {
-          url: '/installed'
-        },
-        function (err, res: any): void {
-          assert.ifError(err)
-          assert.strictEqual(res.statusCode, 200)
-          assert.deepStrictEqual(JSON.parse(res.payload), { result: 'ok' })
-        }
-      )
-    })
+  test('should load routes and respond correctly', async function () {
+    const res = await app.inject({ url: '/installed' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { result: 'ok' })
   })
 })
