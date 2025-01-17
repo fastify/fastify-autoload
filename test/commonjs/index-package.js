@@ -1,22 +1,25 @@
 'use strict'
 
-const t = require('tap')
-const fastify = require('fastify')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
+const Fastify = require('fastify')
 
-t.plan(4)
+describe('Node test suite for index package', function () {
+  const app = Fastify()
 
-const app = fastify()
+  before(async function () {
+    app.register(require('./index-package/app'))
+    await app.ready()
+  })
 
-app.register(require('./index-package/app'))
+  after(async function () {
+    await app.close()
+  })
 
-app.ready(err => {
-  t.error(err)
-
-  app.inject({
-    url: '/foo/bar'
-  }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(res.json(), { success: true })
+  it('should respond correctly to /foo/bar', async function () {
+    const res = await app.inject({ url: '/foo/bar' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { success: true })
   })
 })
