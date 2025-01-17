@@ -3,24 +3,26 @@
 // This test tests that automatic loading will skip modules that do not
 // export a function, i.e. not a fastify plugin.
 
-const t = require('tap')
-const fastify = require('fastify')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
+const Fastify = require('fastify')
 
-t.plan(4)
+describe('Node test suite for non-plugin', function () {
+  const app = Fastify()
 
-const app = fastify()
+  before(async function () {
+    app.register(require('./non-plugin/app'))
+    await app.ready()
+  })
 
-app.register(require('./non-plugin/app'))
+  after(async function () {
+    await app.close()
+  })
 
-app.ready(err => {
-  t.error(err)
-
-  app.inject({
-    url: '/foo'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(res.payload, 'foo')
+  it('should respond correctly to /foo', async function () {
+    const res = await app.inject({ url: '/foo' })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.strictEqual(res.payload, 'foo')
   })
 })
