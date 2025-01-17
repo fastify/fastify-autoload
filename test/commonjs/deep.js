@@ -1,32 +1,36 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(7)
+describe('Node test suite for deep routes', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.register(require('./deep/app'))
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/with-dirs/level-1/level-2/deep-route'
-  }, function (err, res) {
-    t.error(err)
-
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'deep-route' })
+  before(async function () {
+    app.register(require('./deep/app'))
+    await app.ready()
   })
 
-  app.inject({
-    url: '/without-dirs/deep-route'
-  }, function (err, res) {
-    t.error(err)
+  after(async function () {
+    await app.close()
+  })
 
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'deep-route' })
+  it('should respond correctly to /with-dirs/level-1/level-2/deep-route', async function () {
+    const res = await app.inject({
+      url: '/with-dirs/level-1/level-2/deep-route'
+    })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'deep-route' })
+  })
+
+  it('should respond correctly to /without-dirs/deep-route', async function () {
+    const res = await app.inject({
+      url: '/without-dirs/deep-route'
+    })
+    assert.ifError(res.error)
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'deep-route' })
   })
 })
