@@ -1,43 +1,71 @@
 'use strict'
 
-const t = require('tap')
-const fastify = require('fastify')
+const { after, before, describe, it, suite } = require('node:test')
+const assert = require('node:assert')
+const Fastify = require('fastify')
 
-t.test('independent of module support', function (t) {
-  t.plan(8)
-  const app = fastify()
+describe('Node test suite for independent of module support', function () {
+  suite('unexpected token', async function () {
+    const app = Fastify()
 
-  app.register(require('./syntax-error/app'))
+    before(async function () {
+      app.register(require('./syntax-error/app'))
+    })
 
-  app.ready(function (err) {
-    t.type(err, SyntaxError)
-    t.match(err.message, /unexpected token/i)
+    after(async function () {
+      await app.close()
+    })
+
+    it('should return unexpected token error', async function () {
+      await assert.rejects(app.ready(), SyntaxError, /unexpected token/i)
+    })
   })
 
-  const app2 = fastify()
+  suite('cannot import plugin index', async function () {
+    const app = Fastify()
 
-  app2.register(require('./index-error/app'))
+    before(async function () {
+      app.register(require('./index-error/app'))
+    })
 
-  app2.ready(function (err) {
-    t.type(err, Error)
-    t.match(err.message, /cannot import plugin.*index/i)
+    after(async function () {
+      await app.close()
+    })
+
+    it('should return cannot import plugin index error', async function () {
+      await assert.rejects(app.ready(), Error, /cannot import plugin.*index/i)
+    })
   })
 
-  const app3 = fastify()
+  suite('cannot import plugin typescript', async function () {
+    const app = Fastify()
 
-  app3.register(require('./ts-error/app'))
+    before(async function () {
+      app.register(require('./ts-error/app'))
+    })
 
-  app3.ready(function (err) {
-    t.type(err, Error)
-    t.match(err.message, /cannot import plugin.*typescript/i)
+    after(async function () {
+      await app.close()
+    })
+
+    it('should return cannot import plugin typescript error', async function () {
+      await assert.rejects(app.ready(), Error, /cannot import plugin.*typescript/i)
+    })
   })
 
-  const app4 = fastify()
+  suite('cyclic dependency error', async function () {
+    const app = Fastify()
 
-  app4.register(require('./cyclic-dependency/app'))
+    before(async function () {
+      app.register(require('./cyclic-dependency/app'))
+    })
 
-  app4.ready(function (err) {
-    t.type(err, Error)
-    t.equal(err.message, 'Cyclic dependency')
+    after(async function () {
+      await app.close()
+    })
+
+    it('should return cannot import plugin typescript error', async function () {
+      await assert.rejects(app.ready(), new Error('Cyclic dependency'))
+    })
   })
 })
