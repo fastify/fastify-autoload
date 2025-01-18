@@ -6,7 +6,7 @@ const path = require('node:path')
 const Fastify = require('fastify')
 const autoLoad = require('../../../')
 
-describe('Issue 374 tests', function () {
+describe('Issue 376 tests', function () {
   const app = Fastify()
 
   before(async function () {

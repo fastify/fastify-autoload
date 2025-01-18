@@ -1,44 +1,45 @@
 'use strict'
 
-const t = require('tap')
+const { afterEach, beforeEach, describe, it } = require('node:test')
+const assert = require('node:assert')
 const path = require('node:path')
 const Fastify = require('fastify')
 const autoLoad = require('../../../')
 
-t.plan(7)
+describe('Issue 388 tests', function () {
+  let app
 
-const app = Fastify()
-
-app.register(autoLoad, {
-  dir: path.join(__dirname, 'routes')
-})
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 404)
+  beforeEach(async function () {
+    app = Fastify()
   })
-})
 
-const app2 = Fastify()
+  afterEach(async function () {
+    await app.close()
+  })
 
-app2.register(autoLoad, {
-  dir: path.join(__dirname, 'routes'),
-  scriptPattern: /(js|ts|tsx)$/
-})
+  it('should respond 404 to /', async function () {
+    app = Fastify()
+    app.register(autoLoad, {
+      dir: path.join(__dirname, 'routes'),
+    })
+    await app.ready()
 
-app2.ready(function (err) {
-  t.error(err)
+    const res = await app.inject({ url: '/' })
 
-  app2.inject({
-    url: '/'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(res.json(), { tsx: 'ok' })
+    assert.strictEqual(res.statusCode, 404)
+  })
+
+  it('should respond 200 to / when script pattern is loaded', async function () {
+    app = Fastify()
+    app.register(autoLoad, {
+      dir: path.join(__dirname, 'routes'),
+      scriptPattern: /(js|ts|tsx)$/,
+    })
+    await app.ready()
+
+    const res = await app.inject({ url: '/' })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { tsx: 'ok' })
   })
 })
