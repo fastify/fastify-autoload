@@ -1,42 +1,42 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(9)
+describe('Node test suite for graph dependency', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.register(require('./graph-dependency/app'))
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/a'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
+  before(async function () {
+    app.register(require('./graph-dependency/app'))
+    await app.ready()
   })
 
-  app.inject({
-    url: '/b'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/c'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
+  it('should respond correctly to /a', async function () {
+    const res = await app.inject({ url: '/a' })
+
+    assert.strictEqual(res.statusCode, 200)
   })
 
-  app.inject({
-    url: '/d'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
+  it('should respond correctly to /b', async function () {
+    const res = await app.inject({ url: '/b' })
+
+    assert.strictEqual(res.statusCode, 200)
+  })
+
+  it('should respond correctly to /c', async function () {
+    const res = await app.inject({ url: '/c' })
+
+    assert.strictEqual(res.statusCode, 200)
+  })
+
+  it('should respond correctly to /d', async function () {
+    const res = await app.inject({ url: '/d' })
+
+    assert.strictEqual(res.statusCode, 200)
   })
 })

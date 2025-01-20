@@ -1,45 +1,50 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const path = require('node:path')
 const Fastify = require('fastify')
 const autoLoad = require('../../../')
 
-t.plan(10)
+describe('Issue 374 tests', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.register(autoLoad, {
-  dir: path.join(__dirname, 'routes'),
-  autoHooks: true,
-  cascadeHooks: true,
-  routeParams: true
-})
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(res.json(), { path: '/' })
+  before(async function () {
+    app.register(autoLoad, {
+      dir: path.join(__dirname, 'routes'),
+      autoHooks: true,
+      cascadeHooks: true,
+      routeParams: true,
+    })
+    await app.ready()
   })
 
-  app.inject({
-    url: '/entity'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(res.json(), { path: '/entity', hooked: ['root'] })
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/entity/1'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(res.json(), { path: '/entity/1', hooked: ['root'], params: { entity: 1 } })
+  it('should respond correctly to /', async function () {
+    const res = await app.inject({ url: '/' })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { path: '/' })
+  })
+
+  it('should respond correctly to /entity', async function () {
+    const res = await app.inject({ url: '/entity' })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { path: '/entity', hooked: ['root'] })
+  })
+
+  it('should respond correctly to /entity/1', async function () {
+    const res = await app.inject({ url: '/entity/1' })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), {
+      path: '/entity/1',
+      hooked: ['root'],
+      params: { entity: '1' },
+    })
   })
 })

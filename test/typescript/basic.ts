@@ -1,32 +1,29 @@
-import t from 'tap'
+import test, { describe, before, after } from 'node:test'
+import assert from 'node:assert'
 import fastify from 'fastify'
 
 import basicApp from './basic/app'
 
-t.plan(5)
-
-const app = fastify()
-
-app.register(basicApp)
-
-app.ready(async function (err): Promise<void> {
-  t.error(err)
-
-  await app.inject({
-    url: '/javascript'
-  }).then(function (res): void {
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { script: 'java' })
-  }).catch((err) => {
-    t.error(err)
+describe('typescript/basic test suite', function () {
+  const app = fastify()
+  before(async function () {
+    app.register(basicApp)
+    await app.ready()
   })
 
-  await app.inject({
-    url: '/typescript'
-  }).then(function (res): void {
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { script: 'type' })
-  }).catch((err) => {
-    t.error(err)
+  after(async function () {
+    await app.close()
+  })
+
+  test('should respond correctly to /javascript', async function () {
+    const res = await app.inject({ url: '/javascript' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { script: 'java' })
+  })
+
+  test('should respond correctly to /typescript', async function () {
+    const res = await app.inject({ url: '/typescript' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { script: 'type' })
   })
 })

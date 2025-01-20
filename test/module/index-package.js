@@ -1,14 +1,24 @@
-import t from 'tap'
+import { after, before, describe, it } from 'node:test'
+import assert from 'node:assert'
 import fastify from 'fastify'
 import indexPackage from './index-package/app.js'
 
-t.test('index package', async () => {
+describe('index package', function () {
   const app = fastify()
 
-  app.register(indexPackage)
+  before(async function () {
+    app.register(indexPackage)
+    await app.ready()
+  })
 
-  const res = await app.inject('/foo/bar')
+  after(async function () {
+    await app.close()
+  })
 
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), { success: true })
+  it('should handle foo/bar correctly', async function () {
+    const res = await app.inject('/foo/bar')
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { success: true })
+  })
 })

@@ -1,34 +1,40 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 const AutoLoad = require('../../')
 const { join } = require('node:path')
 
-t.plan(7)
+describe('Node test suite for babel-node', function () {
+  const app = Fastify()
 
-const app = Fastify()
-
-app.register(AutoLoad, {
-  dir: join(__dirname, 'babel-node/routes')
-})
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { hello: 'world' })
+  before(async function () {
+    app.register(AutoLoad, {
+      dir: join(__dirname, 'babel-node/routes')
+    })
+    await app.ready()
   })
 
-  app.inject({
-    url: '/foo'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { foo: 'bar' })
+  after(async function () {
+    await app.close()
+  })
+
+  it('should respond correctly to /', async function () {
+    const res = await app.inject({
+      url: '/'
+    })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { hello: 'world' })
+  })
+
+  it('should respond correctly to /foo', async function () {
+    const res = await app.inject({
+      url: '/foo'
+    })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { foo: 'bar' })
   })
 })

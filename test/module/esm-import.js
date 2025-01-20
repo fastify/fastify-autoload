@@ -1,59 +1,57 @@
-import t from 'tap'
+import { afterEach, describe, it } from 'node:test'
+import assert from 'node:assert'
 import fastify from 'fastify'
 import esmImportAppDefault from './esm-import/app-default.js'
 import esmImportAppNamed from './esm-import/app-named.js'
 import esmImportAppStarDefault from './esm-import/app-star-default.js'
 import esmImportAppStarNamed from './esm-import/app-star-named.js'
 
-const { test } = t
+describe('ESM import tests', async function () {
+  let app
+  afterEach(async () => {
+    await app.close()
+  })
 
-test('default', async () => {
-  const app = fastify()
+  it('default', async function () {
+    app = fastify()
+    app.register(esmImportAppDefault)
+    await app.ready()
 
-  app.register(esmImportAppDefault)
+    const res = await app.inject('/default')
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'default' })
+    await app.close()
+  })
 
-  await app.ready()
+  it('named', async function () {
+    app = fastify()
+    app.register(esmImportAppNamed)
+    await app.ready()
 
-  const res = await app.inject('/default')
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), { script: 'default' })
-})
+    const res = await app.inject('/named')
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'named' })
+    await app.close()
+  })
 
-test('named', async () => {
-  const app = fastify()
+  it('star default', async function () {
+    app = fastify()
+    app.register(esmImportAppStarDefault)
+    await app.ready()
 
-  app.register(esmImportAppNamed)
+    const res = await app.inject('/star-default')
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'star-default' })
+    await app.close()
+  })
 
-  await app.ready()
+  it('star named', async function () {
+    app = fastify()
+    app.register(esmImportAppStarNamed)
+    await app.ready()
 
-  const res = await app.inject('/named')
-
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), { script: 'named' })
-})
-
-test('star-default', async () => {
-  const app = fastify()
-
-  app.register(esmImportAppStarDefault)
-
-  await app.ready()
-
-  const res = await app.inject('/star-default')
-
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), { script: 'star-default' })
-})
-
-test('star-named', async () => {
-  const app = fastify()
-
-  app.register(esmImportAppStarNamed)
-
-  await app.ready()
-
-  const res = await app.inject('/star-named')
-
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), { script: 'star-named' })
+    const res = await app.inject('/star-named')
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'star-named' })
+  })
 })
