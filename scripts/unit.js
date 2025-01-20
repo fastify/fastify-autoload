@@ -1,6 +1,6 @@
 'use strict'
 
-const { globSync } = require('glob')
+const { globSync } = require('fast-glob')
 const { exec } = require('node:child_process')
 
 // Expand patterns
