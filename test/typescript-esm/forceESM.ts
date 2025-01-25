@@ -2,7 +2,7 @@ import fastify from 'fastify'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import t from 'tap'
-import fastifyAutoLoad from '../../'
+import fastifyAutoLoad from '../../index.js'
 
 t.plan(4)
 

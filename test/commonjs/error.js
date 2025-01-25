@@ -2,9 +2,12 @@
 
 const t = require('tap')
 const fastify = require('fastify')
+const runtime = require('../../lib/runtime')
+
+const typeStrippingEnabled = runtime.nodeVersion >= 23
 
 t.test('independent of module support', function (t) {
-  t.plan(8)
+  t.plan(typeStrippingEnabled ? 7 : 8)
   const app = fastify()
 
   app.register(require('./syntax-error/app'))
@@ -27,10 +30,16 @@ t.test('independent of module support', function (t) {
 
   app3.register(require('./ts-error/app'))
 
-  app3.ready(function (err) {
-    t.type(err, Error)
-    t.match(err.message, /cannot import plugin.*typescript/i)
-  })
+  if (typeStrippingEnabled) {
+    app3.ready(function (err) {
+      t.error(err)
+    })
+  } else {
+    app3.ready(function (err) {
+      t.type(err, Error)
+      t.match(err.message, /cannot import plugin.*typescript/i)
+    })
+  }
 
   const app4 = fastify()
 

@@ -1,12 +1,11 @@
 'use strict'
 
 const { exec } = require('node:child_process')
-
-const version = Number(process.version.split('.')[0].slice(1))
+const runtime = require('../lib/runtime')
 
 const args = [
   'npx',
-  version >= 18 ? '--node-options=--import=tsx' : '',
+  runtime.nodeVersion >= 18 ? '--node-options=--import=tsx' : '',
   'tsnd',
   'test/typescript/basic.ts'
 ]
