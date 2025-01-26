@@ -10,7 +10,7 @@ function common () {
   })
   child.stdout.pipe(process.stdout)
   child.stderr.pipe(process.stderr)
-  child.once('close', () => esm())
+  child.once('close', esm)
 }
 
 function esm () {
