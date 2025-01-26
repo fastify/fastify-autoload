@@ -27,8 +27,4 @@ function esm () {
 
 if (runtime.nodeVersion >= 23) {
   common()
-} else {
-  console.log(
-    `Native type stripping tests not run on Node v${runtime.nodeVersion}`
-  )
 }
