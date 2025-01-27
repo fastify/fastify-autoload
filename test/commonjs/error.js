@@ -30,16 +30,14 @@ t.test('independent of module support', function (t) {
 
   app3.register(require('./ts-error/app'))
 
-  if (typeStrippingEnabled) {
-    app3.ready(function (err) {
+  app3.ready(function (err) {
+    if (typeStrippingEnabled) {
       t.error(err)
-    })
-  } else {
-    app3.ready(function (err) {
+    } else {
       t.type(err, Error)
       t.match(err.message, /cannot import plugin.*typescript/i)
-    })
-  }
+    }
+  })
 
   const app4 = fastify()
 
