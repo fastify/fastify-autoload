@@ -319,7 +319,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   ```
 
 ## Override TypeScript detection using an environment variable
-> **Note**: Node >= 23 supports native type stripping, and this plugin will automatically take advantage of it. Read more about native type stripping on the [API docs](https://nodejs.org/docs/latest-v23.x/api/typescript.html#modules-typescript).
+> This plugin uses [native type stripping](https://nodejs.org/docs/latest-v23.x/api/typescript.html#modules-typescript) with Node 23 and later.
 
 It is possible to override the automatic detection of a TypeScript-capable runtime using the `FASTIFY_AUTOLOAD_TYPESCRIPT` environment variable. If set to a truthy value Autoload will load `.ts` files, expecting that node has a TypeScript-capable loader.
 
