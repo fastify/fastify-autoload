@@ -19,7 +19,7 @@
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
-    "unit": "borp --reporter=@jsumners/line-reporter"
+    "unit": "borp -C --reporter=@jsumners/line-reporter"
   },
   "repository": {
     "type": "git",
