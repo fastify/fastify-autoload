@@ -1,3 +1,5 @@
+'use script'
+
 const t = require('tap')
 const fastify = require('fastify')
 
