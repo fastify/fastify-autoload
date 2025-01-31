@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "npm run typescript && npm run typescript:jest && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx && npm run typescript:vitest && npm run typescript:esbuild && npm run unit",
+    "test": "npm run typescript && npm run typescript:native && npm run typescript:jest && npm run typescript:swc-node-register && npm run typescript:tsm && npm run typescript:tsx && npm run typescript:vitest && npm run typescript:esbuild && npm run unit",
     "typescript": "tsd",
     "typescript:jest": "jest",
     "typescript:esm": "node scripts/unit-typescript-esm.js",
@@ -17,6 +17,7 @@
     "typescript:tsx": "node scripts/unit-typescript-tsx.js",
     "typescript:tsimp": "node scripts/unit-typescript-tsimp.js",
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
+    "typescript:native": "node scripts/unit-typescript-native-type-stripping.js",
     "typescript:vitest": "vitest run",
     "typescript:vitest:dev": "vitest",
     "unit": "node scripts/unit.js",

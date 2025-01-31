@@ -4,6 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const path = require('node:path')
 const autoload = require('../../..')
+const runtime = require('../../../lib/runtime')
 
 test('Should throw an error when trying to load invalid hooks', async (t) => {
   const app = Fastify()
@@ -22,7 +23,11 @@ test('Should throw an error when trying to import hooks plugin using index.ts if
     autoHooks: true
   })
 
-  await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'invalid-index-type/index.ts')}'`))
+  if (runtime.nodeVersion >= 23) {
+    t.doesNotThrow(() => app.ready())
+  } else {
+    await t.rejects(app.ready(), new Error(`@fastify/autoload cannot import hooks plugin at '${path.join(__dirname, 'invalid-index-type/index.ts')}'`))
+  }
 })
 
 test('Should not accumulate plugin if doesn\'t comply to matchFilter', async (t) => {
