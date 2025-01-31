@@ -4,6 +4,10 @@ const { after, before, describe, it } = require('node:test')
 const assert = require('node:assert')
 const Fastify = require('fastify')
 
+const runtime = require('../../lib/runtime')
+
+const typeStrippingEnabled = runtime.nodeVersion >= 23
+
 describe('independent module support - unexpected token', function () {
   const app = Fastify()
 
@@ -48,7 +52,11 @@ describe('independent module support - cannot import plugin typescript', functio
   })
 
   it('should return cannot import plugin typescript error', async function () {
-    await assert.rejects(app.ready(), Error, /cannot import plugin.*typescript/i)
+    if (typeStrippingEnabled) {
+      assert.doesNotThrow(() => app.ready())
+    } else {
+      await assert.rejects(app.ready(), Error, /cannot import plugin.*typescript/i)
+    }
   })
 })
 

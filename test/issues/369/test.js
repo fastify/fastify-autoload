@@ -5,6 +5,7 @@ const assert = require('node:assert')
 const Fastify = require('fastify')
 const path = require('node:path')
 const autoload = require('../../..')
+const runtime = require('../../../lib/runtime')
 
 describe('Issue 369 tests', async function () {
   it('Should throw an error when trying to load invalid hooks', async function () {
@@ -23,16 +24,19 @@ describe('Issue 369 tests', async function () {
       dir: path.join(__dirname, 'invalid-index-type'),
       autoHooks: true,
     })
-
-    await assert.rejects(
-      app.ready(),
-      new Error(
+    if (runtime.nodeVersion >= 23) {
+      assert.doesNotThrow(() => app.ready())
+    } else {
+      await assert.rejects(
+        app.ready(),
+        new Error(
         `@fastify/autoload cannot import hooks plugin at '${path.join(
           __dirname,
           'invalid-index-type/index.ts'
         )}'. To fix this error compile TypeScript to JavaScript or use 'ts-node' to run your app.`
+        )
       )
-    )
+    }
   })
 
   it("Should not accumulate plugin if doesn't comply to matchFilter", async function () {
