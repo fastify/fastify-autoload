@@ -1,0 +1,4 @@
+files:
+  - 'test/issues/*/test.js'
+  - 'test/commonjs/*.js'
+  - 'test/module/*.js'

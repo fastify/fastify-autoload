@@ -1,69 +1,59 @@
-import t from 'tap'
+import { after, before, describe, it } from 'node:test'
+import assert from 'node:assert'
 import fastify from 'fastify'
 import dependencyApp from './dependency/app.js'
 
-t.plan(22)
+describe('dependency tests', function () {
+  const app = fastify()
 
-const app = fastify()
-
-app.register(dependencyApp)
-
-app.ready(function (err) {
-  t.error(err)
-
-  app.inject({
-    url: '/plugin-a'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-a' })
+  before(async function () {
+    app.register(dependencyApp)
+    await app.ready()
   })
 
-  app.inject({
-    url: '/plugin-b'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-b' })
+  after(async function () {
+    await app.close()
   })
 
-  app.inject({
-    url: '/plugin-c'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-c' })
+  it('should respond correctly to /plugin-a', async function () {
+    const res = await app.inject({ url: '/plugin-a' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-a' })
   })
 
-  app.inject({
-    url: '/plugin-d'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-d' })
+  it('should respond correctly to /plugin-b', async function () {
+    const res = await app.inject({ url: '/plugin-b' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-b' })
   })
 
-  app.inject({
-    url: '/plugin-e'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-e' })
+  it('should respond correctly to /plugin-c', async function () {
+    const res = await app.inject({ url: '/plugin-c' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-c' })
   })
 
-  app.inject({
-    url: '/plugin-f'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload), { data: 'plugin-f' })
+  it('should respond correctly to /plugin-d', async function () {
+    const res = await app.inject({ url: '/plugin-d' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-d' })
   })
 
-  app.inject({
-    url: '/plugin-g'
-  }, function (err, res) {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.same(JSON.parse(res.payload).path, '/plugin-g')
+  it('should respond correctly to /plugin-e', async function () {
+    const res = await app.inject({ url: '/plugin-e' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-e' })
+  })
+
+  it('should respond correctly to /plugin-f', async function () {
+    const res = await app.inject({ url: '/plugin-f' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload), { data: 'plugin-f' })
+  })
+
+  it('should respond correctly to /plugin-g', async function () {
+    const res = await app.inject({ url: '/plugin-g' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.payload).path, '/plugin-g')
   })
 })

@@ -1,14 +1,21 @@
 'use strict'
 
-const t = require('tap')
+const { after, before, describe, it } = require('node:test')
+const assert = require('node:assert')
 const Fastify = require('fastify')
 
-t.plan(1)
+describe('Node test suite for babel-node', function () {
+  const app = Fastify()
 
-const app = Fastify()
+  before(async function () {
+    app.register(require('./cyclic-dependency/app'))
+  })
 
-app.register(require('./cyclic-dependency/app'))
+  after(async function () {
+    await app.close()
+  })
 
-app.ready(function (err) {
-  t.equal(err.message, 'Cyclic dependency')
+  it('should return cyclic dependency error', async function () {
+    await assert.rejects(app.ready(), { message: 'Cyclic dependency' })
+  })
 })
