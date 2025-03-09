@@ -24,7 +24,7 @@ describe('Issue 369 tests', async function () {
       dir: path.join(__dirname, 'invalid-index-type'),
       autoHooks: true,
     })
-    if (runtime.nodeVersion >= 23) {
+    if (runtime.supportNativeTypeScript) {
       assert.doesNotThrow(() => app.ready())
     } else {
       await assert.rejects(

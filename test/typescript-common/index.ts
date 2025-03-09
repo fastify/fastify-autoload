@@ -1,6 +1,6 @@
 'use script'
 
-const t = require('tap')
+const { test: t } = require('node:test')
 const fastify = require('fastify')
 
 const basicApp = require('./basic/app.ts')
