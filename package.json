@@ -1,6 +1,6 @@
 {
   "name": "@fastify/autoload",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "Require all plugins in a directory",
   "main": "index.js",
   "type": "commonjs",
