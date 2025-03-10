@@ -3,6 +3,10 @@
 const { exec } = require('node:child_process')
 const runtime = require('../lib/runtime')
 
+if (runtime.supportNativeTypeScript) {
+  common()
+}
+
 function common () {
   const args = ['node', 'test/typescript-common/index.ts']
   const child = exec(args.join(' '), {
@@ -23,8 +27,4 @@ function esm () {
   child.stdout.pipe(process.stdout)
   child.stderr.pipe(process.stderr)
   child.once('close', process.exit)
-}
-
-if (runtime.nodeVersion >= 23) {
-  common()
 }
