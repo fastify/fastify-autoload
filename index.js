@@ -260,7 +260,6 @@ function isPluginOrModule (input, importedAsModule) {
   let result = false
 
   const inputType = Object.prototype.toString.call(importedAsModule ? input.default : input)
-  console.log(input, inputType)
   if (pluginOrModulePattern.test(inputType) === true) {
     result = true
   } else if (Object.hasOwn(input, 'default')) {
