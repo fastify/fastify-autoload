@@ -80,6 +80,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
     // can be converted into one, that can eventually be passed to `avvio`. If
     // it is anything else, skip automatic loading of this item.
     log.debug({ file }, 'skipping autoloading of file because it does not export a Fastify plugin compatible shape')
+    console.log('hereer')
     return
   }
 
