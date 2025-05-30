@@ -67,14 +67,15 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
 
 async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
   const { options: overrideConfig, forceESM, encapsulate } = options
+  const importedAsModule = forceESM || type === 'module' || runtime.forceESM
   let content
-  if (forceESM || type === 'module' || runtime.forceESM) {
+  if (importedAsModule) {
     content = await import(pathToFileURL(file).href)
   } else {
     content = require(file)
   }
 
-  if (isPluginOrModule(content) === false) {
+  if (isPluginOrModule(importedAsModule ? content.default : content) === false) {
     // We must have something that resembles a Fastify plugin function, or that
     // can be converted into one, that can eventually be passed to `avvio`. If
     // it is anything else, skip automatic loading of this item.
@@ -256,8 +257,9 @@ const pluginOrModulePattern = /\[object (?:AsyncFunction|Function|Module)\]/u
  * eventually passing it into `avvio`. False otherwise.
  */
 function isPluginOrModule (input) {
-  let result = false
+  if (!input) return false
 
+  let result = false
   const inputType = Object.prototype.toString.call(input)
   if (pluginOrModulePattern.test(inputType) === true) {
     result = true
