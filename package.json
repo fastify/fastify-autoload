@@ -79,7 +79,7 @@
     "@swc-node/register": "^1.9.1",
     "@swc/core": "^1.5.25",
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.8",
     "borp": "^0.20.0",
     "esbuild": "^0.25.0",
     "esbuild-register": "^3.5.0",
