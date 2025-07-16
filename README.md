@@ -101,7 +101,9 @@ Autoload can be customized using the following options:
   - `.mjs` (ES modules)
   - `.ts` (TypeScript)
 
-### `dirNameRoutePrefix` (optional) - Default: true. Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the prefix for the directory.
+### `dirNameRoutePrefix` (optional) - Default: true.
+
+Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the prefix for the directory.
 
   ```js
   fastify.register(autoLoad, {
