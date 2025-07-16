@@ -90,7 +90,7 @@ Folder structure:
 
 Autoload can be customized using the following options:
 
-#### `dir` (required) - Base directory containing plugins to be loaded
+### `dir` (required) - Base directory containing plugins to be loaded
 
   Each script file within a directory is treated as a plugin unless the directory contains an index file (e.g. `index.js`). In which case, only the index file (and the potential sub-directories) will be loaded.
 
@@ -101,7 +101,7 @@ Autoload can be customized using the following options:
   - `.mjs` (ES modules)
   - `.ts` (TypeScript)
 
-#### `dirNameRoutePrefix` (optional) - Default: true. Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the prefix for the directory.
+### `dirNameRoutePrefix` (optional) - Default: true. Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the prefix for the directory.
 
   ```js
   fastify.register(autoLoad, {
@@ -123,7 +123,7 @@ Autoload can be customized using the following options:
   })
   ```
 
-#### `matchFilter` (optional) - Filter matching any path that should be loaded. Can be a RegExp, a string, or a function returning a boolean.
+### `matchFilter` (optional) - Filter matching any path that should be loaded. Can be a RegExp, a string, or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
@@ -133,7 +133,7 @@ Autoload can be customized using the following options:
   ```
 
 
-#### `ignoreFilter` (optional) - Filter matching any path that should not be loaded. Can be a RegExp, a string ,or a function returning a boolean.
+### `ignoreFilter` (optional) - Filter matching any path that should not be loaded. Can be a RegExp, a string ,or a function returning a boolean.
 
   ```js
   fastify.register(autoLoad, {
@@ -143,7 +143,7 @@ Autoload can be customized using the following options:
   ```
 
 
-#### `ignorePattern` (optional) - RegExp matching any file or folder that should not be loaded.
+### `ignorePattern` (optional) - RegExp matching any file or folder that should not be loaded.
 
   ```js
   fastify.register(autoLoad, {
@@ -153,7 +153,7 @@ Autoload can be customized using the following options:
   ```
 
 
-#### `scriptPattern` (optional) - Regex to override the script files accepted by default. You should only use this option
+### `scriptPattern` (optional) - Regex to override the script files accepted by default. You should only use this option
 with a [customization hooks](https://nodejs.org/docs/latest/api/module.html#customization-hooks)
 provider, such as `ts-node`. Otherwise, widening the acceptance extension here will result in an error.
 
@@ -165,7 +165,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `indexPattern` (optional) - Regex to override the `index.js` naming convention
+### `indexPattern` (optional) - Regex to override the `index.js` naming convention
 
   ```js
   fastify.register(autoLoad, {
@@ -174,7 +174,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `maxDepth` (optional) - Limits the depth at which nested plugins are loaded
+### `maxDepth` (optional) - Limits the depth at which nested plugins are loaded
 
   ```js
   fastify.register(autoLoad, {
@@ -183,7 +183,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `forceESM` (optional) - If set to 'true' it always use `await import` to load plugins or hooks.
+### `forceESM` (optional) - If set to 'true' it always use `await import` to load plugins or hooks.
 
   ```js
   fastify.register(autoLoad, {
@@ -191,7 +191,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
     forceESM: true
   })
   ```
-#### `encapsulate` (optional) - Defaults to 'true', if set to 'false' each plugin loaded is wrapped with [fastify-plugin](https://github.com/fastify/fastify-plugin). This allows you to share contexts between plugins and the parent context if needed. For example, if you need to share decorators. Read [this](https://github.com/fastify/fastify/blob/main/docs/Reference/Encapsulation.md#sharing-between-contexts) for more details.
+### `encapsulate` (optional) - Defaults to 'true', if set to 'false' each plugin loaded is wrapped with [fastify-plugin](https://github.com/fastify/fastify-plugin). This allows you to share contexts between plugins and the parent context if needed. For example, if you need to share decorators. Read [this](https://github.com/fastify/fastify/blob/main/docs/Reference/Encapsulation.md#sharing-between-contexts) for more details.
 
   ```js
   fastify.register(autoLoad, {
@@ -200,7 +200,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `options` (optional) - Global options object used for all registered plugins
+### `options` (optional) - Global options object used for all registered plugins
 
   Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.
 
@@ -234,7 +234,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   // routes can now be added to /defaultPrefix/something
   ```
 
-#### `autoHooks` (optional) - Apply hooks from `autohooks.js` file(s) to plugins found in folder
+### `autoHooks` (optional) - Apply hooks from `autohooks.js` file(s) to plugins found in folder
 
   Automatic hooks from `autohooks` files will be encapsulated with plugins. If `false`, all `autohooks.js` files will be ignored.
 
@@ -248,7 +248,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   If `autoHooks` is set, all plugins in the folder will be [encapsulated](https://github.com/fastify/fastify/blob/main/docs/Reference/Encapsulation.md)
   and decorated values _will not be exported_ outside the folder.
 
-#### `autoHooksPattern` (optional) - Regex to override the `autohooks` naming convention
+### `autoHooksPattern` (optional) - Regex to override the `autohooks` naming convention
 
   ```js
   fastify.register(autoLoad, {
@@ -258,7 +258,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `cascadeHooks` (optional) - If using `autoHooks`, cascade hooks to all children. Ignored if `autoHooks` is `false`.
+### `cascadeHooks` (optional) - If using `autoHooks`, cascade hooks to all children. Ignored if `autoHooks` is `false`.
 
   Default behavior of `autoHooks` is to apply hooks only to the level on which the `autohooks.js` file is found. Setting `cascadeHooks: true` will continue applying the hooks to any children.
 
@@ -270,7 +270,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `overwriteHooks` (optional) - If using `cascadeHooks`, cascade will be reset when a new `autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
+### `overwriteHooks` (optional) - If using `cascadeHooks`, cascade will be reset when a new `autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
 
   Default behavior of `cascadeHooks` is to accumulate hooks as new `autohooks.js` files are discovered and cascade to children. Setting `overwriteHooks: true` will start a new hook cascade when new `autohooks.js` files are encountered.
 
@@ -283,7 +283,7 @@ provider, such as `ts-node`. Otherwise, widening the acceptance extension here w
   })
   ```
 
-#### `routeParams` (optional) - Folders prefixed with `_` will be turned into dynamic route parameters.
+### `routeParams` (optional) - Folders prefixed with `_` will be turned into dynamic route parameters.
 
   If you want to use mixed route parameters use a double underscore `__`.
 
@@ -335,7 +335,7 @@ FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --loader=my-custom-loader index.ts
 
 Each plugin can be individually configured using the following module properties:
 
-#### `plugin.autoConfig` - Specifies the options to be used as the `opts` parameter.
+### `plugin.autoConfig` - Specifies the options to be used as the `opts` parameter.
 
   ```js
   module.exports = function (fastify, opts, next) {
@@ -375,7 +375,7 @@ Each plugin can be individually configured using the following module properties
   autoConfig.prefix = '/hello'
   ```
 
-#### `plugin.autoPrefix` - Set routing prefix for plugin
+### `plugin.autoPrefix` - Set routing prefix for plugin
 
   ```js
   module.exports = function (fastify, opts, next) {
@@ -404,7 +404,7 @@ Each plugin can be individually configured using the following module properties
   ```
 
 
-#### `plugin.prefixOverride` - Override all other prefix options
+### `plugin.prefixOverride` - Override all other prefix options
 
   ```js
   // index.js
@@ -453,7 +453,7 @@ Each plugin can be individually configured using the following module properties
   // routes can now be added without a prefix
   ```
 
-#### `plugin.autoload` - Toggle whether the plugin should be loaded
+### `plugin.autoload` - Toggle whether the plugin should be loaded
 
   Example:
 
@@ -466,9 +466,9 @@ Each plugin can be individually configured using the following module properties
   module.exports.autoload = false
   ```
 
-#### `opts.name` - Set name of plugin so that it can be referenced as a dependency
+### `opts.name` - Set name of plugin so that it can be referenced as a dependency
 
-#### `opts.dependencies` - Set plugin dependencies to ensure correct load order
+### `opts.dependencies` - Set plugin dependencies to ensure correct load order
 
   Example:
 
