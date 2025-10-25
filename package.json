@@ -77,7 +77,7 @@
   "devDependencies": {
     "@fastify/url-data": "^6.0.0",
     "@jsumners/line-reporter": "^1.0.1",
-    "@swc-node/register": "1.9.1",
+    "@swc-node/register": "1.11.1",
     "@swc/core": "1.6.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.8",

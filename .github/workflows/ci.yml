@@ -56,7 +56,7 @@ jobs:
         run: deno run typescript:deno
   
   test:
-    needs: [bun, deno]
+    # needs: [bun, deno]
     permissions:
       contents: write
       pull-requests: write
