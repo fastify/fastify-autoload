@@ -4,7 +4,8 @@ const { exec } = require('node:child_process')
 
 const args = [
   'node',
-  '--require=@swc-node/register',
+  '-r',
+  '@swc-node/register',
   'test/typescript/basic.ts'
 ]
 
