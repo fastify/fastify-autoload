@@ -81,8 +81,8 @@
     "@swc/core": "1.13.20",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.8",
-    "borp": "^0.20.0",
-    "esbuild": "^0.25.0",
+    "borp": "^0.21.0",
+    "esbuild": "^0.27.0",
     "esbuild-register": "^3.5.0",
     "eslint": "^9.17.0",
     "fastify": "^5.0.0",
@@ -98,7 +98,7 @@
     "tsx": "^4.15.7",
     "typescript": "5.5",
     "vite": "^7.0.0",
-    "vitest": "^4.0.3"
+    "vitest": "^4.0.6"
   },
   "jest": {
     "preset": "ts-jest",
