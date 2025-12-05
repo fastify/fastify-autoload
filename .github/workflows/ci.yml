@@ -23,6 +23,40 @@ permissions:
   contents: read
 
 jobs:
+  bun:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run unit tests
+        run: bun run typescript:bun
+
+  deno:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          
+      - name: Setup Deno
+        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run unit tests
+        run: deno run typescript:deno
+  
   test:
     permissions:
       contents: write
