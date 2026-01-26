@@ -5,7 +5,9 @@ describe('integration test', function () {
     'integration with %s',
     async function (instance) {
       await new Promise(function (resolve) {
-        const child = exec(`${instance} "${process.cwd()}/test/typescript-jest/integration/instance.ts"`)
+        const child = exec(
+          `npx ${instance} --compiler-options '{"module": "commonjs", "moduleResolution": "node", "esModuleInterop": true }' "${process.cwd()}/test/typescript-jest/integration/instance.ts"`
+        )
         let stderr = ''
         child.stderr?.on('data', function (b) {
           stderr = stderr + b.toString()
