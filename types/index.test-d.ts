@@ -1,9 +1,11 @@
 import fastify, { FastifyInstance, FastifyPluginCallback } from 'fastify'
 import { expectType } from 'tsd'
+// eslint-disable-next-line import-x/no-duplicates
 import * as fastifyAutoloadStar from '..'
 import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '..'
 
-import fastifyAutoloadCjsImport = require('..')
+// eslint-disable-next-line import-x/no-duplicates
+import * as fastifyAutoloadCjsImport from '..'
 const fastifyAutoloadCjs = require('..')
 
 const app: FastifyInstance = fastify()

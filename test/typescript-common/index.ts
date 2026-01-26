@@ -1,40 +1,33 @@
-'use script'
+'use strict'
 
-const { test: t } = require('node:test')
+const { test: testRunner } = require('node:test')
+const assert = require('node:assert/strict')
 const fastify = require('fastify')
-
 const basicApp = require('./basic/app.ts')
 
-t.plan(5)
+testRunner('integration test with fastify autoload', async (t: any) => {
+  const app = fastify()
+  app.register(basicApp)
 
-const app = fastify()
+  await app.ready()
 
-app.register(basicApp)
-
-app.ready(async function (err) {
-  t.error(err)
-
-  await app
-    .inject({
+  await t.test('should return javascript data', async () => {
+    const res = await app.inject({
       url: '/javascript',
     })
-    .then(function (res: any) {
-      t.equal(res.statusCode, 200)
-      t.same(JSON.parse(res.payload), { script: 'java' })
-    })
-    .catch((err) => {
-      t.error(err)
-    })
 
-  await app
-    .inject({
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'java' })
+  })
+
+  await t.test('should return typescript data', async () => {
+    const res = await app.inject({
       url: '/typescript',
     })
-    .then(function (res: any) {
-      t.equal(res.statusCode, 200)
-      t.same(JSON.parse(res.payload), { script: 'type' })
-    })
-    .catch((err) => {
-      t.error(err)
-    })
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { script: 'type' })
+  })
+
+  await app.close()
 })
