@@ -81,7 +81,7 @@
     "@swc/core": "1.15.11",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.3",
-    "borp": "^0.21.0",
+    "borp": "^1.0.0",
     "esbuild": "^0.27.0",
     "esbuild-register": "^3.5.0",
     "eslint": "^9.17.0",
