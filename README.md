@@ -295,7 +295,7 @@ fastify.register(autoLoad, {
 })
 ```
 
-### `overwriteHooks` (optional) 
+### `overwriteHooks` (optional)
 
 If using `cascadeHooks`, cascade will be reset when a new `autohooks.js` file is encountered. Ignored if `autoHooks` is `false`.
 
@@ -310,7 +310,7 @@ fastify.register(autoLoad, {
 })
 ```
 
-### `routeParams` (optional) 
+### `routeParams` (optional)
 
 Folders prefixed with `_` will be turned into dynamic route parameters. If you want to use mixed route parameters use a double underscore `__`.
 
