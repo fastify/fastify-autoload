@@ -78,7 +78,7 @@
     "@fastify/url-data": "^6.0.0",
     "@jsumners/line-reporter": "^1.0.1",
     "@swc-node/register": "1.11.1",
-    "@swc/core": "1.15.11",
+    "@swc/core": "1.15.17",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.3",
     "borp": "^1.0.0",
