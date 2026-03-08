@@ -135,6 +135,10 @@ function registerNode (node, fastify) {
   if (node.hooks.length === 0) {
     registerAllPlugins(fastify, node)
   } else {
+    const hooksPrefix = findCommonHooksPrefix(node)
+    const scopedPluginsMeta = hooksPrefix ? buildScopedPluginsMeta(node.pluginsMeta, hooksPrefix) : node.pluginsMeta
+    const scopedNode = hooksPrefix ? { ...node, pluginsMeta: scopedPluginsMeta } : node
+
     const composedPlugin = async function (app) {
       // find hook functions for this prefix
       for (const hookFile of node.hooks) {
@@ -143,10 +147,68 @@ function registerNode (node, fastify) {
         app.register(hookPlugin)
       }
 
-      registerAllPlugins(app, node)
+      registerAllPlugins(app, scopedNode)
     }
-    fastify.register(composedPlugin)
+
+    if (hooksPrefix) {
+      fastify.register(composedPlugin, { prefix: hooksPrefix })
+    } else {
+      fastify.register(composedPlugin)
+    }
   }
+}
+
+function findCommonHooksPrefix (node) {
+  const prefixes = Object.values(node.pluginsMeta)
+    .map((meta) => meta?.options?.prefix)
+    .filter((prefix) => typeof prefix === 'string' && prefix.length > 0)
+
+  if (prefixes.length === 0) {
+    return
+  }
+
+  const [first] = prefixes
+  if (prefixes.every((prefix) => prefix === first)) {
+    return first
+  }
+}
+
+function buildScopedPluginsMeta (pluginsMeta, hooksPrefix) {
+  const scopedPluginsMeta = {}
+
+  for (const [name, meta] of Object.entries(pluginsMeta)) {
+    const options = meta?.options
+    if (typeof options?.prefix === 'string') {
+      const strippedPrefix = stripPrefix(options.prefix, hooksPrefix)
+      scopedPluginsMeta[name] = {
+        ...meta,
+        options: {
+          ...options,
+          /* c8 ignore next */
+          ...(strippedPrefix ? { prefix: strippedPrefix } : { prefix: undefined })
+        },
+        registered: false
+      }
+    } else {
+      scopedPluginsMeta[name] = {
+        ...meta,
+        registered: false
+      }
+    }
+  }
+
+  return scopedPluginsMeta
+}
+
+function stripPrefix (prefix, parentPrefix) {
+  /* c8 ignore next 3 */
+  if (!prefix.startsWith(parentPrefix)) {
+    return prefix
+  }
+
+  const stripped = prefix.slice(parentPrefix.length)
+  /* c8 ignore next */
+  return stripped === '' ? undefined : stripped
 }
 
 function registerAllPlugins (app, node) {
