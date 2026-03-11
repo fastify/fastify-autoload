@@ -127,6 +127,17 @@ fastify.register(autoLoad, {
 })
 ```
 
+### `appendAutoPrefix` (optional) - Default: `false`
+
+When `true`, `plugin.autoPrefix` is appended to the directory-derived prefix (from `dirNameRoutePrefix`) instead of replacing it.
+
+```js
+fastify.register(autoLoad, {
+  dir: path.join(__dirname, 'routes'),
+  appendAutoPrefix: true
+})
+```
+
 ### `matchFilter` (optional)
 
 Filter matching any path that should be loaded. Can be a RegExp, a string, or a function returning a boolean.
@@ -224,6 +235,8 @@ Global options object used for all registered plugins.
 Any option specified here will override `plugin.autoConfig` options specified in the plugin itself.
 
 When setting both `options.prefix` and `plugin.autoPrefix` they will be concatenated.
+
+By default, `plugin.autoPrefix` replaces directory-derived prefixes. Set `appendAutoPrefix: true` to keep directory prefixes and append `plugin.autoPrefix` after them.
 
 ```js
 // index.js
@@ -408,6 +421,8 @@ autoConfig.prefix = '/hello'
 ### `plugin.autoPrefix`
 
 Set routing prefix for plugin.
+
+`plugin.autoPrefix` overrides directory-derived prefixes by default. Use the global `appendAutoPrefix` option to append `plugin.autoPrefix` to directory prefixes instead.
 
 ```js
 module.exports = function (fastify, opts, next) {
