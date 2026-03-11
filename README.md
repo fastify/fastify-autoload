@@ -129,7 +129,30 @@ fastify.register(autoLoad, {
 
 ### `appendAutoPrefix` (optional) - Default: `false`
 
-When `true`, `plugin.autoPrefix` is appended to the directory-derived prefix (from `dirNameRoutePrefix`) instead of replacing it.
+Controls how `autoPrefix` from a plugin file is combined with the directory-derived prefix.
+
+- `false` (default): `autoPrefix` replaces the directory-derived prefix for that plugin.
+- `true`: the directory-derived prefix is kept, and `autoPrefix` is appended after it.
+
+Example directory:
+
+```text
+routes/
+  children/
+    new-routes.js   // exports autoPrefix = '/batch'
+```
+
+With default behavior (`appendAutoPrefix: false`), the route is loaded as:
+
+```text
+/your-parent-prefix/batch/entity
+```
+
+With `appendAutoPrefix: true`, the route is loaded as:
+
+```text
+/your-parent-prefix/children/batch/entity
+```
 
 ```js
 fastify.register(autoLoad, {
