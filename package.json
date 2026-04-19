@@ -17,7 +17,6 @@
     "typescript:swc-node-register": "node scripts/unit-typescript-swc-node-register.js",
     "typescript:tsm": "node scripts/unit-typescript-tsm.js",
     "typescript:tsx": "node scripts/unit-typescript-tsx.js",
-    "typescript:tsimp": "node scripts/unit-typescript-tsimp.js",
     "typescript:esbuild": "node scripts/unit-typescript-esbuild.js",
     "typescript:native": "node scripts/unit-typescript-native-type-stripping.js",
     "typescript:vitest": "vitest run",
@@ -89,14 +88,13 @@
     "fastify-plugin": "^5.0.0",
     "jest": "^30.0.3",
     "neostandard": "^0.13.0",
-    "ts-jest": "^29.1.4",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsd": "^0.33.0",
-    "tsimp": "^2.0.11",
     "tsm": "^2.3.0",
-    "tsx": "^4.15.7",
-    "typescript": "~5.9.3",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.2",
     "vite": "^8.0.3",
     "vitest": "^4.0.6"
   },
@@ -112,7 +110,11 @@
         "ts-jest",
         {
           "tsconfig": {
-            "esModuleInterop": true
+            "esModuleInterop": true,
+            "types": [
+              "jest",
+              "node"
+            ]
           }
         }
       ]
