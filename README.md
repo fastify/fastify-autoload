@@ -359,6 +359,26 @@ It can be used like this:
 FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --loader=my-custom-loader index.ts
 ```
 
+### Vitest mocking with TypeScript and ESM
+
+When testing an application that uses Vitest, TypeScript, and ESM, Vitest may externalize `@fastify/autoload` because it is loaded from `node_modules`. In that case, dynamic `import()` calls made by Autoload run through Node.js instead of Vite, which can prevent Vitest mocks from applying to autoloaded routes or plugins.
+
+Inline `@fastify/autoload` in your Vitest configuration so Vite transforms Autoload together with the rest of your application code:
+
+```ts
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    server: {
+      deps: {
+        inline: ['@fastify/autoload']
+      }
+    }
+  }
+})
+```
+
 ## Plugin Configuration
 
 Each plugin can be individually configured using the following module properties:
