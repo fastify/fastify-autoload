@@ -1,11 +1,9 @@
 import fastify, { FastifyInstance, FastifyPluginCallback } from 'fastify'
-import { expectType } from 'tsd'
-// eslint-disable-next-line import-x/no-duplicates
-import * as fastifyAutoloadStar from '..'
-import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '..'
+import { expect } from 'tstyche'
+import * as fastifyAutoloadStar from '.'
+import fastifyAutoloadDefault, { AutoloadPluginOptions, fastifyAutoload as fastifyAutoloadNamed } from '.'
+import * as fastifyAutoloadCjsImport from '.'
 
-// eslint-disable-next-line import-x/no-duplicates
-import * as fastifyAutoloadCjsImport from '..'
 const fastifyAutoloadCjs = require('..')
 
 const app: FastifyInstance = fastify()
@@ -17,13 +15,13 @@ app.register(fastifyAutoloadCjsImport.fastifyAutoload, { dir: 'test' })
 app.register(fastifyAutoloadStar.default, { dir: 'test' })
 app.register(fastifyAutoloadStar.fastifyAutoload, { dir: 'test' })
 
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadNamed)
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadDefault)
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.default)
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadCjsImport.fastifyAutoload)
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.default)
-expectType<FastifyPluginCallback<AutoloadPluginOptions>>(fastifyAutoloadStar.fastifyAutoload)
-expectType<any>(fastifyAutoloadCjs)
+expect(fastifyAutoloadNamed).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadDefault).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadCjsImport.default).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadCjsImport.fastifyAutoload).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadStar.default).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadStar.fastifyAutoload).type.toBe<FastifyPluginCallback<AutoloadPluginOptions>>()
+expect(fastifyAutoloadCjs).type.toBe<any>()
 
 const opt1: AutoloadPluginOptions = {
   dir: 'test'
@@ -89,3 +87,8 @@ app.register(fastifyAutoloadDefault, opt8)
 app.register(fastifyAutoloadDefault, opt9)
 app.register(fastifyAutoloadDefault, opt10)
 app.register(fastifyAutoloadDefault, opt11)
+
+expect(app.register).type.not.toBeCallableWith(fastifyAutoloadDefault, {
+  dir: 'test',
+  invalidOption: true
+})
