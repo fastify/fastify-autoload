@@ -1,6 +1,6 @@
 {
   "name": "@fastify/autoload",
-  "version": "6.3.1",
+  "version": "6.4.0",
   "description": "Require all plugins in a directory",
   "main": "index.js",
   "type": "commonjs",
@@ -42,7 +42,7 @@
   "contributors": [
     {
       "name": "Tomas Della Vedova",
-      "url": "http://delved.org"
+      "url": "https://delvedor.dev"
     },
     {
       "name": "Manuel Spigolon",
@@ -79,13 +79,13 @@
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.40",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.0.3",
+    "@types/node": "^26.0.0",
     "borp": "^1.0.0",
     "esbuild": "^0.28.0",
     "esbuild-register": "^3.5.0",
     "eslint": "^9.17.0",
     "fastify": "^5.0.0",
-    "fastify-plugin": "^5.0.0",
+    "fastify-plugin": "^6.0.0",
     "jest": "^30.0.3",
     "neostandard": "^0.13.0",
     "ts-jest": "^29.4.9",
