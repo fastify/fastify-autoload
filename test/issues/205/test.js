@@ -7,8 +7,9 @@ const Fastify = require('fastify')
 const autoLoad = require('../../../')
 
 describe('Issue 205: append autoPrefix to directory prefixes without breaking defaults', function () {
-  it('keeps autoPrefix overriding directory prefixes by default', async function () {
+  it('should keep autoPrefix overriding directory prefixes by default', async function (t) {
     const app = Fastify()
+    t.after(() => app.close())
 
     app.register(autoLoad, {
       dir: path.join(__dirname, 'routes'),
@@ -16,20 +17,17 @@ describe('Issue 205: append autoPrefix to directory prefixes without breaking de
     })
     await app.ready()
 
-    try {
-      const overridden = await app.inject({ method: 'GET', url: '/hooked-plugin/batch/entity' })
-      assert.strictEqual(overridden.statusCode, 200)
-      assert.deepStrictEqual(overridden.json(), { ok: true })
+    const overridden = await app.inject({ method: 'GET', url: '/hooked-plugin/batch/entity' })
+    assert.strictEqual(overridden.statusCode, 200)
+    assert.deepStrictEqual(overridden.json(), { ok: true })
 
-      const appended = await app.inject({ method: 'GET', url: '/hooked-plugin/children/batch/entity' })
-      assert.strictEqual(appended.statusCode, 404)
-    } finally {
-      await app.close()
-    }
+    const appended = await app.inject({ method: 'GET', url: '/hooked-plugin/children/batch/entity' })
+    assert.strictEqual(appended.statusCode, 404)
   })
 
-  it('concatenates directory prefixes before plugin autoPrefix when enabled', async function () {
+  it('should concatenate directory prefixes before plugin autoPrefix when appendAutoPrefix is true', async function (t) {
     const app = Fastify()
+    t.after(() => app.close())
 
     app.register(autoLoad, {
       dir: path.join(__dirname, 'routes'),
@@ -38,15 +36,11 @@ describe('Issue 205: append autoPrefix to directory prefixes without breaking de
     })
     await app.ready()
 
-    try {
-      const appended = await app.inject({ method: 'GET', url: '/hooked-plugin/children/batch/entity' })
-      assert.strictEqual(appended.statusCode, 200)
-      assert.deepStrictEqual(appended.json(), { ok: true })
+    const appended = await app.inject({ method: 'GET', url: '/hooked-plugin/children/batch/entity' })
+    assert.strictEqual(appended.statusCode, 200)
+    assert.deepStrictEqual(appended.json(), { ok: true })
 
-      const overridden = await app.inject({ method: 'GET', url: '/hooked-plugin/batch/entity' })
-      assert.strictEqual(overridden.statusCode, 404)
-    } finally {
-      await app.close()
-    }
+    const overridden = await app.inject({ method: 'GET', url: '/hooked-plugin/batch/entity' })
+    assert.strictEqual(overridden.statusCode, 404)
   })
 })
