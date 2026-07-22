@@ -159,8 +159,8 @@ function registerNode (node, fastify) {
 }
 
 function findCommonHooksPrefix (node) {
-  const prefixes = Object.values(node.pluginsMeta)
-    .map((meta) => meta?.options?.prefix)
+  const prefixes = node.plugins
+    .map((plugin) => node.pluginsMeta[plugin.file]?.options?.prefix)
     .filter((prefix) => typeof prefix === 'string' && prefix.length > 0)
 
   if (prefixes.length === 0) {
