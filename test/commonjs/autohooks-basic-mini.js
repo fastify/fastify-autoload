@@ -8,7 +8,7 @@ describe('Node test suite for autohooks-basic', function () {
   const app = Fastify()
   before(async function () {
     app.register(require('./autohooks/basic-mini'))
-    app.decorateRequest('hooked', "")
+    app.decorateRequest('hooked', '')
     await app.ready()
   })
 
@@ -27,6 +27,6 @@ describe('Node test suite for autohooks-basic', function () {
     const res = await app.inject({ url: '/child' })
 
     assert.strictEqual(res.statusCode, 200)
-    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: "" })
+    assert.deepStrictEqual(JSON.parse(res.payload), { hooked: '' })
   })
 })
