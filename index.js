@@ -11,7 +11,8 @@ const defaults = {
   indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
   autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
   dirNameRoutePrefix: true,
-  encapsulate: true
+  encapsulate: true,
+  appendAutoPrefix: false
 }
 
 const fastifyAutoload = async function autoload (fastify, options) {
@@ -101,7 +102,7 @@ async function loadPlugin ({ file, type, directoryPrefix, options, log }) {
     plugin.autoConfig = undefined
   }
 
-  handlePrefixConfig({ plugin, pluginOptions, content, directoryPrefix })
+  handlePrefixConfig({ plugin, pluginOptions, content, directoryPrefix, appendAutoPrefix: options.appendAutoPrefix })
 
   return {
     plugin,
@@ -258,16 +259,18 @@ function loadPluginOptions (content, overrideConfig) {
   return { ...pluginConfig, ...overrideConfig }
 }
 
-function handlePrefixConfig ({ plugin, pluginOptions, content, directoryPrefix }) {
+function handlePrefixConfig ({ plugin, pluginOptions, content, directoryPrefix, appendAutoPrefix }) {
   if (pluginOptions.prefix?.endsWith('/')) {
     pluginOptions.prefix = pluginOptions.prefix.slice(0, -1)
   }
 
+  const autoPrefix = plugin.autoPrefix ?? content.autoPrefix
+
   let prefix
-  if (plugin.autoPrefix !== undefined) {
-    prefix = plugin.autoPrefix
-  } else if (content.autoPrefix !== undefined) {
-    prefix = content.autoPrefix
+  if (appendAutoPrefix && autoPrefix !== undefined && directoryPrefix) {
+    prefix = `${directoryPrefix}/${autoPrefix}`
+  } else if (autoPrefix !== undefined) {
+    prefix = autoPrefix
   } else {
     prefix = directoryPrefix
   }

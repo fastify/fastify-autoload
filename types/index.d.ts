@@ -9,6 +9,7 @@ declare namespace fastifyAutoload {
   export interface AutoloadPluginOptions {
     dir: string
     dirNameRoutePrefix?: boolean | RewritePrefix
+    appendAutoPrefix?: boolean
     ignoreFilter?: Filter
     matchFilter?: Filter
     ignorePattern?: RegExp
