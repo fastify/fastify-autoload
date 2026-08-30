@@ -247,7 +247,7 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   meta.registered = true
 }
 
-function loadPluginOptions (content, overrideConfig) {
+function loadPluginOptions (content, overrideConfig = {}) {
   const pluginConfig = (content.default?.autoConfig) || content.autoConfig || {}
   if (typeof pluginConfig === 'function') {
     const pluginOptions = (fastify) => ({ ...pluginConfig(fastify), ...overrideConfig })
