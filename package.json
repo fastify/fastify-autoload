@@ -108,11 +108,15 @@
     "testMatch": [
       "**/*.test.ts"
     ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!cookie/)"
+    ],
     "transform": {
-      "^.+\\.(ts|tsx)$": [
+      "^.+\\.(ts|tsx|js)$": [
         "ts-jest",
         {
           "tsconfig": {
+            "allowJs": true,
             "esModuleInterop": true,
             "types": [
               "jest",
