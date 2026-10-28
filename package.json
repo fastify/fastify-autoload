@@ -101,28 +101,6 @@
   "overrides": {
     "vitest": "5.0.1"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "rootDir": "./test/typescript-jest",
-    "testMatch": [
-      "**/*.test.ts"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": [
-        "ts-jest",
-        {
-          "tsconfig": {
-            "esModuleInterop": true,
-            "types": [
-              "jest",
-              "node"
-            ]
-          }
-        }
-      ]
-    }
-  },
   "publishConfig": {
     "access": "public"
   }
