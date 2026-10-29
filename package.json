@@ -1,6 +1,6 @@
 {
   "name": "@fastify/autoload",
-  "version": "6.5.0",
+  "version": "6.5.1",
   "description": "Require all plugins in a directory",
   "main": "index.js",
   "type": "commonjs",
@@ -96,29 +96,10 @@
     "tsx": "^4.21.0",
     "typescript": "~6.0.2",
     "vite": "^8.0.3",
-    "vitest": "^4.0.6"
+    "vitest": "5.0.1"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "rootDir": "./test/typescript-jest",
-    "testMatch": [
-      "**/*.test.ts"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": [
-        "ts-jest",
-        {
-          "tsconfig": {
-            "esModuleInterop": true,
-            "types": [
-              "jest",
-              "node"
-            ]
-          }
-        }
-      ]
-    }
+  "overrides": {
+    "vitest": "5.0.1"
   },
   "publishConfig": {
     "access": "public"
