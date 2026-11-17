@@ -572,6 +572,13 @@ module.exports = fp(plugin, {
 })
 ```
 
+When [`autoHooks`](#autohooks) is enabled, a plugin cannot depend on a plugin
+located in a directory with different autohooks. A dependency is registered in
+the context of the plugin that requires it, so it would run without its own
+directory's hooks. Autoload throws at startup instead. Dependencies between
+plugins in the same directory, or in directories that share the same autohooks
+(for example through [`cascadeHooks`](#autohooks)), are not affected.
+
 ## Autohooks:
 
 The autohooks functionality provides several options for automatically adding hooks, decorators, etc. to your routes. CJS and ESM `autohook` formats are supported.

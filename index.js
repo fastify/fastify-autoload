@@ -42,6 +42,7 @@ async function loadPlugins ({ pluginTree, options, opts, fastify }) {
             if (options.routeParams && plugin.options.prefix) {
               plugin.options.prefix = replaceRouteParamPattern(plugin.options.prefix)
             }
+            plugin.hooks = node.hooks.map((hook) => hook.file)
             node.pluginsMeta[plugin.name] = plugin
           }
         })
@@ -222,6 +223,19 @@ function registerAllPlugins (app, node) {
   }
 }
 
+function assertDependencyInHooksScope (meta, dependency) {
+  // A dependency is registered in the context of the plugin that requires it,
+  // so it only runs with the requester's autohooks. If its own directory has
+  // different autohooks, fail at startup instead of skipping them.
+  if (dependency.hooks.length > 0 && !sameHooks(meta.hooks, dependency.hooks)) {
+    throw new Error(`@fastify/autoload: plugin '${meta.name}' depends on '${dependency.name}', which is located in a directory with different autohooks. Registering it as a dependency would skip its autohooks. Move both plugins into directories with the same autohooks, or remove the dependency.`)
+  }
+}
+
+function sameHooks (a, b) {
+  return a.length === b.length && a.every((hook, i) => hook === b[i])
+}
+
 function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   const { plugin, name, options, dependencies = [] } = meta
 
@@ -236,6 +250,7 @@ function registerPlugin (fastify, meta, allPlugins, parentPlugins = {}) {
   parentPlugins[name] = true
   for (const name of dependencies) {
     if (allPlugins[name]) {
+      assertDependencyInHooksScope(meta, allPlugins[name])
       // we create a shallow copy of parentPlugins so we can load once the ones that are
       // on two different dependency chains
       registerPlugin(fastify, allPlugins[name], allPlugins, { ...parentPlugins })
