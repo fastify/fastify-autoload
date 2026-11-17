@@ -11,6 +11,7 @@ const defaults = {
   indexPattern: /^index(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
   autoHooksPattern: /^[_.]?auto_?hooks(?:\.ts|\.js|\.cjs|\.mjs|\.cts|\.mts)$/iu,
   dirNameRoutePrefix: true,
+  fileNameRoutePrefix: false,
   encapsulate: true,
   appendAutoPrefix: false
 }

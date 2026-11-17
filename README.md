@@ -127,6 +127,30 @@ fastify.register(autoLoad, {
 })
 ```
 
+### `fileNameRoutePrefix` (optional) - Default: `false`
+
+Determines whether routes will be automatically prefixed with their filename (excluding script extension) in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the filename prefix for the file. Note that index files matching `indexPattern` are treated as directory roots and are not prefixed by their filename.
+
+```js
+fastify.register(autoLoad, {
+  dir: path.join(__dirname, 'routes'),
+  fileNameRoutePrefix: true
+})
+
+fastify.register(autoLoad, {
+  dir: path.join(__dirname, 'routes'),
+  fileNameRoutePrefix: function rewrite (folderParent, fileName) {
+    if (fileName === 'user-detail') {
+      return 'user'
+    }
+    if (fileName === 'internal') {
+      return false
+    }
+    return fileName
+  }
+})
+```
+
 ### `appendAutoPrefix` (optional) - Default: `false`
 
 Controls how `autoPrefix` from a plugin file is combined with the directory-derived prefix.

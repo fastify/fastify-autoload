@@ -76,6 +76,14 @@ const opt11: AutoloadPluginOptions = {
   ignoreFilter: (path) => path.endsWith('.spec.ts'),
   matchFilter: (path) => path.split('/').at(-2) === 'handlers'
 }
+const opt12: AutoloadPluginOptions = {
+  dir: 'test',
+  fileNameRoutePrefix: true
+}
+const opt13: AutoloadPluginOptions = {
+  dir: 'test',
+  fileNameRoutePrefix: (folderParent, fileName) => fileName
+}
 app.register(fastifyAutoloadDefault, opt1)
 app.register(fastifyAutoloadDefault, opt2)
 app.register(fastifyAutoloadDefault, opt3)
@@ -87,6 +95,8 @@ app.register(fastifyAutoloadDefault, opt8)
 app.register(fastifyAutoloadDefault, opt9)
 app.register(fastifyAutoloadDefault, opt10)
 app.register(fastifyAutoloadDefault, opt11)
+app.register(fastifyAutoloadDefault, opt12)
+app.register(fastifyAutoloadDefault, opt13)
 
 expect(app.register).type.not.toBeCallableWith(fastifyAutoloadDefault, {
   dir: 'test',
