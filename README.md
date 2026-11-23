@@ -105,7 +105,7 @@ The following script types are supported:
 
 ### `dirNameRoutePrefix` (optional) - Default: `true`
 
-Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, or it must return `false` to skip the prefix for the directory.
+Determines whether routes will be automatically prefixed with the subdirectory name in an autoloaded directory. It can be a sync function that must return a string that will be used as prefix, `true` to keep the default directory name, or `false` to skip the prefix for the directory.
 
 ```js
 fastify.register(autoLoad, {
@@ -122,7 +122,7 @@ fastify.register(autoLoad, {
     if (folderName === 'FoOoO-BaAaR') {
       return false
     }
-    return folderName
+    return true // keep default directory prefix
   }
 })
 ```

@@ -28,7 +28,7 @@ module.exports = function (fastify, opts, next) {
         case 'three':
           return 'tre'
         case 'empty':
-          return folderName
+          return true
         default:
           throw new Error('unexpected folderName: ' + folderName)
       }
